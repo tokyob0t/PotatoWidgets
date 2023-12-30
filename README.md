@@ -77,6 +77,7 @@ if __name__ == "__main__":
   * [ ] ComboBox
   * [ ] Image
   * [ ] Icon
+  * [ ] Scroll
   * [ ] Potato
 
 * [ ] Use GObject to detect dynamic variables in Widgets Props to update Widgets
