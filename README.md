@@ -2,7 +2,7 @@
 
 #### Wiki Under construction  
 
-#### PotatoWidgets is a Python library or framework designed to simplify interaction with Python and GTK. It focuses on being simple yet powerful, drawing inspiration from AGS and EWW. The syntax is designed to be declarative, providing an intuitive way to define GTK widgets.  
+#### PotatoWidgets is a Python library or framework designed to simplify interaction with Python and GTK. It focuses on being simple yet powerful, drawing inspiration from AGS and EWW. The syntax is designed to be declarative, providing an intuitive way to define GTK widgets  
 
 ### Syntax
 
@@ -61,3 +61,22 @@ if __name__ == "__main__":
 ```
 
 ![img](./img/Preview.png)
+
+##### ToDo
+
+* Add Dynamic variables
+  * [X] Poll      - Timeout + Callback
+  * [ ] Listener  - Callback then await for changes
+* Add more widgets
+  * [X] Label
+  * [X] Button
+  * [X] ToggleButton
+  * [X] Box
+  * [ ] EventBox
+  * [ ] CenterBox
+  * [ ] ComboBox
+  * [ ] Image
+  * [ ] Icon
+* [ ] Use GObject to detect dynamic variables in Widgets Props to update Widgets
+* [ ] Add a CLI utility(?
+* [ ] Help x.x

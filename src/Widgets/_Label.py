@@ -19,7 +19,6 @@ class Label(Gtk.Label, BasicProps):
         vexpand=False,
         visible=True,
         classname="",
-        bind=None,
     ):
         Gtk.Label.__init__(self)
         BasicProps.__init__(
@@ -48,10 +47,8 @@ class Label(Gtk.Label, BasicProps):
 
         self.set_visible(visible)
 
-        self.bind = bind
-
-        if self.bind:
-            self.connect_to_poll()
+        self.bind = text
+        self.connect_to_poll()
 
     def connect_to_poll(self):
         if isinstance(self.bind, Poll):
