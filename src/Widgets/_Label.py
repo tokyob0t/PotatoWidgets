@@ -1,12 +1,12 @@
 from ..__Import import *
-from ..Variable import Poll
+from ..Variable import Listener, Poll
 from ._Common._BasicProps import BasicProps
 
 
 class Label(Gtk.Label, BasicProps):
     def __init__(
         self,
-        text="",
+        text,
         yalign=0.5,
         xalign=0.5,
         angle=0.0,
@@ -48,14 +48,22 @@ class Label(Gtk.Label, BasicProps):
         self.set_visible(visible)
 
         self.bind = text
-        self.connect_to_poll()
+        [
+            self.connect(i)
+            for i in [
+                text,
+                wrap,
+                markup,
+                classname,
+            ]
+        ]
 
-    def connect_to_poll(self):
-        if isinstance(self.bind, Poll):
-            self.bind.value_changed.connect(self.on_bind_value_changed)
+    def connect(self, param):
+        if isinstance(param, (Listener, Poll)):
+            param.connect(self.connect_data)
 
-    def on_bind_value_changed(self, *args):
-        self.set_text(str(self.bind))
+    def classify_data(self, *args):
+        print(args)
 
     def __clasif_halign(self, param):
         dict = {

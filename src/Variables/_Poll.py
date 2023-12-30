@@ -34,4 +34,4 @@ class Poll(GObject.GObject):
         return True
 
     def __str__(self):
-        return str(self.value) if self.value is not None else ""
+        return str(self.value) if self.value != None else ""

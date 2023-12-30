@@ -6,7 +6,7 @@ class Image(Gtk.Image, BasicProps):
     def __init__(
         self,
         path="",
-        size=[20],
+        size=20,
         halign="fill",
         valign="fill",
         visible=True,
@@ -24,4 +24,12 @@ class Image(Gtk.Image, BasicProps):
             classname=classname,
             size=size,
         )
-        self.set_from_file(path)
+
+        if path:
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file(path)
+            pixbuf = pixbuf.scale_simple(
+                size,
+                size,
+                GdkPixbuf.InterpType.BILINEAR,
+            )
+            self.set_from_pixbuf(pixbuf)
