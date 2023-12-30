@@ -4,14 +4,14 @@ from ...__Import import *
 class Events(Gtk.Widget):
     def __init__(
         self,
-        onclick,
-        onmiddleclick,
-        onhover,
-        onhoverlost,
-        primaryhold,
-        primaryrelease,
-        secondaryhold,
-        secondaryrelease,
+        onclick=None,
+        onmiddleclick=None,
+        onhover=None,
+        onhoverlost=None,
+        primaryhold=None,
+        primaryrelease=None,
+        secondaryhold=None,
+        secondaryrelease=None,
     ):
         super().__init__()
 
@@ -26,6 +26,7 @@ class Events(Gtk.Widget):
             "secondaryrelease": secondaryrelease,
         }
 
+        self.connect("clicked", self.__click_event)
         self.connect("button-press-event", self.__press_event)
         self.connect("button-release-event", self.__release_event)
         self.connect("enter-notify-event", self.__enter_event)
@@ -33,41 +34,49 @@ class Events(Gtk.Widget):
 
     def __click_event(self, _):
         # print("Click")
-        if self.dict.get("onclick"):
-            self.dict["onclick"]()
+        callback = self.dict.get("onclick", None)
+        if callback:
+            callback()
 
     def __press_event(self, _, event):
         if event.button == Gdk.BUTTON_PRIMARY:
             # print("Click PRIMARIO - Clickeado")
-            if self.dict.get("primaryhold"):
-                self.dict["primaryhold"]()
+            callback = self.dict.get("primaryhold", None)
+            if callback:
+                callback()
         elif event.button == Gdk.BUTTON_SECONDARY:
             # print("Click SECUNDARIO - Clickeado")
-            if self.dict.get("secondaryhold"):
-                self.dict["secondaryhold"]()
+            callback = self.dict.get("secondaryhold", None)
+            if callback:
+                callback()
         elif event.button == Gdk.BUTTON_MIDDLE:
             # print("Click MEDIO - Clickeado")
-            if self.dict.get("onmiddleclick"):
-                self.dict["onmiddleclick"]()
+            callback = self.dict.get("onmiddleclick", None)
+            if callback:
+                callback()
 
     def __release_event(self, _, event):
         if event.button == Gdk.BUTTON_PRIMARY:
             # print("Click PRIMARIO - Soltado")
-            if self.dict.get("primaryrelease"):
-                self.dict["primaryrelease"]()
+            callback = self.dict.get("primaryrelease", None)
+            if callback:
+                callback()
         elif event.button == Gdk.BUTTON_SECONDARY:
             # print("Click SECUNDARIO - Soltado")
-            if self.dict.get("secondaryrelease"):
-                self.dict["secondaryrelease"]()
+            callback = self.dict.get("secondaryrelease", None)
+            if callback:
+                callback()
             # elif event.button == Gdk.BUTTON_MIDDLE:
         # print("Click MEDIO - Soltado")
 
     def __enter_event(self, *args):
         # print("Hover")
-        if self.dict.get("onhover"):
-            self.dict["onhover"]()
+        callback = self.dict.get("onhover", None)
+        if callback:
+            callback()
 
     def __leave_event(self, *args):
         # print("Hover lost")
-        if self.dict.get("onhoverlost"):
-            self.dict["onhoverlost"]()
+        callback = self.dict.get("onhoverlost", None)
+        if callback:
+            callback()

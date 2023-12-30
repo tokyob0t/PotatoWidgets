@@ -1,7 +1,7 @@
 from ...__Import import *
 
 
-class BasicProps(Gtk.Widget, Gtk.CssProvider):
+class BasicProps(Gtk.Widget):
     def __init__(
         self,
         halign,
@@ -13,6 +13,7 @@ class BasicProps(Gtk.Widget, Gtk.CssProvider):
         classname,
         size=[10, 10],
     ):
+        super().__init__(self)
         self.set_hexpand(True if hexpand else False)
         self.set_vexpand(True if vexpand else False)
         self.set_halign(self.__clasif_align(halign))
