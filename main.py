@@ -5,9 +5,7 @@ import json
 import subprocess
 from datetime import datetime
 
-import src.Variable as Variable
-import src.Widget as Widget
-from src.__Import import *
+from PotatoWidgets import PotatoLoop, Variable, Widget
 
 if __name__ == "__main__":
     MyFirstWindow = Widget.Window(
@@ -25,4 +23,4 @@ if __name__ == "__main__":
     )
 
     MyFirstWindow.open()
-    Gtk.main()
+    PotatoLoop()
