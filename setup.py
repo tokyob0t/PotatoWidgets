@@ -4,7 +4,7 @@ setup(
     name="PotatoWidgets",
     version="0.0.1",
     packages=find_packages(),
-    install_requires=["gi"],
+    install_requires=["PyGObject"],
     entry_points={
         "console_scripts": [
             "potato_widgets = PotatoWidgets.main:main",
