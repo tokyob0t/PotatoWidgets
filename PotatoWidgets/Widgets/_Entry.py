@@ -5,6 +5,8 @@ from ._Common._BasicProps import BasicProps
 class Entry(Gtk.Entry, BasicProps):
     def __init__(
         self,
+        onchange=None,
+        onenter=None,
         halign="fill",
         valign="fill",
         hexpand=False,
@@ -25,8 +27,13 @@ class Entry(Gtk.Entry, BasicProps):
             classname=classname,
         )
 
-        self._value = ""
-        # self.connect("insert_at_cursor", self.test)
+        self.connect(
+            "changed", lambda _: onchange(self.get_text())
+        ) if onchange else None
+
+        self.connect(
+            "activate", lambda _: onenter(self.get_text())
+        ) if onenter else None
 
     @property
     def value(self):

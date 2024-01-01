@@ -60,7 +60,14 @@ if __name__ == "__main__":
 
 ```
 
-![img](./img/Preview.png)
+![img](./img/Preview.png)  
+  
+#### Installation
+
+```bash
+pip install git+https://github.com/T0kyoB0y/PotatoWidgets.git
+
+```
 
 ##### ToDo
 

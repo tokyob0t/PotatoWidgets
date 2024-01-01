@@ -1,37 +1,35 @@
 from ..__Import import *
+from ._Variable import Variable
 
 
-class Poll(GObject.GObject):
-    value_changed = GObject.Signal()
+class Poll(Variable):
+    def __init__(self, interval, callback, initial_value=None):
+        super().__init__(initial_value)
+        self._interval = interval
+        self._callback = callback
+        self._timeout_id = None
+        self.start_poll()
 
-    def __init__(self, interval, callback):
-        super().__init__()
-        self.interval = interval
-        self.callback = callback
-        self.timer_id = 0
-        self._value = None
-        self.start()
+    def is_polling(self):
+        return bool(self._timeout_id)
 
-    @property
-    def value(self):
-        return self._value
+    def stop_poll(self):
+        if self._timeout_id:
+            GLib.source_remove(self._timeout_id)
+            self._timeout_id = None
+        else:
+            print(f"{self} has no poll running")
 
-    @value.setter
-    def value(self, new_value):
-        self._value = new_value
-        self.value_changed.emit()
+    def start_poll(self):
+        if self.is_polling():
+            print(f"{self} is already polling")
+            return
 
-    def start(self):
-        self.update()
-        self.timer_id = GLib.timeout_add(self.interval, self.update)
+        self._timeout_id = GLib.timeout_add(self._interval, self._poll_callback)
 
-    def stop(self):
-        if self.timer_id:
-            GLib.source_remove(self.timer_id)
-
-    def update(self):
-        self.value = self.callback()
-        return True
+    def _poll_callback(self):
+        self.set_value(self._callback())
+        return GLib.SOURCE_CONTINUE
 
     def __str__(self):
-        return str(self.value) if self.value != None else ""
+        return str(self._value)

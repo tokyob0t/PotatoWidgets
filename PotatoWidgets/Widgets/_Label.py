@@ -1,5 +1,5 @@
 from ..__Import import *
-from ..Variable import Listener, Poll
+from ..Variable import Listener, Poll, Variable
 from ._Common._BasicProps import BasicProps
 
 
@@ -31,10 +31,9 @@ class Label(Gtk.Label, BasicProps):
             visible=visible,
             classname=classname,
         )
-
+        self.set_text(str(text))
         self.set_yalign(yalign)
         self.set_xalign(xalign)
-        self.set_text(str(text)) if not markup else self.set_markup(str(text))
         self.set_selectable(False)
         self.set_line_wrap_mode(wrap)
         self.set_angle(angle)
@@ -47,23 +46,25 @@ class Label(Gtk.Label, BasicProps):
 
         self.set_visible(visible)
 
-        self.bind = text
-        [
-            self.connect(i)
-            for i in [
-                text,
-                wrap,
-                markup,
-                classname,
-            ]
-        ]
+        for key, value in locals().items():
+            if key not in [
+                "self",
+                "halign",
+                "valign",
+                "hexpand",
+                "vexpand",
+                "visible",
+                "active",
+                "visible",
+                "classname",
+            ] and isinstance(value, (Listener, Poll, Variable)):
+                if key == "text":
+                    value.connect("valuechanged", lambda x: self.set_text(str(x)))
 
-    def connect(self, param):
-        if isinstance(param, (Listener, Poll)):
-            param.connect(self.connect_data)
-
-    def classify_data(self, *args):
-        print(args)
+                    # value.connect(
+                    #    "valuechanged",
+                    #    lambda x: GLib.idle_add(lambda: self.set_text(str(x))),
+                    # )
 
     def __clasif_halign(self, param):
         dict = {
