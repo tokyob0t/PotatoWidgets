@@ -13,9 +13,9 @@ import subprocess
 
 from datetime import datetime
 
-import src.Variable as Variable
-import src.Widget as Widget
-from src.__Import import *
+from PotatoWidgets import PotatoLoop, Variable, Widget
+
+
 
 if __name__ == "__main__":
 
@@ -38,7 +38,6 @@ if __name__ == "__main__":
                 Widget.Label("Start"),
                 Widget.Label(
                     time,
-                    bind=time,
                     # Horizontal align
                     halign="center",
                     # Horizontal expand
@@ -57,7 +56,8 @@ if __name__ == "__main__":
     )
 
     MyFirstWindow.open()
-    Gtk.main()
+    PotatoLoop()
+
 ```
 
 ![img](./img/Preview.png)
@@ -66,20 +66,25 @@ if __name__ == "__main__":
 
 * Add Dynamic variables
   * [X] Poll      - Timeout + Callback
+  * [X] Variable - GObject Variable that notifies when it's value changes
   * [ ] Listener  - Callback then await for changes
+
 * Add more widgets
   * [X] Label
   * [X] Button
   * [X] ToggleButton
   * [X] Box
+  * [X] SwitchButton
+  * [X] CheckBox
   * [ ] EventBox
   * [ ] CenterBox
   * [ ] ComboBox
-  * [ ] Image
+  * [X] Image
   * [ ] Icon
-  * [ ] Scroll
+  * [X] Scroll
   * [ ] Potato
+  * [ ] Stack
 
-* [ ] Use GObject to detect dynamic variables in Widgets Props to update Widgets
+* [X] Use GObject to detect dynamic variables in Widgets Props to update Widgets
 * [ ] Add a CLI utility(?
 * [ ] Help x.x
