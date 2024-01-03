@@ -145,10 +145,10 @@ class Window(Gtk.Window):
     # super().close(self)
 
     def open(self):
-        super().show(self)
+        self.show()
 
     def close(self):
-        super().hide(self)
+        self.hide()
 
     def toggle(self):
         if self.get_visible():
