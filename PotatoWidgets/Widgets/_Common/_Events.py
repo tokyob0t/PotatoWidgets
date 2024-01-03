@@ -13,7 +13,7 @@ class Events(Gtk.Widget):
         secondaryhold=None,
         secondaryrelease=None,
     ):
-        super().__init__()
+        Gtk.Widget.__init__(self)
 
         self.dict = {
             "onclick": onclick,
@@ -34,14 +34,15 @@ class Events(Gtk.Widget):
 
     def __click_event(self, _):
         callback = self.dict.get("onclick", None)
-        # if callback:
-        #    callback()
+        if callback:
+            callback()
 
     def __press_event(self, _, event):
         if event.button == Gdk.BUTTON_PRIMARY:
             callback = self.dict.get("primaryhold", None)
             if callback:
                 callback()
+                return
         elif event.button == Gdk.BUTTON_SECONDARY:
             callback = self.dict.get("secondaryhold", None)
             if callback:

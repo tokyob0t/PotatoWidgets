@@ -40,7 +40,7 @@ if __name__ == "__main__":
         valign="center",
         spacing=10,
         children=[
-            Widget.Label(date),
+            Widget.Button(onclick=lambda: print("x"), children=Widget.Label(date)),
             Widget.Label(activewindow, hexpand=True),
             Widget.Label(
                 "volume: 0%",
