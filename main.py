@@ -59,6 +59,11 @@ if __name__ == "__main__":
         },
         children=Topbar,
     )
-
+    LauncherWindow = Widget.Window(
+        props={
+            "size": ["500", 400],  # even %
+            "position": "center",
+        }
+    )
     MyFirstWindow.open()
     PotatoLoop()

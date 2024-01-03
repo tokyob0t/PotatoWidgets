@@ -139,10 +139,10 @@ class Window(Gtk.Window):
                     GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.BOTTOM, False)
 
     def open(self):
-        self.show_all()
+        self.show()
 
     def toggle(self):
         if self.get_visible():
             self.hide()
         else:
-            self.show_all()
+            self.show()
