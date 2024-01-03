@@ -34,8 +34,8 @@ class Events(Gtk.Widget):
 
     def __click_event(self, _):
         callback = self.dict.get("onclick", None)
-        if callback:
-            callback()
+        # if callback:
+        #    callback()
 
     def __press_event(self, _, event):
         if event.button == Gdk.BUTTON_PRIMARY:
