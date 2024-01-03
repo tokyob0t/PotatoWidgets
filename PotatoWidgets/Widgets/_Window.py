@@ -140,3 +140,9 @@ class Window(Gtk.Window):
 
     def open(self):
         self.show_all()
+
+    def toggle(self):
+        if self.get_visible():
+            self.hide()
+        else:
+            self.show_all()
