@@ -4,7 +4,7 @@ from ._Variable import Variable
 
 class Poll(Variable):
     def __init__(self, interval, callback, initial_value=None):
-        super().__init__(initial_value)
+        super().__init__(initial_value or callback())
         self._interval = interval
         self._callback = callback
         self._timeout_id = None
@@ -25,7 +25,11 @@ class Poll(Variable):
             print(f"{self} is already polling")
             return
 
-        self._timeout_id = GLib.timeout_add(self._interval, self._poll_callback)
+        self._timeout_id = GLib.timeout_add(
+            priority=GLib.PRIORITY_DEFAULT_IDLE,
+            interval=self._interval,
+            function=self._poll_callback,
+        )
 
     def _poll_callback(self):
         self.set_value(self._callback())

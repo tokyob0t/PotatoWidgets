@@ -1,3 +1,7 @@
+import os
+import threading
+from subprocess import PIPE, run
+
 import gi
 
 gi.require_version("Gtk", "3.0")

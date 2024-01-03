@@ -35,20 +35,24 @@ if __name__ == "__main__":
     date = Variable.Poll(1000, lambda: subprocess.getoutput("date '+%b %d %I:%M:%S'"))
     volume = Variable.Listener(get_volume)
     activewindow = Variable.Listener(hypr)
-    Topbar = Widget.Box(
-        orientation="h",
-        valign="center",
-        spacing=10,
-        children=[
-            Widget.Label(date),
-            Widget.Label(activewindow, hexpand=True),
-            Widget.Label(
-                "volume: 0%",
-                attributes=lambda self: volume.connect(
-                    "valuechanged", lambda x: self.set_text(f"volume: {x}%")
+    Topbar = Widget.EventBox(
+        onhover=lambda: print("Hover"),
+        onhoverlost=lambda: print("Hover Lost"),
+        children=Widget.Box(
+            orientation="h",
+            valign="center",
+            spacing=10,
+            children=[
+                Widget.Label(date),
+                Widget.Label(activewindow, hexpand=True),
+                Widget.Label(
+                    "volume: 0%",
+                    attributes=lambda self: volume.connect(
+                        "valuechanged", lambda x: self.set_text(f"volume: {x}%")
+                    ),
                 ),
-            ),
-        ],
+            ],
+        ),
     )
 
     MyFirstWindow = Widget.Window(

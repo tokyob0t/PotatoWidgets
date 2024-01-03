@@ -1,4 +1,5 @@
 from ...__Import import *
+from ...Variable import Listener, Poll, Variable
 
 
 class BasicProps(Gtk.Widget):
@@ -19,10 +20,66 @@ class BasicProps(Gtk.Widget):
         self.set_halign(self.__clasif_align(halign))
         self.set_valign(self.__clasif_align(valign))
         self.set_visible(visible)
-        self.set_sensitive(active) if active != None else None
+        self.set_sensitive(active) if active is not None else None
+        self.__clasif_size(size)
 
         [self.set_css_name(i) for i in classname.split(" ") if i != " "]
 
+        for key, value in locals().items():
+            if isinstance(value, (Listener, Poll, Variable)):
+                if key == "halign":
+                    value.connect(
+                        "valuechanged",
+                        lambda x: GLib.idle_add(
+                            lambda: self.set_halign(self.__clasif_align(str(x)))
+                        ),
+                    )
+                elif key == "valign":
+                    value.connect(
+                        "valuechanged",
+                        lambda x: GLib.idle_add(
+                            lambda: self.set_valign(self.__clasif_align(str(x)))
+                        ),
+                    )
+                elif key == "hexpand":
+                    value.connect(
+                        "valuechanged",
+                        lambda x: GLib.idle_add(
+                            lambda: self.set_hexpand(True if x else False)
+                        ),
+                    )
+                elif key == "vexpand":
+                    value.connect(
+                        "valuechanged",
+                        lambda x: GLib.idle_add(
+                            lambda: self.set_vexpand(True if x else False)
+                        ),
+                    )
+                elif key == "active":
+                    value.connect(
+                        "valuechanged",
+                        lambda x: GLib.idle_add(lambda: self.set_sensitive(x)),
+                    )
+                elif key == "visible":
+                    value.connect(
+                        "valuechanged",
+                        lambda x: GLib.idle_add(lambda: self.set_visible(x)),
+                    )
+                elif key == "classname":
+                    value.connect(
+                        "valuechanged",
+                        lambda x: GLib.idle_add(
+                            lambda: [
+                                self.set_css_name(i) for i in x.split(" ") if i != " "
+                            ]
+                        ),
+                    )
+                elif key == "size":
+                    value.connect(
+                        "valuechanged", lambda x: GLib.idle_add(self.__clasif_size(x))
+                    )
+
+    def __clasif_size(self, size):
         if isinstance(size, int):
             self.set_size_request(size, size)
         elif isinstance(size, list):

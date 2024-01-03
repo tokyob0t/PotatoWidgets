@@ -7,6 +7,7 @@ class Entry(Gtk.Entry, BasicProps):
         self,
         onchange=None,
         onenter=None,
+        attributes=None,
         halign="fill",
         valign="fill",
         hexpand=False,
@@ -35,10 +36,4 @@ class Entry(Gtk.Entry, BasicProps):
             "activate", lambda _: onenter(self.get_text())
         ) if onenter else None
 
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, *args):
-        self._value = args
+        attributes(self) if attributes else None

@@ -10,9 +10,8 @@ class Label(Gtk.Label, BasicProps):
         yalign=0.5,
         xalign=0.5,
         angle=0.0,
-        wrap=False,
-        markup=False,
-        limit=None,
+        maxchars=None,
+        attributes=None,
         halign="fill",
         valign="fill",
         hexpand=False,
@@ -35,16 +34,9 @@ class Label(Gtk.Label, BasicProps):
         self.set_yalign(yalign)
         self.set_xalign(xalign)
         self.set_selectable(False)
-        self.set_line_wrap_mode(wrap)
         self.set_angle(angle)
-
-        self.set_hexpand(True if hexpand else False)
-        self.set_vexpand(True if vexpand else False)
-
-        self.set_halign(self.__clasif_halign(halign))
-        self.set_valign(self.__clasif_halign(valign))
-
-        self.set_visible(visible)
+        self.set_max_width_chars(maxchars) if maxchars else None
+        attributes(self) if attributes else None
 
         for key, value in locals().items():
             if key not in [
@@ -59,19 +51,27 @@ class Label(Gtk.Label, BasicProps):
                 "classname",
             ] and isinstance(value, (Listener, Poll, Variable)):
                 if key == "text":
-                    value.connect("valuechanged", lambda x: self.set_text(str(x)))
-
-                    # value.connect(
-                    #    "valuechanged",
-                    #    lambda x: GLib.idle_add(lambda: self.set_text(str(x))),
-                    # )
-
-    def __clasif_halign(self, param):
-        dict = {
-            "fill": Gtk.Align.FILL,
-            "start": Gtk.Align.START,
-            "end": Gtk.Align.END,
-            "center": Gtk.Align.CENTER,
-            "baseline": Gtk.Align.BASELINE,
-        }
-        return dict.get(param.lower())
+                    value.connect(
+                        "valuechanged",
+                        lambda x: GLib.idle_add(lambda: self.set_text(str(x))),
+                    )
+                elif key == "yalign":
+                    value.connect(
+                        "valuechanged",
+                        lambda x: GLib.idle_add(lambda: self.set_yaling(str(x))),
+                    )
+                elif key == "xalign":
+                    value.connect(
+                        "valuechanged",
+                        lambda x: GLib.idle_add(lambda: self.set_xalign(str(x))),
+                    )
+                elif key == "angle":
+                    value.connect(
+                        "valuechanged",
+                        lambda x: GLib.idle_add(lambda: self.set_angle(str(x))),
+                    )
+                elif key == "limit":
+                    value.connect(
+                        "valuechanged",
+                        lambda x: GLib.idle_add(lambda: self.set_text(str(x))),
+                    )

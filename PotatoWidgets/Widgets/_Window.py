@@ -13,7 +13,7 @@ cleantextY = (
 
 
 class Window(Gtk.Window):
-    def __init__(self, monitor=0, props=None, children=None, parent=None):
+    def __init__(self, monitor=0, props=None, children=None, parent=None, **kwargs):
         Gtk.Window.__init__(self)
         self.connect("destroy", Gtk.main_quit)
         self.monitor = monitor
@@ -31,14 +31,16 @@ class Window(Gtk.Window):
         self.set_title("Potato")
         self.set_destroy_with_parent(True if parent else False)
         self.set_transient_for(parent) if parent else None
-        # GtkLayerShell SETTING, 0S
-        GtkLayerShell.init_for_window(self)
-        GtkLayerShell.set_namespace(
-            self, f"potatowindow {self.properties.get('namespace', '')}"
-        )
-        GtkLayerShell.set_layer(
-            self, self.__clasif_layer(self.properties.get("layer", "top"))
-        )
+
+        # GtkLayerShell SETTING, etc...
+        if not locals().get("disable_gtklayershell", False):
+            GtkLayerShell.init_for_window(self)
+            GtkLayerShell.set_namespace(
+                self, f"potatowindow {self.properties.get('namespace', '')}"
+            )
+            GtkLayerShell.set_layer(
+                self, self.__clasif_layer(self.properties.get("layer", "top"))
+            )
 
         self.__clasif_position(self.properties.get("position", "center"))
         self.__clasif_exclusive(self.properties.get("exclusive", False))
