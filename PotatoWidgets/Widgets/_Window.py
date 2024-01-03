@@ -48,6 +48,7 @@ class Window(Gtk.Window):
         self.set_size_request(
             max(self.properties["size"][0], 10), max(self.properties["size"][1], 10)
         )
+        self.close()
 
     def __adjustProps(self, props):
         at = props.get("at", {"top": 0, "bottom": 0, "left": 0, "right": 0})
