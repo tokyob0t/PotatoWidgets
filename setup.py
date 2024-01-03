@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="PotatoWidgets",
-    version="0.0.1",
+    version="1.0.1",
     packages=find_packages(),
     install_requires=["PyGObject"],
     entry_points={
@@ -11,7 +11,7 @@ setup(
         ],
     },
     author="T0kyoB0y",
-    description="WIP of a widget system based on Python, using GTK+ and GtkLayerShell.",
+    description="Widget system based on Python, using GTK+ and GtkLayerShell.",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/T0kyoB0y/PotatoWidgets",

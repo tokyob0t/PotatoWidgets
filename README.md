@@ -74,16 +74,18 @@ pip install git+https://github.com/T0kyoB0y/PotatoWidgets.git
 * Add Dynamic variables
   * [X] Poll      - Timeout + Callback
   * [X] Variable - GObject Variable that notifies when it's value changes
-  * [ ] Listener  - Callback then await for changes
+  * [X] Listener  - Callback then await for changes - *Beta*
 
 * Add more widgets
   * [X] Label
   * [X] Button
   * [X] ToggleButton
   * [X] Box
-  * [X] SwitchButton
+  * [ ] SwitchButton
   * [X] CheckBox
-  * [ ] EventBox
+  * [X] EventBox
+  * [X] Revealer
+  * [X] ToggleButton
   * [ ] CenterBox
   * [ ] ComboBox
   * [X] Image
