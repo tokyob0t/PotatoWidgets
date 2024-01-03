@@ -138,16 +138,16 @@ class Window(Gtk.Window):
                     GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.LEFT, False)
                     GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.BOTTOM, False)
 
+    # def open(self):
+    #   super().open(self)
+
+    # def close(self):
+    # super().close(self)
+
     def open(self):
-        super().open(self)
-
-    def close(self):
-        super().close(self)
-
-    def show(self):
         super().show(self)
 
-    def hide(self):
+    def close(self):
         super().hide(self)
 
     def toggle(self):
