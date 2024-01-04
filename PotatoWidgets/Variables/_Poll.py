@@ -5,10 +5,31 @@ from ._Variable import Variable
 class Poll(Variable):
     def __init__(self, interval, callback, initial_value=None):
         super().__init__(initial_value or callback())
-        self._interval = interval
+        self._interval = self._parse_interval(interval)
         self._callback = callback
         self._timeout_id = None
         self.start_poll()
+
+    def _parse_interval(self, interval):
+        try:
+            if isinstance(interval, str):
+                unit = interval[-1].lower()
+                value = int(interval[:-1])
+
+                if unit == "s":
+                    return value * 1000
+                elif unit == "m":
+                    return value * 60 * 1000
+                elif unit == "h":
+                    return value * 60 * 60 * 1000
+                else:
+                    raise ValueError(f"Intervalo no válido: {interval}")
+            elif isinstance(interval, int):
+                return interval
+            else:
+                raise ValueError(f"Intervalo no válido: {interval}")
+        except (ValueError, IndexError):
+            return int(interval)
 
     def is_polling(self):
         return bool(self._timeout_id)

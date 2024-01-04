@@ -5,6 +5,7 @@ from .Widgets._CheckBox import CheckBox
 from .Widgets._ComboBox import ComboBox
 from .Widgets._Entry import Entry
 from .Widgets._EventBox import EventBox
+from .Widgets._Icon import Icon
 from .Widgets._Image import Image
 from .Widgets._Label import Label
 from .Widgets._Revealer import Revealer

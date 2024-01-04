@@ -3,6 +3,7 @@
 import json
 import os
 import subprocess
+from datetime import datetime
 
 from PotatoWidgets import PotatoLoop, Style, Variable, Widget
 
@@ -34,7 +35,7 @@ if __name__ == "__main__":
 
     date = Variable.Poll(1000, lambda: subprocess.getoutput("date '+%b %d %I:%M:%S'"))
     volume = Variable.Listener(get_volume)
-    activewindow = Variable.Listener(hypr)
+    activewindow = Variable.Listener(hypr, "")
 
     Widget.Window(
         props={
@@ -53,11 +54,43 @@ if __name__ == "__main__":
                     children=Widget.Label(date),
                 ),
                 Widget.Label(activewindow, hexpand=True),
-                Widget.Label(
-                    "volume: 0%",
-                    attributes=lambda self: volume.connect(
-                        "valuechanged", lambda x: self.set_text(f"volume: {x}%")
-                    ),
+                Widget.Box(
+                    children=[
+                        Widget.Box(
+                            orientation="v",
+                            children=[
+                                Widget.Label(
+                                    Variable.Poll(
+                                        "1m",
+                                        lambda: datetime.now().strftime("%I:%M %p"),
+                                    )
+                                ),
+                                Widget.Label(
+                                    Variable.Poll(
+                                        "1h",
+                                        lambda: datetime.now().strftime("%d/%m/%y"),
+                                    )
+                                ),
+                            ],
+                        ),
+                        Widget.Box(
+                            spacing=5,
+                            children=[
+                                Widget.Icon("audio-volume-medium-symbolic"),
+                                Widget.Icon(
+                                    "network-wireless-signal-excellent-symbolic"
+                                ),
+                                Widget.Icon("battery-full-charged-symbolic"),
+                                Widget.Label(
+                                    "volume: 0%",
+                                    attributes=lambda self: volume.connect(
+                                        "valuechanged",
+                                        lambda x: self.set_text(f"volume: {x}%"),
+                                    ),
+                                ),
+                            ],
+                        ),
+                    ]
                 ),
             ],
         ),

@@ -3,8 +3,8 @@ from ._Variable import Variable
 
 
 class Listener(Variable):
-    def __init__(self, callback):
-        super().__init__(None)
+    def __init__(self, callback, initial_value=None):
+        super().__init__(initial_value)
         self._callback = callback
         self._thread = None
         self._stop_thread = threading.Event()
