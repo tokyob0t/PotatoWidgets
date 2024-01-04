@@ -3,9 +3,8 @@
 import json
 import os
 import subprocess
-from datetime import datetime
 
-from PotatoWidgets import PotatoLoop, Variable, Widget
+from PotatoWidgets import PotatoLoop, Style, Variable, Widget
 
 if __name__ == "__main__":
 
@@ -36,37 +35,7 @@ if __name__ == "__main__":
     date = Variable.Poll(1000, lambda: subprocess.getoutput("date '+%b %d %I:%M:%S'"))
     volume = Variable.Listener(get_volume)
     activewindow = Variable.Listener(hypr)
-    apps = json.loads(subprocess.getoutput("eww get apps | jq .apps"))
-    apps_array = []
-    for i in apps:
-        for j in i["apps"]:
-            apps_array.append(
-                Widget.Button(
-                    Widget.Box(
-                        children=[
-                            Widget.Image(j["icon"], 50),
-                            Widget.Box(
-                                valign="center",
-                                orientation="v",
-                                children=[
-                                    Widget.Label(j["name"], halign="start"),
-                                    Widget.Label(j["comment"], halign="start"),
-                                ],
-                            ),
-                        ]
-                    )
-                )
-            )
 
-    LauncherWindow = Widget.Window(
-        props={
-            "size": ["500", 400],  # even %
-            "position": "center",
-        },
-        children=Widget.Scroll(
-            children=Widget.Box(orientation="v", children=apps_array, spacing=5)
-        ),
-    )
     Widget.Window(
         props={
             "at": {"top": "20px", "left": "20", "right": 20},  # You can use any
@@ -80,7 +49,8 @@ if __name__ == "__main__":
             spacing=10,
             children=[
                 Widget.Button(
-                    onclick=LauncherWindow.toggle, children=Widget.Label(date)
+                    onclick=lambda: subprocess.run(["notify-send", "Hello", "uwu"]),
+                    children=Widget.Label(date),
                 ),
                 Widget.Label(activewindow, hexpand=True),
                 Widget.Label(
@@ -93,4 +63,5 @@ if __name__ == "__main__":
         ),
     ).open()
 
+    Style("./style.css")
     PotatoLoop()

@@ -23,7 +23,11 @@ class BasicProps(Gtk.Widget):
         self.set_sensitive(active) if active is not None else None
         self.__clasif_size(size)
 
-        # [self.set_css_name(i) for i in classname.split(" ") if i != " "]
+        [
+            self.get_style_context().add_class(i)
+            for i in classname.split(" ")
+            if i != " "
+        ] if classname else None
 
         for key, value in locals().items():
             if isinstance(value, (Listener, Poll, Variable)):
