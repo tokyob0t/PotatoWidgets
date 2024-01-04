@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import json
 import os
 import subprocess
 from datetime import datetime
@@ -35,35 +36,61 @@ if __name__ == "__main__":
     date = Variable.Poll(1000, lambda: subprocess.getoutput("date '+%b %d %I:%M:%S'"))
     volume = Variable.Listener(get_volume)
     activewindow = Variable.Listener(hypr)
-    Topbar = Widget.Box(
-        orientation="h",
-        valign="center",
-        spacing=10,
-        children=[
-            Widget.Button(onclick=lambda: print("x"), children=Widget.Label(date)),
-            Widget.Label(activewindow, hexpand=True),
-            Widget.Label(
-                "volume: 0%",
-                attributes=lambda self: volume.connect(
-                    "valuechanged", lambda x: self.set_text(f"volume: {x}%")
-                ),
-            ),
-        ],
-    )
+    apps = json.loads(subprocess.getoutput("eww get apps | jq .apps"))
+    apps_array = []
+    for i in apps:
+        for j in i["apps"]:
+            apps_array.append(
+                Widget.Button(
+                    Widget.Box(
+                        children=[
+                            Widget.Image(j["icon"], 50),
+                            Widget.Box(
+                                valign="center",
+                                orientation="v",
+                                children=[
+                                    Widget.Label(j["name"], halign="start"),
+                                    Widget.Label(j["comment"], halign="start"),
+                                ],
+                            ),
+                        ]
+                    )
+                )
+            )
 
-    MyFirstWindow = Widget.Window(
-        props={
-            "at": {"top": "20px", "left": "20", "right": 20},  # You can use any
-            "size": [0, 50],  # even %
-            "position": "top left right",
-        },
-        children=Topbar,
-    )
     LauncherWindow = Widget.Window(
         props={
             "size": ["500", 400],  # even %
             "position": "center",
-        }
+        },
+        children=Widget.Scroll(
+            children=Widget.Box(orientation="v", children=apps_array, spacing=5)
+        ),
     )
-    MyFirstWindow.open()
+    Widget.Window(
+        props={
+            "at": {"top": "20px", "left": "20", "right": 20},  # You can use any
+            "size": [0, 50],  # even %
+            "position": "top left right",
+            "exclusive": True,
+        },
+        children=Widget.Box(
+            orientation="h",
+            valign="center",
+            spacing=10,
+            children=[
+                Widget.Button(
+                    onclick=LauncherWindow.toggle, children=Widget.Label(date)
+                ),
+                Widget.Label(activewindow, hexpand=True),
+                Widget.Label(
+                    "volume: 0%",
+                    attributes=lambda self: volume.connect(
+                        "valuechanged", lambda x: self.set_text(f"volume: {x}%")
+                    ),
+                ),
+            ],
+        ),
+    ).open()
+
     PotatoLoop()

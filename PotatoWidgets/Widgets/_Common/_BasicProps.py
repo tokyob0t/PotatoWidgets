@@ -14,7 +14,7 @@ class BasicProps(Gtk.Widget):
         classname,
         size=[10, 10],
     ):
-        super().__init__(self)
+        Gtk.Widget.__init__(self)
         self.set_hexpand(True if hexpand else False)
         self.set_vexpand(True if vexpand else False)
         self.set_halign(self.__clasif_align(halign))
@@ -23,7 +23,7 @@ class BasicProps(Gtk.Widget):
         self.set_sensitive(active) if active is not None else None
         self.__clasif_size(size)
 
-        [self.set_css_name(i) for i in classname.split(" ") if i != " "]
+        # [self.set_css_name(i) for i in classname.split(" ") if i != " "]
 
         for key, value in locals().items():
             if isinstance(value, (Listener, Poll, Variable)):
