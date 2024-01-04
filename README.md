@@ -89,7 +89,7 @@ pip install git+https://github.com/T0kyoB0y/PotatoWidgets.git
   * [ ] CenterBox
   * [ ] ComboBox
   * [X] Image
-  * [ ] Icon
+  * [X] Icon
   * [X] Scroll
   * [ ] Potato
   * [ ] Stack
