@@ -6,10 +6,10 @@ from ._Common._BasicProps import BasicProps
 class Box(Gtk.Box, BasicProps):
     def __init__(
         self,
+        children=[],
         orientation="h",
         spacing=0,
         homogeneous=False,
-        children=[],
         attributes=None,
         halign="fill",
         valign="fill",
