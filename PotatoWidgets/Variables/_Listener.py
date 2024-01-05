@@ -24,5 +24,13 @@ class Listener(Variable):
         self._thread = threading.Thread(target=lambda: self._callback(self))
         self._thread.start()
 
+    @property
+    def value(self):
+        super().value(self)
+
+    @value.setter
+    def value(self, new_value):
+        super().value(self, new_value)
+
     def __str__(self):
         return str(self._value)

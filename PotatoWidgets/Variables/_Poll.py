@@ -56,5 +56,13 @@ class Poll(Variable):
         self.set_value(self._callback())
         return GLib.SOURCE_CONTINUE
 
+    @property
+    def value(self):
+        super().value(self)
+
+    @value.setter
+    def value(self, new_value):
+        super().value(self, new_value)
+
     def __str__(self):
         return str(self._value)
