@@ -24,12 +24,10 @@ class Listener(Variable):
         self._thread = threading.Thread(target=lambda: self._callback(self))
         self._thread.start()
 
-    @property
-    def value(self):
+    def get_value(self):
         return self._value
 
-    @value.setter
-    def value(self, new_value):
+    def set_value(self, new_value):
         self._value = new_value
         self.emit("valuechanged")
 
