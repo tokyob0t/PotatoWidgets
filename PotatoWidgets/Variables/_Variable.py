@@ -8,10 +8,12 @@ class Variable(GObject.Object):
         super().__init__()
         self._value = initial_value
 
-    def get_value(self):
+    @property
+    def value(self):
         return self._value
 
-    def set_value(self, new_value):
+    @value.setter
+    def value(self, new_value):
         self._value = new_value
         self.emit("valuechanged")
 
