@@ -81,12 +81,7 @@ class Box(Gtk.Box, BasicProps):
         elif orientation.lower() in ["horizontal", "h", 1, True]:
             return Gtk.Orientation.HORIZONTAL
 
-    @property
-    def children(self):
-        return self.get_children()
-
-    @children.setter
-    def children(self, newChildrenList=[]):
+    def set_children(self, newChildrenList=[]):
         if not newChildrenList:
             return
 
