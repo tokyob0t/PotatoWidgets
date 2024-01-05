@@ -92,3 +92,4 @@ class Box(Gtk.Box, BasicProps):
                 self.remove(i)
 
         [self.add(i) for i in newChildrenList]
+        self.show_all()
