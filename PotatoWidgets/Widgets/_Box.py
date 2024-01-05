@@ -35,7 +35,7 @@ class Box(Gtk.Box, BasicProps):
         self.set_spacing(spacing)
         self.set_homogeneous(homogeneous) if homogeneous else None
 
-        [self.add(i) for i in children]
+        [self.add(i) for i in children] if children else None
 
         attributes(self) if attributes else None
 
@@ -80,3 +80,20 @@ class Box(Gtk.Box, BasicProps):
             return Gtk.Orientation.VERTICAL
         elif orientation.lower() in ["horizontal", "h", 1, True]:
             return Gtk.Orientation.HORIZONTAL
+
+    @property
+    def children(self):
+        return self.get_children()
+
+    @children.setter
+    def children(self, newChildrenList=[]):
+        if not newChildrenList:
+            return
+
+        for i in self.get_children():
+            if i not in newChildrenList:
+                i.destroy()
+            else:
+                self.remove(i)
+
+        [self.add(i) for i in newChildrenList]
