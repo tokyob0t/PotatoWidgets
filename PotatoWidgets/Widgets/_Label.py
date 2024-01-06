@@ -60,3 +60,6 @@ class Label(Gtk.Label, BasicProps):
                 }.get(key)
 
                 self.bind(value, callback) if callback else None
+
+    def set_text(self, text):
+        super().set_text(str(text))
