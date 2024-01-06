@@ -30,58 +30,26 @@ class BasicProps(Gtk.Widget):
         ] if classname else None
 
         for key, value in locals().items():
-            if isinstance(value, (Listener, Poll, Variable)):
-                if key == "halign":
-                    value.connect(
-                        "valuechanged",
-                        lambda x: GLib.idle_add(
-                            lambda: self.set_halign(self.__clasif_align(str(x)))
-                        ),
-                    )
-                elif key == "valign":
-                    value.connect(
-                        "valuechanged",
-                        lambda x: GLib.idle_add(
-                            lambda: self.set_valign(self.__clasif_align(str(x)))
-                        ),
-                    )
-                elif key == "hexpand":
-                    value.connect(
-                        "valuechanged",
-                        lambda x: GLib.idle_add(
-                            lambda: self.set_hexpand(True if x else False)
-                        ),
-                    )
-                elif key == "vexpand":
-                    value.connect(
-                        "valuechanged",
-                        lambda x: GLib.idle_add(
-                            lambda: self.set_vexpand(True if x else False)
-                        ),
-                    )
-                elif key == "active":
-                    value.connect(
-                        "valuechanged",
-                        lambda x: GLib.idle_add(lambda: self.set_sensitive(x)),
-                    )
-                elif key == "visible":
-                    value.connect(
-                        "valuechanged",
-                        lambda x: GLib.idle_add(lambda: self.set_visible(x)),
-                    )
-                elif key == "classname":
-                    value.connect(
-                        "valuechanged",
-                        lambda x: GLib.idle_add(
-                            lambda: [
-                                self.set_css_name(i) for i in x.split(" ") if i != " "
-                            ]
-                        ),
-                    )
-                elif key == "size":
-                    value.connect(
-                        "valuechanged", lambda x: GLib.idle_add(self.__clasif_size(x))
-                    )
+            callback = {
+                "halign": self.set_halign,
+                "valign": self.set_valign,
+                "hexpand": self.set_hexpand,
+                "vexpand": self.set_vexpand,
+                "active": self.set_sensitive,
+                "visible": self.set_visible,
+                "size": self.set_size,
+            }.get(key)
+
+            self.bind(value, callback) if callback else None
+
+    def set_size(self, size):
+        self.__clasif_size(size)
+
+    def set_halign(self, param):
+        super().set_halign(self.__clasif_align(str(param)))
+
+    def set_valign(self, param):
+        super().set_valign(self.__clasif_align(str(param)))
 
     def __clasif_size(self, size):
         if isinstance(size, int):
@@ -104,4 +72,6 @@ class BasicProps(Gtk.Widget):
 
     def bind(self, var, callback):
         if isinstance(var, (Listener, Variable, Poll)):
-            var.connect("valuechanged", lambda x: GLib.idle_add(lambda: callback(x)))
+            var.connect(
+                "valuechanged", lambda x: GLib.idle_add(lambda: callback(x.get_value()))
+            )

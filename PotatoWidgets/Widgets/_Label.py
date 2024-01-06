@@ -36,6 +36,7 @@ class Label(Gtk.Label, BasicProps):
         self.set_selectable(False)
         self.set_angle(angle)
         self.set_max_width_chars(maxchars) if maxchars else None
+
         attributes(self) if attributes else None
 
         for key, value in locals().items():
@@ -50,28 +51,12 @@ class Label(Gtk.Label, BasicProps):
                 "visible",
                 "classname",
             ] and isinstance(value, (Listener, Poll, Variable)):
-                if key == "text":
-                    value.connect(
-                        "valuechanged",
-                        lambda x: GLib.idle_add(lambda: self.set_text(str(x))),
-                    )
-                elif key == "yalign":
-                    value.connect(
-                        "valuechanged",
-                        lambda x: GLib.idle_add(lambda: self.set_yaling(str(x))),
-                    )
-                elif key == "xalign":
-                    value.connect(
-                        "valuechanged",
-                        lambda x: GLib.idle_add(lambda: self.set_xalign(str(x))),
-                    )
-                elif key == "angle":
-                    value.connect(
-                        "valuechanged",
-                        lambda x: GLib.idle_add(lambda: self.set_angle(str(x))),
-                    )
-                elif key == "limit":
-                    value.connect(
-                        "valuechanged",
-                        lambda x: GLib.idle_add(lambda: self.set_text(str(x))),
-                    )
+                callback = {
+                    "text": self.set_text,
+                    "yalign": self.set_yalign,
+                    "xalign": self.set_xalign,
+                    "angle": self.set_angle,
+                    "limit": self.set_max_width_chars,
+                }.get(key)
+
+                self.bind(value, callback) if callback else None

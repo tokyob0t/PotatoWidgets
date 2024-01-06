@@ -51,12 +51,13 @@ class Revealer(Gtk.Revealer, BasicProps):
                 "visible",
                 "classname",
             ] and isinstance(value, (Listener, Poll, Variable)):
-                if key == "reveal":
-                    value.connect("valuechanged", self.set_revealed)
-                elif key == "transition":
-                    value.connect("valuechanged", self.set_transition)
-                elif key == "duration":
-                    value.connect("valuechanged", self.set_transition)
+                callback = {
+                    "reveal": self.set_revealed,
+                    "transition": self.set_revealed,
+                    "duration": self.set_transition,
+                }.get(key)
+
+                self.bind(value, callback) if callback else None
 
     def set_child(self, param):
         self.set_reveal_child(param)

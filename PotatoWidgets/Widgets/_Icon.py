@@ -44,16 +44,9 @@ class Icon(Gtk.Image, BasicProps):
                 "visible",
                 "classname",
             ] and isinstance(value, (Listener, Poll, Variable)):
-                if key == "icon":
-                    value.connect(
-                        "valuechanged",
-                        lambda x: GLib.idle_add(lambda: self.set_icon(x)),
-                    )
-                elif key == "size":
-                    value.connect(
-                        "valuechanged",
-                        lambda x: GLib.idle_add(lambda: self.set_size(x)),
-                    )
+                callback = {"icon": self.set_icon, "size": self.set_size}.get(key)
+
+                self.bind(value, callback) if value else None
 
     def __reload_icon(self):
         self.set_from_icon_name(self.icon, 5)

@@ -34,11 +34,11 @@ class Box(Gtk.Box, BasicProps):
         self.set_visible(visible)
         self.set_spacing(spacing)
         self.set_homogeneous(homogeneous) if homogeneous else None
-
+        self.set_halign(halign)
+        self.set_valign(valign)
         [self.add(i) for i in children] if children else None
 
         attributes(self) if attributes else None
-
         for key, value in locals().items():
             if key not in [
                 "self",
@@ -51,35 +51,18 @@ class Box(Gtk.Box, BasicProps):
                 "visible",
                 "classname",
             ] and isinstance(value, (Listener, Poll, Variable)):
-                if key == "orientation":
-                    value.connect(
-                        "valuenchanged",
-                        lambda x: GLib.idle_add(lambda: self.set_orientation(x)),
-                    )
-                elif key == "visible":
-                    value.connect(
-                        "valuenchanged",
-                        lambda x: GLib.idle_add(lambda: self.set_visible(x)),
-                    )
-                elif key == "spacing":
-                    value.connect(
-                        "valuenchanged",
-                        lambda x: GLib.idle_add(lambda: self.set_spacing(x)),
-                    )
-                elif key == "homogeneous":
-                    value.connect(
-                        "valuenchanged",
-                        lambda x: GLib.idle_add(lambda: self.set_homogeneous(x)),
-                    )
+                callback = {
+                    "orientation": self.set_orientation,
+                    "visible": self.set_visible,
+                    "spacing": self.set_spacing,
+                    "homogeneous": self.set_homogeneous,
+                    "children": self.set_children,
+                }.get(key)
+
+                self.bind(value, callback) if callback else None
 
     def set_orientation(self, param):
         return super().set_orientation(self.__clasif_orientation(param))
-
-    def __clasif_orientation(self, orientation):
-        if orientation.lower() in ["vertical", "v", 0, False]:
-            return Gtk.Orientation.VERTICAL
-        elif orientation.lower() in ["horizontal", "h", 1, True]:
-            return Gtk.Orientation.HORIZONTAL
 
     def set_children(self, newChildrenList=[]):
         if not newChildrenList:
@@ -88,8 +71,13 @@ class Box(Gtk.Box, BasicProps):
         for i in self.get_children():
             if i not in newChildrenList:
                 i.destroy()
-            else:
-                self.remove(i)
+            self.remove(i)
 
         [self.add(i) for i in newChildrenList]
         self.show_all()
+
+    def __clasif_orientation(self, orientation):
+        if orientation.lower() in ["vertical", "v", 0, False]:
+            return Gtk.Orientation.VERTICAL
+        elif orientation.lower() in ["horizontal", "h", 1, True]:
+            return Gtk.Orientation.HORIZONTAL

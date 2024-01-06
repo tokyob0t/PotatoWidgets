@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-import json
 import os
 import subprocess
 from datetime import datetime
@@ -31,7 +30,13 @@ if __name__ == "__main__":
             for line in proc.stdout:
                 line = line.replace("\n", "")
                 if "activewindow>>" in line:
-                    self.set_value(line.split(",")[1].capitalize())
+                    self.set_value(line.split(",")[1].title())
+
+    def gen_workspace(index):
+        return Widget.Button(
+            onclick=lambda: subprocess.run(["notify-send", "test", f"{index}"]),
+            children=Widget.Label(index),
+        )
 
     date = Variable.Poll(1000, lambda: subprocess.getoutput("date '+%b %d %I:%M:%S'"))
     volume = Variable.Listener(get_volume)
@@ -45,19 +50,32 @@ if __name__ == "__main__":
             "exclusive": True,
         },
         children=Widget.Box(
-            orientation="h",
-            valign="center",
-            spacing=10,
-            children=[
-                Widget.Button(
-                    onclick=lambda: subprocess.run(["notify-send", "Hello", "uwu"]),
-                    children=Widget.Label(date),
-                ),
-                Widget.Label(activewindow, hexpand=True),
+            [
                 Widget.Box(
+                    valign="center",
+                    children=[
+                        (
+                            lambda index: Widget.Button(
+                                valign="center",
+                                onclick=lambda: subprocess.run(
+                                    ["hyprctl", "dispatch", "workspace", f"{index}"]
+                                ),
+                                children=Widget.Label(
+                                    index,
+                                    valign="center",
+                                ),
+                            )
+                        )(i)
+                        for i in range(0, 10)
+                    ],
+                ),
+                Widget.Label(activewindow, hexpand=True, valign="center"),
+                Widget.Box(
+                    spacing=10,
                     children=[
                         Widget.Box(
                             orientation="v",
+                            valign="center",
                             children=[
                                 Widget.Label(
                                     Variable.Poll(
@@ -81,16 +99,9 @@ if __name__ == "__main__":
                                     "network-wireless-signal-excellent-symbolic"
                                 ),
                                 Widget.Icon("battery-full-charged-symbolic"),
-                                Widget.Label(
-                                    "0%",
-                                    attributes=lambda self: volume.connect(
-                                        "valuechanged",
-                                        lambda x: self.set_text(f"{x}%"),
-                                    ),
-                                ),
                             ],
                         ),
-                    ]
+                    ],
                 ),
             ],
         ),

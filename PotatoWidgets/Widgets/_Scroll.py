@@ -45,21 +45,13 @@ class Scroll(Gtk.ScrolledWindow, BasicProps):
                 "visible",
                 "classname",
             ] and isinstance(value, (Listener, Poll, Variable)):
-                if key == "orientation":
-                    value.connect(
-                        "valuechanged",
-                        lambda x: GLib.idle_add(lambda: self.set_orientation(x)),
-                    )
-                elif key == "visible":
-                    value.connect(
-                        "valuechanged",
-                        lambda x: GLib.idle_add(lambda: self.set_visible(x)),
-                    )
-                elif key == "children":
-                    value.connect(
-                        "children",
-                        lambda x: GLib.idle_add(lambda: self.add_with_viewport(x)),
-                    )
+                callback = {
+                    "orientation": self.set_orientation,
+                    "visible": self.set_visible,
+                    "children": self.add_with_viewport,
+                }.get(key)
+
+                self.bind(value, callback) if callback else None
 
     def set_orientation(self, param):
         super().set_orientation(self.__clasif_orientation(param))

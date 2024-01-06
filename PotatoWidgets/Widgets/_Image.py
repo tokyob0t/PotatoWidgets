@@ -42,18 +42,9 @@ class Image(Gtk.Image, BasicProps):
                 "visible",
                 "classname",
             ] and isinstance(value, (Listener, Poll, Variable)):
-                if key == "path":
-                    value.connect(
-                        "valuechanged",
-                        lambda x: GLib.idle_add(lambda: self.set_path(x)),
-                    )
-                    self.__reload_image()
-                elif key == "size":
-                    value.connect(
-                        "valuechanged",
-                        lambda x: GLib.idle_add(lambda: self.set_size(x)),
-                    )
-                    self.__reload_image()
+                callback = {"path": self.set_path, "size": self.set_size}.get(key)
+
+                self.bind(value, callback) if callback else None
 
     def __reload_image(self):
         pixbuf = GdkPixbuf.Pixbuf.new_from_file(self.path)
@@ -66,6 +57,8 @@ class Image(Gtk.Image, BasicProps):
 
     def set_path(self, path):
         self.path = path
+        self.__reload_image()
 
     def set_size(self, size):
         self.size = size
+        self.__reload_image
