@@ -22,12 +22,8 @@ class Poll(Variable):
                     return value * 60 * 1000
                 elif unit == "h":
                     return value * 60 * 60 * 1000
-                else:
-                    raise ValueError(f"Intervalo no válido: {interval}")
             elif isinstance(interval, int):
                 return interval
-            else:
-                raise ValueError(f"Intervalo no válido: {interval}")
         except (ValueError, IndexError):
             return int(interval)
 

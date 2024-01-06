@@ -82,10 +82,10 @@ if __name__ == "__main__":
                                 ),
                                 Widget.Icon("battery-full-charged-symbolic"),
                                 Widget.Label(
-                                    "0%",
+                                    "volume: 0%",
                                     attributes=lambda self: volume.connect(
                                         "valuechanged",
-                                        lambda x: self.set_text(f"{x}%"),
+                                        lambda x: self.set_text(f"volume: {x}%"),
                                     ),
                                 ),
                             ],

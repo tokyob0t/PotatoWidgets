@@ -101,3 +101,7 @@ class BasicProps(Gtk.Widget):
             "baseline": Gtk.Align.BASELINE,
         }
         return dict.get(param.lower(), Gtk.Align.FILL)
+
+    def bind(self, var, callback):
+        if isinstance(var, (Listener, Variable, Poll)):
+            var.connect("valuechanged", lambda x: GLib.idle_add(lambda: callback(x)))
