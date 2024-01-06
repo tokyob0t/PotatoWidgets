@@ -77,7 +77,12 @@ if __name__ == "__main__":
                             orientation="v",
                             valign="center",
                             children=[
-                                Widget.Label(date),
+                                Widget.Label(
+                                    Variable.Poll(
+                                        "1s",
+                                        lambda: datetime.now().strftime("%I:%M:%S %p"),
+                                    )
+                                ),
                                 Widget.Label(
                                     Variable.Poll(
                                         "1h",
@@ -101,6 +106,5 @@ if __name__ == "__main__":
             ],
         ),
     ).open()
-
-    Style("./style.css")
+    Style("./style.scss")
     PotatoLoop()
