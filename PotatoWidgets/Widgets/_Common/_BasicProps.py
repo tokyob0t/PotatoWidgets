@@ -17,8 +17,8 @@ class BasicProps(Gtk.Widget):
         Gtk.Widget.__init__(self)
         self.set_hexpand(True if hexpand else False)
         self.set_vexpand(True if vexpand else False)
-        self.set_halign(self.__clasif_align(halign))
-        self.set_valign(self.__clasif_align(valign))
+        self.set_halign(halign)
+        self.set_valign(valign)
         self.set_visible(visible)
         self.set_sensitive(active) if active is not None else None
         self.__clasif_size(size)
