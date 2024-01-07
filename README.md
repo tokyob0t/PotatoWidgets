@@ -86,7 +86,7 @@ pip install git+https://github.com/T0kyoB0y/PotatoWidgets.git
   * [X] EventBox
   * [X] Revealer
   * [X] ToggleButton
-  * [ ] CenterBox
+  * [X] CenterBox
   * [ ] ComboBox
   * [X] Image
   * [X] Icon
