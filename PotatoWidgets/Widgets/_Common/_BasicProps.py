@@ -46,10 +46,10 @@ class BasicProps(Gtk.Widget):
         self.__clasif_size(size)
 
     def set_halign(self, param):
-        self.set_halign(self.__clasif_align(str(param)))
+        super().set_halign(self.__clasif_align(str(param)))
 
     def set_valign(self, param):
-        self.set_valign(self.__clasif_align(str(param)))
+        super().set_valign(self.__clasif_align(str(param)))
 
     def __clasif_size(self, size):
         if isinstance(size, int):
