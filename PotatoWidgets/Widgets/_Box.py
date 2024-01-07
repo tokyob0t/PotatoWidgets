@@ -34,8 +34,8 @@ class Box(Gtk.Box, BasicProps):
         self.set_visible(visible)
         self.set_spacing(spacing)
         self.set_homogeneous(homogeneous) if homogeneous else None
-        self.set_halign(halign)
-        self.set_valign(valign)
+        # self.set_halign(halign)
+        # self.set_valign(valign)
         [self.add(i) for i in children] if children else None
 
         attributes(self) if attributes else None

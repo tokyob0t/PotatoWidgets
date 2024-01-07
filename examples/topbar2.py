@@ -66,7 +66,7 @@ if __name__ == "__main__":
                                 ),
                             )
                         )(i)
-                        for i in range(0, 10)
+                        for i in range(1, 10)
                     ],
                 ),
                 Widget.Label(activewindow, hexpand=True, valign="center"),
