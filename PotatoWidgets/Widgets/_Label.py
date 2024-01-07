@@ -6,7 +6,7 @@ from ._Common._BasicProps import BasicProps
 class Label(Gtk.Label, BasicProps):
     def __init__(
         self,
-        text,
+        text="",
         yalign=0.5,
         xalign=0.5,
         angle=0.0,
