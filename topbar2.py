@@ -52,7 +52,6 @@ if __name__ == "__main__":
         children=Widget.Box(
             [
                 Widget.EventBox(
-                    onscrollup=lambda *_: print("A"),
                     classname="eventboxtest",
                     children=Widget.Box(
                         valign="center",

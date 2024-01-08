@@ -12,6 +12,7 @@ class BasicProps(Gtk.Widget):
         active,
         visible,
         classname,
+        # css=None,
         size=[10, 10],
     ):
         Gtk.Widget.__init__(self)
@@ -21,14 +22,8 @@ class BasicProps(Gtk.Widget):
         self.set_valign(valign)
         self.set_visible(visible)
         self.set_sensitive(active) if active is not None else None
+        self.set_classname(classname)
         self.__clasif_size(size)
-
-        [
-            self.get_style_context().add_class(i)
-            for i in classname.split(" ")
-            if i != " "
-        ] if classname else None
-
         for key, value in locals().items():
             callback = {
                 "halign": self.set_halign,
@@ -38,6 +33,7 @@ class BasicProps(Gtk.Widget):
                 "active": self.set_sensitive,
                 "visible": self.set_visible,
                 "size": self.set_size,
+                "classname": self.set_classname,
             }.get(key)
 
             self.bind(value, callback) if callback else None
@@ -69,6 +65,29 @@ class BasicProps(Gtk.Widget):
             "baseline": Gtk.Align.BASELINE,
         }
         return dict.get(param.lower(), Gtk.Align.FILL)
+
+    def set_classname(self, param):
+        if isinstance(param, (str)):
+            [
+                self.get_style_context().add_class(i)
+                for i in param.split(" ")
+                if i != " "
+            ]
+        elif isinstance(param, (list)):
+            for i in param:
+                if isinstance(i, (Listener, Variable, Poll)):
+                    pass
+
+    def apply_css(self, css):
+        if css:
+            context = self.get_style_context()
+
+            class_selector = f".{self.get_name()} " if self.get_name() else ""
+
+            context.add_provider(
+                Gtk.CssProvider().load_from_data(f"{class_selector}{css}".encode()),
+                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
+            )
 
     def bind(self, var, callback):
         if isinstance(var, (Listener, Variable, Poll)):

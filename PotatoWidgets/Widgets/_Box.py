@@ -18,7 +18,7 @@ class Box(Gtk.Box, BasicProps):
         visible=True,
         classname="",
     ):
-        Gtk.Box.__init__(self)
+        Gtk.Box.__init__(self, spacing=spacing)
         BasicProps.__init__(
             self,
             halign=halign,
@@ -32,7 +32,6 @@ class Box(Gtk.Box, BasicProps):
 
         self.set_orientation(orientation)
         self.set_visible(visible)
-        self.set_spacing(spacing)
         self.set_homogeneous(homogeneous) if homogeneous else None
         [self.add(i) for i in children] if children else None
 
