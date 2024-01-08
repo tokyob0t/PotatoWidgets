@@ -40,4 +40,8 @@ class _LoopClass:
 
 
 # PotatoLoop = _LoopClass()
-PotatoLoop = Gtk.main
+def PotatoLoop():
+    try:
+        Gtk.main()
+    except KeyboardInterrupt:
+        exit(0)
