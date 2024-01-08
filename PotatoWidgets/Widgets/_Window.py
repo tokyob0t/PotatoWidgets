@@ -13,7 +13,7 @@ cleantextY = (
 
 
 class Window(Gtk.Window):
-    def __init__(self, monitor=0, props=None, children=None, parent=None, **kwargs):
+    def __init__(self, props=None, children=None, monitor=0, parent=None, **kwargs):
         Gtk.Window.__init__(self)
         self.connect("destroy", Gtk.main_quit)
         self.monitor = monitor
