@@ -49,7 +49,16 @@ class EventBox(Gtk.EventBox, Events, BasicProps):
             classname=classname,
         )
         self.add(children) if children else None
-
-        self.connect("scroll-event", onscrollup)
+        self._scrollup = onscrollup
+        self._scrolldown = onscrolldown
+        self.connect("scroll-event", self.__clasif_scroll)
 
         attributes(self) if attributes else None
+
+    def __clasif_scroll(self, _, param):
+        if param == Gdk.ScrollDirection.UP:
+            if self._scrollup:
+                self._scrollup()
+        elif param == Gdk.ScrollDirection.DOWN:
+            if self._scrolldown:
+                self._scrolldown()
