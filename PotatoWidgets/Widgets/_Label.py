@@ -30,7 +30,7 @@ class Label(Gtk.Label, BasicProps):
             visible=visible,
             classname=classname,
         )
-        self.set_text(str(text))
+        self.set_text(text)
         self.set_yalign(yalign)
         self.set_xalign(xalign)
         self.set_selectable(False)

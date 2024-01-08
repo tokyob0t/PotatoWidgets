@@ -139,19 +139,10 @@ class Window(Gtk.Window):
                     GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.LEFT, False)
                     GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.BOTTOM, False)
 
-    # def open(self):
-    #   super().open(self)
-
-    # def close(self):
-    # super().close(self)
-
-    def open(self, duration=None):
+    def open(self, duration=False):
         self.show()
 
-        if duration is None:
-            duration = self.duration
-
-        if duration > 0:
+        if duration and duration > 0:
             GLib.timeout_add(duration, self.close)
 
     def close(self):
