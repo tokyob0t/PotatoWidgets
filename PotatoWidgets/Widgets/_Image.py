@@ -51,8 +51,8 @@ class Image(Gtk.Image, BasicProps):
         if file.query_exists():
             pixbuf = GdkPixbuf.Pixbuf.new_from_file(self.path)
             pixbuf = pixbuf.scale_simple(
-                self.size,
-                self.size,
+                self.size if isinstance(self.size, (int)) else self.size[0],
+                self.size if isinstance(self.size, (int)) else self.size[1],
                 GdkPixbuf.InterpType.BILINEAR,
             )
             self.set_from_pixbuf(pixbuf)
