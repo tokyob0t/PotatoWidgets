@@ -145,8 +145,14 @@ class Window(Gtk.Window):
     # def close(self):
     # super().close(self)
 
-    def open(self):
+    def open(self, duration=None):
         self.show()
+
+        if duration is None:
+            duration = self.duration
+
+        if duration > 0:
+            GLib.timeout_add_seconds(duration, self.close)
 
     def close(self):
         self.hide()
