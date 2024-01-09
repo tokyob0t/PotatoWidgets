@@ -13,7 +13,19 @@ cleantextY = (
 
 
 class Window(Gtk.Window):
-    def __init__(self, props=None, children=None, monitor=0, parent=None, **kwargs):
+    def __init__(
+        self,
+        size=[0, 0],
+        at={},
+        position="center",
+        layer="top",
+        exclusive=False,
+        props=None,
+        children=None,
+        monitor=0,
+        parent=None,
+        **kwargs,
+    ):
         Gtk.Window.__init__(self)
         self.connect("destroy", Gtk.main_quit)
         self.monitor = monitor
@@ -22,7 +34,13 @@ class Window(Gtk.Window):
         )
         self._perheight = lambda x: (float(x) * self._screen_height) / 100
         self._perwidth = lambda x: (float(x) * self._screen_width) / 100
-
+        props = props or {
+            "size": size,
+            "at": at,
+            "position": position,
+            "layer": layer,
+            "exclusive": exclusive,
+        }
         self.properties = self.__adjustProps(props)
         self.add(children) if children else None
 

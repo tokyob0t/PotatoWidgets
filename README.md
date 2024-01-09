@@ -20,8 +20,6 @@ from PotatoWidgets import PotatoLoop, Variable, Widget
 if __name__ == "__main__":
 
     time = Variable.Poll(interval=1000, callback=lambda: subprocess.getoutput("date"))
-    # # or 
-    # time = Variable.Poll(interval=1000, callback=lambda: datetime.now())
 
     MyFirstWindow = Widget.Window(
         props={
