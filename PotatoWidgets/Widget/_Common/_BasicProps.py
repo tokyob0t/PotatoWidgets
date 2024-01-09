@@ -12,7 +12,8 @@ class BasicProps(Gtk.Widget):
         active,
         visible,
         classname,
-        # css=None,
+        # tooltip,
+        css,
         size=[10, 10],
     ):
         Gtk.Widget.__init__(self)
@@ -24,6 +25,8 @@ class BasicProps(Gtk.Widget):
         self.set_sensitive(active) if active is not None else None
         self.set_classname(classname)
         self.__clasif_size(size)
+        self.apply_css(css) if css else None
+
         for key, value in locals().items():
             callback = {
                 "halign": self.set_halign,
@@ -68,11 +71,8 @@ class BasicProps(Gtk.Widget):
 
     def set_classname(self, param):
         if isinstance(param, (str)):
-            [
-                self.get_style_context().add_class(i)
-                for i in param.split(" ")
-                if i != " "
-            ]
+            context = self.get_style_context()
+            [context.add_class(i) for i in param.split(" ") if i != " "]
         elif isinstance(param, (list)):
             for i in param:
                 if isinstance(i, (Listener, Variable, Poll)):
@@ -80,12 +80,14 @@ class BasicProps(Gtk.Widget):
 
     def apply_css(self, css):
         if css:
+            self._selfclass = f"{self.get_css_name().replace()}_{randint(1111, 9999)}"
             context = self.get_style_context()
-
-            class_selector = f".{self.get_name()} " if self.get_name() else ""
+            context.add_class(self._selfclass)
 
             context.add_provider(
-                Gtk.CssProvider().load_from_data(f"{class_selector}{css}".encode()),
+                Gtk.CssProvider().load_from_data(
+                    f".{self._selfclass} {{css}}".encode()
+                ),
                 Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
             )
 

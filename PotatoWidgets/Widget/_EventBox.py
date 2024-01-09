@@ -18,6 +18,7 @@ class EventBox(Gtk.EventBox, Events, BasicProps):
         secondaryhold=None,
         secondaryrelease=None,
         attributes=None,
+        css=None,
         halign="fill",
         valign="fill",
         hexpand=False,
@@ -40,6 +41,7 @@ class EventBox(Gtk.EventBox, Events, BasicProps):
 
         BasicProps.__init__(
             self,
+            css=css,
             halign=halign,
             valign=valign,
             hexpand=hexpand,

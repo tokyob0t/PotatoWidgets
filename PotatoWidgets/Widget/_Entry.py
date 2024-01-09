@@ -8,6 +8,7 @@ class Entry(Gtk.Entry, BasicProps):
         onchange=None,
         onenter=None,
         attributes=None,
+        css=None,
         halign="fill",
         valign="fill",
         hexpand=False,
@@ -19,6 +20,7 @@ class Entry(Gtk.Entry, BasicProps):
         Gtk.Entry.__init__(self)
         BasicProps.__init__(
             self,
+            css=css,
             halign=halign,
             valign=valign,
             hexpand=hexpand,

@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
-import os
 import subprocess
 from datetime import datetime
+from os import getenv
 
 from PotatoWidgets import PotatoLoop, Variable, Widget
 
@@ -20,7 +20,7 @@ if __name__ == "__main__":
                     self.set_value(volume)
 
     def hypr(self):
-        SIGNATURE = os.environ.get("HYPRLAND_INSTANCE_SIGNATURE")
+        SIGNATURE = getenv("HYPRLAND_INSTANCE_SIGNATURE")
 
         with subprocess.Popen(
             ["socat", "-u", f"UNIX-CONNECT:/tmp/hypr/{SIGNATURE}/.socket2.sock", "-"],
@@ -30,7 +30,7 @@ if __name__ == "__main__":
             for line in proc.stdout:
                 line = line.replace("\n", "")
                 if "activewindow>>" in line:
-                    self.set_value(line.split(",")[0].split(">>")[1].capitalize())
+                    self.set_value(line.split(",")[1].capitalize())
 
     date = Variable.Poll(1000, lambda: subprocess.getoutput("date '+%b %d %I:%M:%S'"))
     volume = Variable.Listener(get_volume)
@@ -56,11 +56,9 @@ if __name__ == "__main__":
     )
 
     MyFirstWindow = Widget.Window(
-        props={
-            "at": {"top": "20px", "left": "20", "right": 20},  # You can use any
-            "size": [0, 50],  # even %
-            "position": "top left right",
-        },
+        at={"top": "20px", "left": "20", "right": 20},  # You can use any
+        size=[0, 50],  # even %
+        position="top left right",
         children=Topbar,
     )
 

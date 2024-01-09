@@ -11,6 +11,7 @@ class Box(Gtk.Box, BasicProps):
         spacing=0,
         homogeneous=False,
         attributes=None,
+        css=None,
         halign="fill",
         valign="fill",
         hexpand=False,
@@ -21,6 +22,7 @@ class Box(Gtk.Box, BasicProps):
         Gtk.Box.__init__(self, spacing=spacing)
         BasicProps.__init__(
             self,
+            css=css,
             halign=halign,
             valign=valign,
             hexpand=hexpand,

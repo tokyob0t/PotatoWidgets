@@ -13,10 +13,12 @@ class Image(Gtk.Image, BasicProps):
         visible=True,
         classname="",
         attributes=None,
+        css=None,
     ):
         Gtk.Image.__init__(self)
         BasicProps.__init__(
             self,
+            css=css,
             halign=halign,
             valign=valign,
             hexpand=False,

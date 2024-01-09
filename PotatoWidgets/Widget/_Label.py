@@ -12,6 +12,7 @@ class Label(Gtk.Label, BasicProps):
         angle=0.0,
         maxchars=None,
         attributes=None,
+        css=None,
         halign="fill",
         valign="fill",
         hexpand=False,
@@ -22,6 +23,7 @@ class Label(Gtk.Label, BasicProps):
         Gtk.Label.__init__(self)
         BasicProps.__init__(
             self,
+            css=css,
             halign=halign,
             valign=valign,
             hexpand=hexpand,

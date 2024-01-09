@@ -14,6 +14,7 @@ class Button(Gtk.Button, BasicProps):
         primaryrelease=None,
         secondaryhold=None,
         secondaryrelease=None,
+        css=None,
         halign="fill",
         valign="fill",
         hexpand=False,
@@ -25,6 +26,7 @@ class Button(Gtk.Button, BasicProps):
         Gtk.Button.__init__(self)
         BasicProps.__init__(
             self,
+            css=css,
             halign=halign,
             valign=valign,
             hexpand=hexpand,

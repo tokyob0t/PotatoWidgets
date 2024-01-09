@@ -1,5 +1,5 @@
-import os
 import threading
+from random import randint
 from subprocess import PIPE, run
 
 import gi
