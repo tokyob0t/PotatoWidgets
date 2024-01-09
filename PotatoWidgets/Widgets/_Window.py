@@ -20,7 +20,6 @@ class Window(Gtk.Window):
         position="center",
         layer="top",
         exclusive=False,
-        props=None,
         children=None,
         monitor=0,
         parent=None,
@@ -34,14 +33,15 @@ class Window(Gtk.Window):
         )
         self._perheight = lambda x: (float(x) * self._screen_height) / 100
         self._perwidth = lambda x: (float(x) * self._screen_width) / 100
-        props = props or {
-            "size": size,
-            "at": at,
-            "position": position,
-            "layer": layer,
-            "exclusive": exclusive,
-        }
-        self.properties = self.__adjustProps(props)
+        self.properties = self.__adjustProps(
+            {
+                "size": size,
+                "at": at,
+                "position": position,
+                "layer": layer,
+                "exclusive": exclusive,
+            }
+        )
         self.add(children) if children else None
 
         # Other settings for the window
