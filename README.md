@@ -22,14 +22,11 @@ if __name__ == "__main__":
     time = Variable.Poll(interval=1000, callback=lambda: subprocess.getoutput("date"))
 
     MyFirstWindow = Widget.Window(
-        props={
-            "at": {
-                "top": "20px",
-                "left": "20",
-                "right": 20},       # You can use any
-            "size": [0, "5%"],      # even %
-            "position": "left top right",
-        },
+        at={"top": "20px",
+            "left": "20",
+            "right": 20},       # You can use any
+        size=[0, "5%"],      # even %
+        position="left top right",
         children=Widget.Box(
             classname="TESTBOX",
             children=[
@@ -55,7 +52,6 @@ if __name__ == "__main__":
 
     MyFirstWindow.open()
     PotatoLoop()
-
 ```
 
 ![img](./img/Preview.png)  
