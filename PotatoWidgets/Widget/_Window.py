@@ -23,6 +23,8 @@ class Window(Gtk.Window):
         children=None,
         monitor=0,
         parent=None,
+        focusable=False,
+        popup=False,
         **kwargs,
     ):
         Gtk.Window.__init__(self)
@@ -66,7 +68,50 @@ class Window(Gtk.Window):
         self.set_size_request(
             max(self.properties["size"][0], 10), max(self.properties["size"][1], 10)
         )
+
+        # Connect the key-press-event signal to handle the Escape key
+        self.connect("key-press-event", self.on_key_press)
+
+        # Connect the button-press-event signal to handle clicks outside the window
+        self.connect("button-press-event", self.on_button_press)
+
+        self.set_focusable(focusable)
+        self.set_popup(popup)
+
         self.close()
+
+    def on_key_press(self, _, event):
+        # Handle key-press-event signal (Escape key)
+        if event.keyval == Gdk.KEY_Escape:
+            if self.popup:
+                self.close()
+
+    def on_button_press(self, _, event):
+        # Handle button-press-event signal (click outside the window)
+        if (
+            event.type == Gdk.EventType.BUTTON_PRESS and event.button == 1
+        ):  # Left mouse button
+            x, y = event.x_root, event.y_root
+            if not self.get_window().get_frame_extents().contains(x, y) and self.popup:
+                self.close()
+
+    def set_focusable(self, focusable):
+        if focusable:
+            # Set the keyboard mode to ON_DEMAND for focusability
+            GtkLayerShell.set_keyboard_mode(self, GtkLayerShell.KeyboardMode.ON_DEMAND)
+        else:
+            # Set the keyboard mode to NONE to disable focusability
+            GtkLayerShell.set_keyboard_mode(self, GtkLayerShell.KeyboardMode.NONE)
+        self.notify("focusable")
+
+    def set_popup(self, popup):
+        self.popup = popup
+        if popup:
+            # Set the window type hint to POPUP
+            self.set_type_hint(Gdk.WindowTypeHint.POPUP_MENU)
+        else:
+            # Set the window type hint to NORMAL
+            self.set_type_hint(Gdk.WindowTypeHint.NORMAL)
 
     def __adjustProps(self, props):
         at = props.get("at", {"top": 0, "bottom": 0, "left": 0, "right": 0})
