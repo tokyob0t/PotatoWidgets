@@ -25,7 +25,6 @@ class BasicProps(Gtk.Widget):
         self.set_sensitive(active) if active is not None else None
         self.set_classname(classname)
         self.__clasif_size(size)
-        self.apply_css(css) if css else None
 
         for key, value in locals().items():
             callback = {
@@ -77,19 +76,6 @@ class BasicProps(Gtk.Widget):
             for i in param:
                 if isinstance(i, (Listener, Variable, Poll)):
                     pass
-
-    def apply_css(self, css):
-        if css:
-            self._selfclass = f"{self.get_css_name().replace()}_{randint(1111, 9999)}"
-            context = self.get_style_context()
-            context.add_class(self._selfclass)
-
-            context.add_provider(
-                Gtk.CssProvider().load_from_data(
-                    f".{self._selfclass} {{css}}".encode()
-                ),
-                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
-            )
 
     def bind(self, var, callback):
         if isinstance(var, (Listener, Variable, Poll)):

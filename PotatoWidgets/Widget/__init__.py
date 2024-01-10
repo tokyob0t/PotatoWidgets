@@ -8,7 +8,10 @@ from ._EventBox import EventBox
 from ._Icon import Icon
 from ._Image import Image
 from ._Label import Label
+from ._Overlay import Overlay
+from ._ProgressBar import ProgressBar
 from ._Revealer import Revealer
+from ._Scale import Scale
 from ._Scroll import Scroll
 from ._ToggleButton import ToggleButton
 from ._Window import Window

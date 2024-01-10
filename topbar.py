@@ -51,6 +51,36 @@ if __name__ == "__main__":
                         "valuechanged", lambda x: self.set_text(f"volume: {x}%")
                     ),
                 ),
+                Widget.Box(
+                    [
+                        Widget.ProgressBar(value=50, orientation="v"),
+                        Widget.ProgressBar(value=50, orientation="v", inverted=True),
+                    ]
+                ),
+                Widget.Box(
+                    [
+                        Widget.ProgressBar(value=50),
+                        Widget.ProgressBar(value=50, inverted=True),
+                    ],
+                    orientation="v",
+                    valign="center",
+                ),
+                Widget.Box(
+                    [
+                        Widget.Scale(value=50, orientation="v", size=[0, 100]),
+                        Widget.Scale(
+                            value=50, orientation="v", size=[0, 100], inverted=True
+                        ),
+                    ]
+                ),
+                Widget.Box(
+                    [
+                        Widget.Scale(value=50),
+                        Widget.Scale(value=50, inverted=True),
+                    ],
+                    orientation="v",
+                    valign="center",
+                ),
             ],
         ),
     )

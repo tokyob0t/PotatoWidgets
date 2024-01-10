@@ -64,3 +64,4 @@ class EventBox(Gtk.EventBox, Events, BasicProps):
         elif param == Gdk.ScrollDirection.DOWN:
             if self._scrolldown:
                 self._scrolldown()
+        print(param)
