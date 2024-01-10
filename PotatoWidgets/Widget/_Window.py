@@ -92,7 +92,13 @@ class Window(Gtk.Window):
             event.type == Gdk.EventType.BUTTON_PRESS and event.button == 1
         ):  # Left mouse button
             x, y = event.x_root, event.y_root
-            if not self.get_window().get_frame_extents().contains(x, y) and self.popup:
+            frame_extents = self.get_window().get_frame_extents()
+            if (
+                x < frame_extents.x
+                or x >= frame_extents.x + frame_extents.width
+                or y < frame_extents.y
+                or y >= frame_extents.y + frame_extents.height
+            ) and self.popup:
                 self.close()
 
     def set_focusable(self, focusable):

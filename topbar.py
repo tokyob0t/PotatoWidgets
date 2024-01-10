@@ -89,6 +89,8 @@ if __name__ == "__main__":
         at={"top": "20px", "left": "20", "right": 20},  # You can use any
         size=[0, 50],  # even %
         position="top left right",
+        focusable=True,
+        popup=True,
         children=Topbar,
     )
 
