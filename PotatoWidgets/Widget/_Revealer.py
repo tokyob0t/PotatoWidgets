@@ -17,7 +17,6 @@ class Revealer(Gtk.Revealer, BasicProps):
         vexpand=False,
         visible=True,
         classname="",
-        size=[30, 50],
     ):
         Gtk.Revealer.__init__(self)
 
@@ -31,7 +30,7 @@ class Revealer(Gtk.Revealer, BasicProps):
             active=None,
             visible=visible,
             classname=classname,
-            size=size,
+            size=None,
         )
         self.add(children) if children else None
         self.set_duration(duration)
