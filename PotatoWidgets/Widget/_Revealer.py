@@ -23,6 +23,7 @@ class Revealer(Gtk.Revealer, BasicProps):
 
         BasicProps.__init__(
             self,
+            css=None,
             halign=halign,
             valign=valign,
             hexpand=hexpand,
