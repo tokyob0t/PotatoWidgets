@@ -97,12 +97,9 @@ class Window(Gtk.Window):
 
     def set_focusable(self, focusable):
         if focusable:
-            # Set the keyboard mode to ON_DEMAND for focusability
             GtkLayerShell.set_keyboard_mode(self, GtkLayerShell.KeyboardMode.ON_DEMAND)
         else:
-            # Set the keyboard mode to NONE to disable focusability
             GtkLayerShell.set_keyboard_mode(self, GtkLayerShell.KeyboardMode.NONE)
-        self.notify("focusable")
 
     def set_popup(self, popup):
         self.popup = popup
