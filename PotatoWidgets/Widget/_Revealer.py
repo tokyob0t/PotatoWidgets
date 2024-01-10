@@ -61,7 +61,7 @@ class Revealer(Gtk.Revealer, BasicProps):
                 self.bind(value, callback) if callback else None
 
     def set_transition(self, param):
-        self.set_transition_type(self.__clasif_transition(param))
+        super().set_transition_type(self.__clasif_transition(param))
 
     def set_duration(self, param):
         self.set_transition_duration(param)
@@ -70,7 +70,7 @@ class Revealer(Gtk.Revealer, BasicProps):
         self.set_reveal_child(param)
 
     def __clasif_transition(self, param):
-        dict = {
+        anim = {
             "none": Gtk.RevealerTransitionType.NONE,
             "crossfade": Gtk.RevealerTransitionType.CROSSFADE,
             "slideright": Gtk.RevealerTransitionType.SLIDE_RIGHT,
@@ -78,5 +78,6 @@ class Revealer(Gtk.Revealer, BasicProps):
             "slideright": Gtk.RevealerTransitionType.SLIDE_RIGHT,
             "slideup": Gtk.RevealerTransitionType.SLIDE_UP,
             "slidedown": Gtk.RevealerTransitionType.SLIDE_DOWN,
-        }
-        return dict.get(param.lower(), Gtk.RevealerTransitionType.CROSSFADE)
+        }.get(param.lower(), Gtk.RevealerTransitionType.CROSSFADE)
+
+        return anim
