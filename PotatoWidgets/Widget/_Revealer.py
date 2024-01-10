@@ -33,7 +33,7 @@ class Revealer(Gtk.Revealer, BasicProps):
             classname=classname,
             size=size,
         )
-        self.set_child(children) if children else None
+        self.add(children) if children else None
         self.set_duration(duration)
         self.set_transition(transition)
         self.set_revealed(reveal)
@@ -59,9 +59,6 @@ class Revealer(Gtk.Revealer, BasicProps):
                 }.get(key)
 
                 self.bind(value, callback) if callback else None
-
-    def set_child(self, param):
-        self.set_reveal_child(param)
 
     def set_transition(self, param):
         self.set_transition_type(self.__clasif_transition(param))
