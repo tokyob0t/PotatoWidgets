@@ -1,4 +1,5 @@
 from ..__Import import *
+from ..Variable import Listener, Poll, Variable
 
 cleantextX = (
     lambda x, perheight: perheight(str(x).replace("%", ""))
@@ -25,6 +26,7 @@ class Window(Gtk.Window):
         parent=None,
         focusable=False,
         popup=False,
+        attributes=None,
         **kwargs,
     ):
         Gtk.Window.__init__(self)
@@ -77,6 +79,7 @@ class Window(Gtk.Window):
 
         self.set_focusable(focusable)
         self.set_popup(popup)
+        attributes(self) if attributes else None
 
         self.close()
 
@@ -204,6 +207,12 @@ class Window(Gtk.Window):
                     GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.RIGHT, False)
                     GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.LEFT, False)
                     GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.BOTTOM, False)
+
+    def bind(self, var, callback):
+        if isinstance(var, (Listener, Variable, Poll)):
+            var.connect(
+                "valuechanged", lambda x: GLib.idle_add(lambda: callback(x.get_value()))
+            )
 
     def open(self, duration=False):
         self.show()
