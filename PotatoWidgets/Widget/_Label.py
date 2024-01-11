@@ -11,6 +11,7 @@ class Label(Gtk.Label, BasicProps):
         xalign=0.5,
         angle=0.0,
         maxchars=None,
+        wrap=True,
         attributes=None,
         css=None,
         halign="fill",
@@ -38,6 +39,7 @@ class Label(Gtk.Label, BasicProps):
         self.set_selectable(False)
         self.set_angle(angle)
         self.set_max_width_chars(maxchars) if maxchars else None
+        self.set_wrap(wrap)
 
         attributes(self) if attributes else None
 
@@ -65,3 +67,6 @@ class Label(Gtk.Label, BasicProps):
 
     def set_text(self, text):
         super().set_text(str(text))
+
+    def set_wrap(self, wrap):
+        super().set_line_wrap(wrap)
