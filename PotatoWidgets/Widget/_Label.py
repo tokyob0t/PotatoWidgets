@@ -11,7 +11,7 @@ class Label(Gtk.Label, BasicProps):
         xalign=0.5,
         angle=0.0,
         maxchars=None,
-        wrap=True,
+        wrap=False,
         attributes=None,
         css=None,
         halign="fill",
