@@ -35,7 +35,7 @@ class Box(Gtk.Box, BasicProps):
         self.set_orientation(orientation)
         self.set_visible(visible)
         self.set_homogeneous(homogeneous) if homogeneous else None
-        [self.add(i) for i in children] if children else None
+        self.set_children(children)
 
         attributes(self) if attributes else None
         for key, value in locals().items():
@@ -72,7 +72,7 @@ class Box(Gtk.Box, BasicProps):
                 i.destroy()
             self.remove(i)
 
-        [self.add(i) for i in newChildrenList]
+        [self.add(i) for i in newChildrenList if i]
         self.show_all()
 
     def __clasif_orientation(self, orientation):
