@@ -22,7 +22,7 @@ class BasicProps(Gtk.Widget):
         self.set_halign(halign)
         self.set_valign(valign)
         self.set_visible(visible)
-        self.set_sensitive(active) if active is not None else None
+        self.set_active(active)
         self.set_classname(classname)
         self.__clasif_size(size)
 
@@ -48,6 +48,10 @@ class BasicProps(Gtk.Widget):
 
     def set_valign(self, param):
         super().set_valign(self.__clasif_align(str(param)))
+
+    def set_active(self, param):
+        if param != None and param:
+            super().set_sensitive(param)
 
     def __clasif_size(self, size):
         if isinstance(size, int):
