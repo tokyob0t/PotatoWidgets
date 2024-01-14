@@ -21,7 +21,7 @@ class Listener(Variable):
             return
 
         self._stop_thread.clear()
-        self._thread = threading.Thread(target=lambda: self._callback(self))
+        self._thread = threading.Thread(target=self._exec_callback)
         self._thread.start()
 
     def get_value(self):
@@ -30,6 +30,10 @@ class Listener(Variable):
     def set_value(self, new_value):
         self._value = new_value
         self.emit("valuechanged")
+
+    def _exec_callback(self):
+        for line in self._callback():
+            self.set_value(line)
 
     def __str__(self):
         return str(self._value)
