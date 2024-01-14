@@ -214,10 +214,10 @@ class Window(Gtk.Window):
                 "valuechanged", lambda x: GLib.idle_add(lambda: callback(x.get_value()))
             )
 
-    def open(self, duration=False):
+    def open(self, duration=0):
         self.show()
 
-        if duration and duration > 0:
+        if duration > 0:
             GLib.timeout_add(duration, self.close)
 
     def close(self):
