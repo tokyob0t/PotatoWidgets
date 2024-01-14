@@ -83,6 +83,54 @@ class BasicProps(Gtk.Widget):
 
     def bind(self, variable, callback):
         if isinstance(variable, (Listener, Variable, Poll)):
-            variable.connect(
-                "valuechanged", lambda x: GLib.idle_add(lambda: callback(x.get_value()))
-            )
+            try:
+                argcount = callback.__code__.co_argcount
+            except:
+                argcount = -1
+
+            try:
+                argname = [
+                    i
+                    for i in callback.__code__.co_varnames[
+                        : callback.__code__.co_argcount
+                    ]
+                ]
+            except:
+                argname = []
+            try:
+                function_name = callback.__name__
+            except:
+                function_name = None
+
+            # print(function_name, argcount, argname)
+            if function_name == "<lambda>":
+                if argcount == 1:
+                    if "self" in argname:
+                        variable.connect(
+                            "valuechanged",
+                            lambda _: GLib.idle_add(lambda: callback(self)),
+                        )
+                    else:
+                        variable.connect(
+                            "valuechanged",
+                            lambda out: GLib.idle_add(
+                                lambda: callback(out.get_value())
+                            ),
+                        )
+                elif argcount == 2:
+                    variable.connect(
+                        "valuechanged",
+                        lambda out: GLib.idle_add(
+                            lambda: callback(self, out.get_value())
+                        ),
+                    )
+                elif argcount == -1:
+                    variable.connect(
+                        "valuechanged",
+                        lambda out: GLib.idle_add(lambda: callback(out.get_value())),
+                    )
+            else:
+                variable.connect(
+                    "valuechanged",
+                    lambda out: GLib.idle_add(lambda: callback(out.get_value())),
+                )
