@@ -11,7 +11,7 @@ setup(
         ],
     },
     author="T0kyoB0y",
-    description="Widget system based on Python, using GTK+ and GtkLayerShell.",
+    description="Widget system written in Python, using GTK+ and the GtkLayerShell.",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/T0kyoB0y/PotatoWidgets",
