@@ -81,8 +81,8 @@ class BasicProps(Gtk.Widget):
                 if isinstance(i, (Listener, Variable, Poll)):
                     pass
 
-    def bind(self, var, callback):
-        if isinstance(var, (Listener, Variable, Poll)):
-            var.connect(
+    def bind(self, variable, callback):
+        if isinstance(variable, (Listener, Variable, Poll)):
+            variable.connect(
                 "valuechanged", lambda x: GLib.idle_add(lambda: callback(x.get_value()))
             )
