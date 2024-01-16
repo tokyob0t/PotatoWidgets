@@ -220,8 +220,11 @@ class Window(Gtk.Window):
         if duration > 0:
             GLib.timeout_add(duration, self.close)
 
-    def close(self):
-        self.hide()
+    def close(self, duration=0):
+        if duration > 0:
+            GLib.timeout_add(duration, self.hide)
+        else:
+            self.hide()
 
     def toggle(self):
         if self.get_visible():
