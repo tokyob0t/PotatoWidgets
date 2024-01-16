@@ -215,10 +215,10 @@ class Window(Gtk.Window):
             )
 
     def open(self, duration=0):
-        self.show()
-
         if duration > 0:
-            GLib.timeout_add(duration, self.close)
+            GLib.timeout_add(duration, self.show)
+        else:
+            self.show()
 
     def close(self, duration=0):
         if duration > 0:
