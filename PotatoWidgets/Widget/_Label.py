@@ -12,6 +12,7 @@ class Label(Gtk.Label, BasicProps):
         angle=0.0,
         maxchars=None,
         wrap=False,
+        inverted=False,
         attributes=None,
         css=None,
         halign="fill",
@@ -40,6 +41,7 @@ class Label(Gtk.Label, BasicProps):
         self.set_angle(angle)
         self.set_maxchars(maxchars)
         self.set_wrap(wrap)
+        self.set_direction(Gtk.TextDirection.RTL if inverted else Gtk.TextDirection.LTR)
 
         attributes(self) if attributes else None
 
