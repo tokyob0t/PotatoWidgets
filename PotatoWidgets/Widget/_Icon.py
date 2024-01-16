@@ -28,10 +28,9 @@ class Icon(Gtk.Image, BasicProps):
             classname=classname,
             size=None,
         )
-        self.size = size
-        self.icon = icon
+        self.set_size(size)
+        self.set_icon(icon)
 
-        self.__reload_icon()
         attributes(self) if attributes else None
 
         for key, value in locals().items():
