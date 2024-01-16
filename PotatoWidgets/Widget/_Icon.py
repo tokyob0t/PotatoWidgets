@@ -53,5 +53,4 @@ class Icon(Gtk.Image, BasicProps):
         self.set_from_icon_name(icon, Gtk.IconSize.DIALOG)
 
     def set_size(self, size):
-        factor = 1.0
-        self.set_size_request(size * factor, size * factor)
+        self.set_pixel_size(size)
