@@ -50,14 +50,8 @@ class Icon(Gtk.Image, BasicProps):
 
                 self.bind(value, callback) if value else None
 
-    def __reload_icon(self):
-        self.set_from_icon_name(self.icon, 5)
-        self.set_pixel_size(self.size)
+    def set_icon(self, icon):
+        self.set_from_icon_name(icon)
 
-    def set_icon(self, x):
-        self.icon = x
-        self.__reload_icon()
-
-    def set_size(self, x):
-        self.size = x
-        self.__reload_icon()
+    def set_size(self, size):
+        self.set_pixel_size(size)
