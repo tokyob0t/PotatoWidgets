@@ -21,6 +21,7 @@ class Label(Gtk.Label, BasicProps):
         vexpand=False,
         visible=True,
         classname="",
+        justify="justified",
     ):
         Gtk.Label.__init__(self)
         BasicProps.__init__(
@@ -41,6 +42,7 @@ class Label(Gtk.Label, BasicProps):
         self.set_angle(angle)
         self.set_maxchars(maxchars)
         self.set_wrap(wrap)
+        self.set_justify(justify)
         self.set_direction(Gtk.TextDirection.RTL if inverted else Gtk.TextDirection.LTR)
 
         attributes(self) if attributes else None
@@ -63,6 +65,7 @@ class Label(Gtk.Label, BasicProps):
                     "xalign": self.set_xalign,
                     "angle": self.set_angle,
                     "limit": self.set_max_width_chars,
+                    "justify": self.set_justify,
                 }.get(key)
 
                 self.bind(value, callback) if callback else None
@@ -76,3 +79,13 @@ class Label(Gtk.Label, BasicProps):
     def set_maxchars(self, chars):
         if isinstance(chars, (int)):
             super().set_max_width_chars(chars)
+
+    def set_justify(self, justification):
+        if justification == "left":
+            super().set_justify(Gtk.Justification.LEFT)
+        elif justification == "center":
+            super().set_justify(Gtk.Justification.CENTER)
+        elif justification == "right":
+            super().set_justify(Gtk.Justification.RIGHT)
+        elif justification == "justified":
+            super().set_justify(Gtk.Justification.FILL)
