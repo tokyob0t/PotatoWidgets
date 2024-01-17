@@ -10,7 +10,7 @@ class Label(Gtk.Label, BasicProps):
         yalign=0.5,
         xalign=0.5,
         angle=0.0,
-        maxchars=None,
+        maxchars=-1,
         wrap=False,
         attributes=None,
         css=None,
@@ -75,8 +75,9 @@ class Label(Gtk.Label, BasicProps):
         super().set_line_wrap(wrap)
 
     def set_maxchars(self, chars):
-        if isinstance(chars, (int)):
+        if isinstance(chars, (int)) and chars > 0:
             super().set_max_width_chars(chars)
+            super().set_ellipsize(Pango.EllipsizeMode.END)
 
     def set_justify(self, justification):
         if justification == "left":
