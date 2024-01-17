@@ -64,7 +64,7 @@ class Label(Gtk.Label, BasicProps):
                     "yalign": self.set_yalign,
                     "xalign": self.set_xalign,
                     "angle": self.set_angle,
-                    "limit": self.set_max_width_chars,
+                    "maxchars": self.set_maxchars,
                     "justify": self.set_justify,
                 }.get(key)
 
