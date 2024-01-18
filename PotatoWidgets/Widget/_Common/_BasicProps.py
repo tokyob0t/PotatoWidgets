@@ -32,7 +32,7 @@ class BasicProps(Gtk.Widget):
             else ""
         )
 
-        self.set_classname(self.rand_classname) if css else ""
+        self.set_classname(self.rand_classname) if self.rand_classname else None
         self.set_css(css)
 
         for key, value in locals().items():
