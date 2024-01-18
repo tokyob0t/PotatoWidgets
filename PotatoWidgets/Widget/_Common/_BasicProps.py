@@ -23,6 +23,7 @@ class BasicProps(Gtk.Widget):
         self.set_valign(valign)
         self.set_visible(visible)
         self.set_active(active)
+        self.set_css(css)
         self.set_classname(classname)
         self.__clasif_size(size)
 
@@ -80,6 +81,24 @@ class BasicProps(Gtk.Widget):
             for i in param:
                 if isinstance(i, (Listener, Variable, Poll)):
                     pass
+
+    def set_css(self, css):
+        if css:
+            rand_classname = (
+                self.get_name().replace("+", "_") + "_" + str(randint(1111, 9999))
+            )
+
+            self.set_classname(rand_classname)
+            context = self.get_style_context()
+
+            try:
+                css_style = f".{rand_classname} {{{css}}}"
+                provider = Gtk.CssProvider()
+                provider.load_from_data(css_style.encode())
+                context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+
+            except Exception as r:
+                print(r)
 
     def bind(self, variable, callback):
         if isinstance(variable, (Listener, Variable, Poll)):
