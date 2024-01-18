@@ -17,15 +17,23 @@ class BasicProps(Gtk.Widget):
         size=[10, 10],
     ):
         Gtk.Widget.__init__(self)
+
         self.set_hexpand(True if hexpand else False)
         self.set_vexpand(True if vexpand else False)
         self.set_halign(halign)
         self.set_valign(valign)
         self.set_visible(visible)
         self.set_active(active)
-        self.set_css(css)
         self.set_classname(classname)
         self.__clasif_size(size)
+        self.rand_classname = (
+            self.get_name().replace("+", "_") + "_" + str(randint(1111, 9999))
+            if css
+            else ""
+        )
+
+        self.set_classname(self.rand_classname) if css else ""
+        self.set_css(css)
 
         for key, value in locals().items():
             callback = {
@@ -83,16 +91,11 @@ class BasicProps(Gtk.Widget):
                     pass
 
     def set_css(self, css):
-        if css:
-            rand_classname = (
-                self.get_name().replace("+", "_") + "_" + str(randint(1111, 9999))
-            )
-
-            self.set_classname(rand_classname)
+        if css and self.rand_classname:
             context = self.get_style_context()
 
             try:
-                css_style = f".{rand_classname} {{{css}}}"
+                css_style = f".{self.rand_classname} {{{css}}}"
                 provider = Gtk.CssProvider()
                 provider.load_from_data(css_style.encode())
                 context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
