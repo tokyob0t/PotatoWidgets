@@ -6,9 +6,9 @@ from ._Common._BasicProps import BasicProps
 class Scroll(Gtk.ScrolledWindow, BasicProps):
     def __init__(
         self,
-        orientation="h",
         children=None,
         attributes=None,
+        orientation="h",
         css=None,
         halign="fill",
         valign="fill",
