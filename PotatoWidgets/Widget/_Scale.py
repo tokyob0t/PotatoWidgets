@@ -11,6 +11,7 @@ class Scale(Gtk.Scale, BasicProps):
         onchange=None,
         inverted=False,
         draw_value=False,
+        decimals=0,
         attributes=None,
         orientation="h",
         css=None,
@@ -37,8 +38,10 @@ class Scale(Gtk.Scale, BasicProps):
         )
         self._min = min
         self._max = max
+
         self._reload_values()
         self.set_value(value)
+        self.set_decimals(decimals)
         self.set_inverted(inverted)
         self.set_orientation(orientation)
         self.set_draw_value(draw_value)
@@ -56,6 +59,9 @@ class Scale(Gtk.Scale, BasicProps):
     def set_max(self, max):
         self._max = max
         self._reload_values()
+
+    def set_decimals(self, value):
+        self.set_digits(value)
 
     def _reload_values(self):
         super().set_range(self._min, self._max)
