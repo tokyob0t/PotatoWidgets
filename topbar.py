@@ -38,12 +38,13 @@ if __name__ == "__main__":
 
     Topbar = Widget.EventBox(
         children=Widget.Box(
-            orientation="h",
             valign="center",
             spacing=10,
             children=[
                 Widget.Label(date),
-                Widget.Label(activewindow, hexpand=True),
+                Widget.Label(
+                    activewindow, hexpand=True, classname="labeltest horizontal"
+                ),
                 Widget.Label(
                     "volume: 0%",
                     attributes=lambda self: self.bind(

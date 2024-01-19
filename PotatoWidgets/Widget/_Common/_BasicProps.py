@@ -17,7 +17,7 @@ class BasicProps(Gtk.Widget):
         size=[10, 10],
     ):
         Gtk.Widget.__init__(self)
-
+        self._default_classnames = self.get_style_context().list_classes()
         self.set_hexpand(True if hexpand else False)
         self.set_vexpand(True if vexpand else False)
         self.set_halign(halign)
@@ -34,6 +34,7 @@ class BasicProps(Gtk.Widget):
 
         self.set_classname(self.rand_classname) if self.rand_classname else None
         self.set_css(css)
+        print(self.get_style_context().list_classes())
 
         for key, value in locals().items():
             callback = {
@@ -81,12 +82,21 @@ class BasicProps(Gtk.Widget):
         }
         return dict.get(param.lower(), Gtk.Align.FILL)
 
-    def set_classname(self, param):
-        if isinstance(param, (str)):
+    def set_classname(self, classname):
+        if isinstance(classname, (str)):
             context = self.get_style_context()
-            [context.add_class(i) for i in param.split(" ") if i != " "]
-        elif isinstance(param, (list)):
-            for i in param:
+            [
+                context.remove_class(i)
+                for i in context.list_classes()
+                if i not in self._default_classnames
+            ]
+
+            for j in classname.split(" "):
+                if j != " ":
+                    context.add_class(j)
+
+        elif isinstance(classname, (list)):
+            for i in classname:
                 if isinstance(i, (Listener, Variable, Poll)):
                     pass
 
