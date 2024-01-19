@@ -38,7 +38,7 @@ class Scale(Gtk.Scale, BasicProps):
         )
         self._min = min
         self._max = max
-
+        self.props.digits = decimals
         self._reload_values()
         self.set_value(value)
         self.set_decimals(decimals)
@@ -61,7 +61,9 @@ class Scale(Gtk.Scale, BasicProps):
         self._reload_values()
 
     def set_decimals(self, value):
-        self.set_digits(value)
+        if value > 0:
+            self.props.digits = value
+            self.set_digits(value)
 
     def _reload_values(self):
         super().set_range(self._min, self._max)
