@@ -34,7 +34,6 @@ class BasicProps(Gtk.Widget):
 
         self.set_classname(self.rand_classname) if self.rand_classname else None
         self.set_css(css)
-        print(self.get_style_context().list_classes())
 
         for key, value in locals().items():
             callback = {
