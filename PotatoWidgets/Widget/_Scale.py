@@ -35,17 +35,30 @@ class Scale(Gtk.Scale, BasicProps):
             classname=classname,
             size=size,
         )
-
-        self.set_range(min, max)
+        self._min = min
+        self._max = max
+        self._reload_values()
         self.set_value(value)
         self.set_inverted(inverted)
         self.set_orientation(orientation)
         self.set_draw_value(draw_value)
+
         self.connect(
             "value-changed", lambda x: onchange(x.get_value())
         ) if onchange else None
 
         attributes(self) if attributes else None
+
+    def set_min(self, min):
+        self._min = min
+        self._reload_values()
+
+    def set_max(self, max):
+        self._max = max
+        self._reload_values()
+
+    def _reload_values(self):
+        super().set_range(self._min, self._max)
 
     def set_orientation(self, param):
         return super().set_orientation(self.__clasif_orientation(param))
