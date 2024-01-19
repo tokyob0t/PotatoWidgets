@@ -61,7 +61,7 @@ class Scale(Gtk.Scale, BasicProps):
         self._reload_values()
 
     def set_decimals(self, value):
-        if value > 0:
+        if value >= 0:
             self.props.digits = value
             self.set_digits(value)
 
