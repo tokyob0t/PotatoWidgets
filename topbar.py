@@ -63,6 +63,7 @@ if __name__ == "__main__":
                         Widget.ProgressBar(value=50),
                         Widget.ProgressBar(value=50, inverted=True),
                     ],
+                    css="background-color: red;",
                     orientation="v",
                     valign="center",
                 ),
