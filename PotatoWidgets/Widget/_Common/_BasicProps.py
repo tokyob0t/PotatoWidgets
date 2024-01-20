@@ -99,20 +99,18 @@ class BasicProps(Gtk.Widget):
                 if isinstance(i, (Listener, Variable, Poll)):
                     pass
 
-    def set_css(self, css_rules):
-        if css_rules and self.rand_classname:
+    def set_css(self, css):
+        if css and self.rand_classname:
             context = self.get_style_context()
 
             try:
-                css_style = f".{self.rand_classname} {{{css_rules}}}"
-
+                css_style = f".{self.rand_classname} {{{css}}}"
                 provider = Gtk.CssProvider()
                 provider.load_from_data(css_style.encode())
+                context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_FALLBACK)
 
-                context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
-
-            except Exception as e:
-                print(e)
+            except Exception as r:
+                print(r)
 
     def bind(self, variable, callback):
         if isinstance(variable, (Listener, Variable, Poll)):
