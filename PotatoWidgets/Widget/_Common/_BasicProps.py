@@ -104,14 +104,11 @@ class BasicProps(Gtk.Widget):
             context = self.get_style_context()
 
             try:
-                # Construye un bloque de estilo combinando las reglas con la clase específica
                 css_style = f".{self.rand_classname} {{{css_rules}}}"
 
-                # Crea y carga un proveedor de estilos
                 provider = Gtk.CssProvider()
                 provider.load_from_data(css_style.encode())
 
-                # Agrega el proveedor de estilos al contexto
                 context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
             except Exception as e:
