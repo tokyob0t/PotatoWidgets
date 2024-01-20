@@ -18,5 +18,11 @@ class Variable(GObject.Object):
     def initial_value(self, value):
         self._value = value
 
-    def __str__(self):
-        return str(self._value)
+    def connect(self, callback):
+        def callback_wrapper():
+            callback(self.get_value())
+            return False
+
+        super().connect("valuechanged", callback_wrapper)
+
+        GObject.idle_add(callback_wrapper)
