@@ -31,7 +31,6 @@ class Window(Gtk.Window):
         **kwargs,
     ):
         Gtk.Window.__init__(self)
-        self.connect("destroy", Gtk.main_quit)
         self.monitor = monitor
         self._screen_width, self._screen_height = self.__calculateResolution(
             self.monitor
@@ -70,23 +69,24 @@ class Window(Gtk.Window):
             max(self.properties["size"][0], 10), max(self.properties["size"][1], 10)
         )
 
-        # Connect the key-press-event signal to handle the Escape key
-        self.connect("key-press-event", self.on_key_press)
-
-        # Connect the button-press-event signal to handle clicks outside the window
-        self.connect("button-press-event", self.on_button_press)
+        # self.connect("destroy", Gtk.main_quit)
 
         self.set_focusable(focusable)
         self.set_popup(popup)
         attributes(self) if attributes else None
+
+        if self.popup:
+            # Connect the key-press-event signal to handle the Escape key
+            self.connect("key-press-event", self.on_key_press)
+            # Connect the button-press-event signal to handle clicks outside the window
+            self.connect("button-press-event", self.on_button_press)
 
         self.close()
 
     def on_key_press(self, _, event):
         # Handle key-press-event signal (Escape key)
         if event.keyval == Gdk.KEY_Escape:
-            if self.popup:
-                self.close()
+            self.close()
 
     def on_button_press(self, _, event):
         # Handle button-press-event signal (click outside the window)
@@ -100,7 +100,7 @@ class Window(Gtk.Window):
                 or x >= frame_extents.x + frame_extents.width
                 or y < frame_extents.y
                 or y >= frame_extents.y + frame_extents.height
-            ) and self.popup:
+            ):
                 self.close()
 
     def set_focusable(self, focusable):
