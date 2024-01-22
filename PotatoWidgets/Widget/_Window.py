@@ -26,6 +26,7 @@ class Window(Gtk.Window):
         parent=None,
         focusable=False,
         popup=False,
+        namespace="gtk-layer-shell",
         attributes=None,
         **kwargs,
     ):
@@ -44,21 +45,20 @@ class Window(Gtk.Window):
                 "position": position,
                 "layer": layer,
                 "exclusive": exclusive,
+                "namespace": namespace,
             }
         )
         self.add(children) if children else None
 
         # Other settings for the window
         # Useful for popups or something like that
-        self.set_destroy_with_parent(True if parent else False)
         self.set_transient_for(parent) if parent else None
+        self.set_destroy_with_parent(True if parent else False)
 
         # GtkLayerShell SETTING, etc...
         if not locals().get("disable_gtklayershell", False):
             GtkLayerShell.init_for_window(self)
-            # GtkLayerShell.set_namespace(
-            #     self, f"potatowindow {self.properties.get('namespace', '')}"
-            # )
+            GtkLayerShell.set_namespace(self, self.properties.get("namespace"))
             GtkLayerShell.set_layer(
                 self, self.__clasif_layer(self.properties.get("layer", "top"))
             )
