@@ -214,24 +214,26 @@ class Window(Gtk.Window):
             )
 
     def open(self, duration=0):
+        self.show()
         if duration > 0:
             if self._open_timer_id is not None:
                 GLib.source_remove(self._open_timer_id)
 
-            self.show()
             self._open_timer_id = GLib.timeout_add(duration, lambda: self.close())
         else:
             self.show()
 
-    def close(self, duration=0):
-        if duration > 0:
-            if self._open_timer_id is not None:
-                GLib.source_remove(self._open_timer_id)
+    def close(self):
+        self.hide()
 
-            self.hide()
-            self._open_timer_id = GLib.timeout_add(duration, lambda: self.close())
-        else:
-            self.hide()
+        # if duration > 0:
+        #     if self._open_timer_id is not None:
+        #         GLib.source_remove(self._open_timer_id)
+
+        #     self.hide()
+        #     self._open_timer_id = GLib.timeout_add(duration, lambda: self.close())
+        # else:
+        #     self.hide()
 
     def toggle(self):
         if self.get_visible():
