@@ -48,7 +48,7 @@ class Window(Gtk.Window):
             }
         )
         self.add(children) if children else None
-
+        self._open_timer_id = None
         # Other settings for the window
         # Useful for popups or something like that
         self.set_transient_for(parent) if parent else None
@@ -215,14 +215,21 @@ class Window(Gtk.Window):
 
     def open(self, duration=0):
         if duration > 0:
-            self.open()
-            GLib.timeout_add(duration, lambda: self.close())
+            if self._open_timer_id is not None:
+                GLib.source_remove(self._open_timer_id)
+
+            self.show()
+            self._open_timer_id = GLib.timeout_add(duration, lambda: self.close())
         else:
             self.show()
 
     def close(self, duration=0):
         if duration > 0:
-            GLib.timeout_add(duration, lambda: self.close())
+            if self._open_timer_id is not None:
+                GLib.source_remove(self._open_timer_id)
+
+            self.hide()
+            self._open_timer_id = GLib.timeout_add(duration, lambda: self.close())
         else:
             self.hide()
 
