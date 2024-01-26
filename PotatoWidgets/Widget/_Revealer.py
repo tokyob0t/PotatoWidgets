@@ -63,10 +63,10 @@ class Revealer(Gtk.Revealer, BasicProps):
         super().set_transition_type(self.__clasif_transition(transition))
 
     def set_duration(self, duration_ms):
-        self.set_transition_duration(duration_ms)
+        super().set_transition_duration(duration_ms)
 
     def set_revealed(self, reveal):
-        self.set_reveal_child(reveal)
+        super().set_reveal_child(reveal)
 
     def __clasif_transition(self, param):
         anim = {
