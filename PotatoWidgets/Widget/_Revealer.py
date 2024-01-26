@@ -53,20 +53,20 @@ class Revealer(Gtk.Revealer, BasicProps):
             ] and isinstance(value, (Listener, Poll, Variable)):
                 callback = {
                     "reveal": self.set_revealed,
-                    "transition": self.set_revealed,
-                    "duration": self.set_transition,
+                    "transition": self.set_transition,
+                    "duration": self.set_duration,
                 }.get(key)
 
                 self.bind(value, callback) if callback else None
 
-    def set_transition(self, param):
-        super().set_transition_type(self.__clasif_transition(param))
+    def set_transition(self, transition):
+        super().set_transition_type(self.__clasif_transition(transition))
 
-    def set_duration(self, param):
-        self.set_transition_duration(param)
+    def set_duration(self, duration_ms):
+        self.set_transition_duration(duration_ms)
 
-    def set_revealed(self, param):
-        self.set_reveal_child(param)
+    def set_revealed(self, reveal):
+        self.set_reveal_child(reveal)
 
     def __clasif_transition(self, param):
         anim = {
