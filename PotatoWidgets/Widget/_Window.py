@@ -215,13 +215,12 @@ class Window(Gtk.Window):
 
     def open(self, duration=0):
         self.show()
+
         if duration > 0:
             if self._open_timer_id is not None:
                 GLib.source_remove(self._open_timer_id)
 
             self._open_timer_id = GLib.timeout_add(duration, lambda: self.close())
-        else:
-            self.show()
 
     def close(self):
         self.hide()
