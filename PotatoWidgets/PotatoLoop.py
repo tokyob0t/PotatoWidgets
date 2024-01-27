@@ -16,6 +16,7 @@ class PotatoLoop(dbus.service.Object):
                 return {"windows": []}
 
         self.data = DATA()
+        self.MainLoop()
 
     @dbus.service.method(
         "com.T0kyoB0y.PotatoWidgets", in_signature="", out_signature="s"
