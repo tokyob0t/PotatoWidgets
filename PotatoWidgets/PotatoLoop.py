@@ -1,8 +1,8 @@
 from .__Import import *
 
 
-class PotatoLoop(dbus.service.Object):
-    def __init__(self, confdir):
+class PotatoService(dbus.service.Object):
+    def __init__(self, confdir=""):
         bus_name = dbus.service.BusName(
             "com.T0kyoB0y.PotatoWidgets", bus=dbus.SessionBus()
         )
@@ -16,7 +16,6 @@ class PotatoLoop(dbus.service.Object):
                 return {"windows": []}
 
         self.data = DATA()
-        self.MainLoop()
 
     @dbus.service.method(
         "com.T0kyoB0y.PotatoWidgets", in_signature="", out_signature="s"
@@ -53,11 +52,13 @@ class PotatoLoop(dbus.service.Object):
                     i.close()
                 return "success"
 
-    def MainLoop(self):
-        try:
-            DBusGMainLoop(set_as_default=True)
-            Gtk.main()
 
-        except KeyboardInterrupt:
-            print("Bye")
-            exit(0)
+def PotatoLoop():
+    try:
+        DBusGMainLoop(set_as_default=True)
+        PotatoService()
+        Gtk.main()
+
+    except KeyboardInterrupt:
+        print("Bye")
+        exit(0)
