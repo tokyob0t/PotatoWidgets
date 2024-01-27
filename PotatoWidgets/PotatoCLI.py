@@ -59,7 +59,9 @@ def main():
     parser.add_argument(
         "--windows", action="store_true", help="List all exported windows"
     )
-    parser.add_argument("--toggle", help="Toggle window with the given name")
+    parser.add_argument(
+        "--toggle", metavar="window", help="Toggle window with the given name"
+    )
 
     args = parser.parse_args()
 
