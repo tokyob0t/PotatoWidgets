@@ -2,7 +2,7 @@ from .__Import import *
 
 
 class PotatoService(dbus.service.Object):
-    def __init__(self, confdir=""):
+    def __init__(self, confdir):
         bus_name = dbus.service.BusName(
             "com.T0kyoB0y.PotatoWidgets", bus=dbus.SessionBus()
         )
@@ -53,10 +53,10 @@ class PotatoService(dbus.service.Object):
                 return "success"
 
 
-def PotatoLoop():
+def PotatoLoop(confdir=""):
     try:
         DBusGMainLoop(set_as_default=True)
-        PotatoService()
+        PotatoService(confdir)
         Gtk.main()
 
     except KeyboardInterrupt:
