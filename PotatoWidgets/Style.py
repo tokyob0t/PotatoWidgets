@@ -27,17 +27,17 @@ class Style:
                     current_dir = out.decode("utf-8").replace("\n", "")
                     css_path = GLib.build_filenamev([current_dir, css_path[2:]])
 
-                print(f"Transpiling SCSS: {css_path}")
+                # print(f"Transpiling SCSS: {css_path}")
                 GLib.spawn_command_line_sync(f"sassc {css_path} {self.css_path} ")
             except Exception as e:
-                print(f"Error transpiling SCSS: {e}")
+                print(f"Error transpiling SCSS:\n {e}")
 
     def __load_css(self, css_provider, css_path):
         try:
-            print(f"Loading CSS file: {css_path}")
+            # print(f"Loading CSS file: {css_path}")
             css_provider.load_from_path(css_path)
         except Exception as e:
-            print(f"Error loading CSS file: {e}")
+            print(f"Error loading CSS file:\n {e}")
 
     def __apply_style(self, css_provider):
         screen = Gdk.Screen.get_default()
