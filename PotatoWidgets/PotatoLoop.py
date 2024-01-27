@@ -1,4 +1,5 @@
 from .__Import import *
+from .Style import Style
 
 
 class PotatoService(dbus.service.Object):
@@ -15,6 +16,7 @@ class PotatoService(dbus.service.Object):
             def DATA():
                 return {"windows": []}
 
+        Style(f"{confdir}/style.scss")
         self.data = DATA()
 
     @dbus.service.method(
