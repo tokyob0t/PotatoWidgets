@@ -32,12 +32,12 @@ class Window(Gtk.Window):
     ):
         Gtk.Window.__init__(self)
         self.monitor = monitor
-        self._screen_width, self._screen_height = self.__calculateResolution(
+        self._screen_width, self._screen_height = self.calculate_resolution(
             self.monitor
         )
         self._perheight = lambda x: (float(x) * self._screen_height) / 100
         self._perwidth = lambda x: (float(x) * self._screen_width) / 100
-        self.properties = self.__adjustProps(
+        self.properties = self.adjust_props(
             {
                 "size": size,
                 "at": at,
@@ -58,12 +58,12 @@ class Window(Gtk.Window):
             GtkLayerShell.init_for_window(self)
             GtkLayerShell.set_namespace(self, self.properties.get("namespace"))
             GtkLayerShell.set_layer(
-                self, self.__clasif_layer(self.properties.get("layer", "top"))
+                self, self.clasify_layer(self.properties.get("layer", "top"))
             )
 
-        self.__clasif_position(self.properties.get("position", "center"))
-        self.__clasif_exclusive(self.properties.get("exclusive", False))
-        self.__clasif_at(self.properties.get("at", False))
+        self.clasify_position(self.properties.get("position", "center"))
+        self.clasify_exclusive(self.properties.get("exclusive", False))
+        self.clasify_at(self.properties.get("at", False))
         self.set_size_request(
             max(self.properties["size"][0], 10), max(self.properties["size"][1], 10)
         )
@@ -117,7 +117,7 @@ class Window(Gtk.Window):
             # Set the window type hint to NORMAL
             self.set_type_hint(Gdk.WindowTypeHint.NORMAL)
 
-    def __adjustProps(self, props):
+    def adjust_props(self, props):
         at = props.get("at", {"top": 0, "bottom": 0, "left": 0, "right": 0})
 
         at["top"] = cleantextY(at.get("top", 0), self._perwidth)
@@ -135,7 +135,7 @@ class Window(Gtk.Window):
 
         return props
 
-    def __calculateResolution(self, monitor):
+    def calculate_resolution(self, monitor):
         display = Gdk.Display.get_default()
         n_monitors = display.get_n_monitors()
 
@@ -147,7 +147,7 @@ class Window(Gtk.Window):
 
         return selected_monitor.width, selected_monitor.height
 
-    def __clasif_layer(self, layer):
+    def clasify_layer(self, layer):
         if layer.lower() in ["background", "bg"]:
             return GtkLayerShell.Layer.BACKGROUND
         elif layer.lower() in ["bottom", "bt"]:
@@ -157,7 +157,7 @@ class Window(Gtk.Window):
         elif layer.lower() in ["overlay", "ov"]:
             return GtkLayerShell.Layer.OVERLAY
 
-    def __clasif_position(self, position):
+    def clasify_position(self, position):
         for i in position.lower().split(" "):
             if i in ["top", "tp"]:
                 GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.TOP, True)
@@ -177,7 +177,7 @@ class Window(Gtk.Window):
                 GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.LEFT, False)
                 GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.BOTTOM, False)
 
-    def __clasif_exclusive(self, exclusivity):
+    def clasify_exclusive(self, exclusivity):
         if exclusivity == True:
             return GtkLayerShell.auto_exclusive_zone_enable(self)
         elif isinstance(exclusivity, int):
@@ -185,7 +185,7 @@ class Window(Gtk.Window):
         else:
             return
 
-    def __clasif_at(self, at):
+    def clasify_at(self, at):
         if at:
             for key, value in at.items():
                 if key in ["top", "tp"]:
