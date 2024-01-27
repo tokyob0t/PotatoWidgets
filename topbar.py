@@ -96,6 +96,7 @@ if __name__ == "__main__":
         # popup=True,
         children=Topbar,
     )
-
+    # print(MyFirstWindow)
+    # print([MyFirstWindow])
     MyFirstWindow.open()
     PotatoLoop()

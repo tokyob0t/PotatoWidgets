@@ -245,3 +245,6 @@ class Window(Gtk.Window):
 
     def __str__(self) -> str:
         return str(self.properties["namespace"])
+
+    def __repr__(self) -> str:
+        return str(self.properties["namespace"])
