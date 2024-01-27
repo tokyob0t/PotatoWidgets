@@ -1,7 +1,24 @@
-from .__Import import *
+import subprocess
+import json
+import argparse
+import dbus
+
+
+def is_service_running(service_name):
+    try:
+        bus = dbus.SessionBus()
+        obj = bus.get_object(service_name, "/com/T0kyoB0y/PotatoWidgets")
+        iface = dbus.Interface(obj, service_name)
+        return True
+    except dbus.exceptions.DBusException:
+        return False
 
 
 def list_windows():
+    if not is_service_running("com.T0kyoB0y.PotatoWidgets"):
+        print("PotatoWidgets service is not running.")
+        return
+
     command = [
         "gdbus",
         "call",
@@ -20,6 +37,10 @@ def list_windows():
 
 
 def toggle_window(window_name):
+    if not is_service_running("com.T0kyoB0y.PotatoWidgets"):
+        print("PotatoWidgets service is not running.")
+        return
+
     command = [
         "gdbus",
         "call",
