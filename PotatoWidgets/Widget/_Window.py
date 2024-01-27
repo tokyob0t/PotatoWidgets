@@ -242,3 +242,6 @@ class Window(Gtk.Window):
             self.close()
         else:
             self.open()
+
+    def __str__(self) -> str:
+        return str(self.properties["namespace"])
