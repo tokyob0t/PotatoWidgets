@@ -1,5 +1,4 @@
 from .__Import import *
-from .Style import Style
 
 
 class PotatoService(dbus.service.Object):
@@ -8,6 +7,7 @@ class PotatoService(dbus.service.Object):
             "com.T0kyoB0y.PotatoWidgets", bus=dbus.SessionBus()
         )
         super().__init__(bus_name, "/com/T0kyoB0y/PotatoWidgets")
+
         try:
             sys.path.append(confdir)
             from main import DATA
@@ -16,7 +16,6 @@ class PotatoService(dbus.service.Object):
             def DATA():
                 return {"windows": []}
 
-        # Style(f"{confdir}/style.scss")
         self.data = DATA()
 
     @dbus.service.method(

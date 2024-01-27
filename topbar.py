@@ -1,9 +1,7 @@
 #!/usr/bin/python
 
 import subprocess
-from datetime import datetime
 from os import getenv
-
 from PotatoWidgets import PotatoLoop, Variable, Widget
 
 if __name__ == "__main__":
