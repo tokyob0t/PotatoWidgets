@@ -7,7 +7,7 @@ setup(
     install_requires=["PyGObject"],
     entry_points={
         "console_scripts": [
-            "potato_widgets = PotatoWidgets.main:main",
+            "potatocli = PotatoWidgets.PotatoCLI:main",
         ],
     },
     author="T0kyoB0y",

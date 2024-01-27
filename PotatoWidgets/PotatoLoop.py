@@ -1,47 +1,63 @@
 from .__Import import *
 
+try:
+    sys.path.append(f'{GLib.getenv("HOME")}/.config/potato/')
 
-# class _LoopClass:
-#     def __init__(self):
-#         self.parser = argparse.ArgumentParser(
-#             description="Daemon de ejemplo con opciones."
-#         )
-#         self.parser.add_argument(
-#             "--print", dest="print_message", help="Mensaje a imprimir"
-#         )
-#         self.parser.add_argument(
-#             "subcommand", choices=["start", "stop"], help="Comando a ejecutar"
-#         )
-#         self.args = self.parser.parse_args()
-
-#     def __start(self):
-#         print("La aplicación está en ejecución...")
-#         Gtk.main()
-
-#     def __stop(self):
-#         Gtk.main_quit()
-
-#     def run(self):
-#         if hasattr(self.args, "print_message") and self.args.print_message:
-#             print("Mensaje personalizado:", self.args.print_message)
-
-#         if self.args.subcommand == "start":
-#             self.__run_daemon()
-#         elif self.args.subcommand == "stop":
-#             self.__stop()
-#         else:
-#             print("Comando no reconocido.")
-
-#     def __run_daemon(self):
-#         daemon = daemonize.Daemonize(
-#             app="PotatoLoop", pid="/tmp/PotatoLoop.pid", action=self.__start
-#         )
-#         daemon.start()
+    from main import DATA
+except:
+    DATA = lambda: {"windows": []}
 
 
-# PotatoLoop = _LoopClass()
+class PotatoService(dbus.service.Object):
+    def __init__(self):
+        bus_name = dbus.service.BusName(
+            "com.T0kyoB0y.PotatoWidgets", bus=dbus.SessionBus()
+        )
+        super().__init__(bus_name, "/com/T0kyoB0y/PotatoWidgets")
+
+    @dbus.service.method(
+        "com.T0kyoB0y.PotatoWidgets", in_signature="", out_signature="s"
+    )
+    def ListWindows(self):
+        return str(
+            json.dumps(
+                [{"name": f"{i}", "opened": i.get_visible()} for i in DATA()["windows"]]
+            )
+        )
+
+    @dbus.service.method(
+        "com.T0kyoB0y.PotatoWidgets", in_signature="", out_signature="s"
+    )
+    def ListData(self):
+        return str(DATA())
+
+    @dbus.service.method(
+        "com.T0kyoB0y.PotatoWidgets", in_signature="ss", out_signature="s"
+    )
+    def WindowAction(self, action, window_name):
+        if window_name not in [str(i) for i in DATA()["windows"]]:
+            return f"{window_name} not found"
+        for i in DATA()["windows"]:
+            if window_name == str(i):
+                if action == "toggle":
+                    i.toggle()
+                elif action == "open":
+                    i.open()
+                if action == "close":
+                    i.close()
+                return "success"
+
+
 def PotatoLoop():
     try:
+        DBusGMainLoop(set_as_default=True)
+        PotatoService()
         Gtk.main()
+
     except KeyboardInterrupt:
+        print("Bye")
         exit(0)
+
+
+# if __name__ == "__main__":
+#     PotatoLoop()
