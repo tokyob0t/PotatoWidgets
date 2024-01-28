@@ -60,8 +60,8 @@ class EventBox(Gtk.EventBox, Events, BasicProps):
         self.connect("button-release-event", self.__release_event)
         self.connect("enter-notify-event", self.__enter_event)
         self.connect("leave-notify-event", self.__leave_event)
-        self.connect("key-press-event", self.__press_event)
-        self.connect("key-release-event", self.__release_event)
+        # self.connect("key-press-event", self.__press_event)
+        # self.connect("key-release-event", self.__release_event)
 
     def __click_event(self, _):
         callback = self.dict.get("onclick", None)
