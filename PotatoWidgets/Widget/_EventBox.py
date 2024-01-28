@@ -42,26 +42,73 @@ class EventBox(Gtk.EventBox, Events, BasicProps):
 
         self.add(children) if children else None
         attributes(self) if attributes else None
-        self._scrollup = onscrollup
-        self._scrolldown = onscrolldown
+        self.dict = {
+            "onclick": onclick,
+            "onmiddleclick": onmiddleclick,
+            "onhover": onhover,
+            "onhoverlost": onhoverlost,
+            "primaryhold": primaryhold,
+            "primaryrelease": primaryrelease,
+            "secondaryhold": secondaryhold,
+            "secondaryrelease": secondaryrelease,
+            "onscrollup": onscrollup,
+            "onscrolldown": onscrolldown,
+        }
 
-        self.connect("button-press-event", onclick) if onclick else None
-        self.connect("button-release-event", onmiddleclick) if onmiddleclick else None
-        self.connect("enter-notify-event", onhover) if onhover else None
-        self.connect("leave-notify-event", onhoverlost) if onhoverlost else None
         self.connect("scroll-event", self.__clasif_scroll)
-        self.connect("key-press-event", primaryhold) if primaryhold else None
-        self.connect("key-release-event", primaryrelease) if primaryrelease else None
-        self.connect("key-press-event", secondaryhold) if secondaryhold else None
-        self.connect(
-            "key-release-event", secondaryrelease
-        ) if secondaryrelease else None
+        self.connect("button-press-event", self.__press_event)
+        self.connect("button-release-event", self.__release_event)
+        self.connect("enter-notify-event", self.__enter_event)
+        self.connect("leave-notify-event", self.__leave_event)
+        self.connect("key-press-event", self.__press_event)
+        self.connect("key-release-event", self.__release_event)
+
+    def __click_event(self, _):
+        callback = self.dict.get("onclick", None)
+        if callback:
+            callback()
 
     def __clasif_scroll(self, _, param):
         if param == Gdk.ScrollDirection.UP:
-            if self._scrollup:
-                self._scrollup()
+            callback = self.dict.get("onscrollup", None)
+            if callback:
+                callback()
         elif param == Gdk.ScrollDirection.DOWN:
-            if self._scrolldown:
-                self._scrolldown()
-        print(param)
+            callback = self.dict.get("onscrolldown", None)
+            if callback:
+                callback()
+
+    def __press_event(self, _, event):
+        if event.button == Gdk.BUTTON_PRIMARY:
+            callback = self.dict.get("primaryhold", None)
+            if callback:
+                callback()
+                return
+        elif event.button == Gdk.BUTTON_SECONDARY:
+            callback = self.dict.get("secondaryhold", None)
+            if callback:
+                callback()
+        elif event.button == Gdk.BUTTON_MIDDLE:
+            callback = self.dict.get("onmiddleclick", None)
+            if callback:
+                callback()
+
+    def __release_event(self, _, event):
+        if event.button == Gdk.BUTTON_PRIMARY:
+            callback = self.dict.get("primaryrelease", None)
+            if callback:
+                callback()
+        elif event.button == Gdk.BUTTON_SECONDARY:
+            callback = self.dict.get("secondaryrelease", None)
+            if callback:
+                callback()
+
+    def __enter_event(self, *_):
+        callback = self.dict.get("onhover", None)
+        if callback:
+            callback()
+
+    def __leave_event(self, *_):
+        callback = self.dict.get("onhoverlost", None)
+        if callback:
+            callback()
