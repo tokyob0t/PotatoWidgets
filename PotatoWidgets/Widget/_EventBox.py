@@ -46,15 +46,15 @@ class EventBox(Gtk.EventBox, Events, BasicProps):
         self._scrollup = onscrollup
         self._scrolldown = onscrolldown
 
-        self.connect_signal("button-press-event", onclick)
-        self.connect_signal("button-release-event", onmiddleclick)
-        self.connect_signal("enter-notify-event", onhover)
-        self.connect_signal("leave-notify-event", onhoverlost)
-        self.connect_signal("scroll-event", self.__clasif_scroll)
-        self.connect_signal("key-press-event", primaryhold)
-        self.connect_signal("key-release-event", primaryrelease)
-        self.connect_signal("key-press-event", secondaryhold)
-        self.connect_signal("key-release-event", secondaryrelease)
+        self.connect("button-press-event", onclick)
+        self.connect("button-release-event", onmiddleclick)
+        self.connect("enter-notify-event", onhover)
+        self.connect("leave-notify-event", onhoverlost)
+        self.connect("scroll-event", self.__clasif_scroll)
+        self.connect("key-press-event", primaryhold)
+        self.connect("key-release-event", primaryrelease)
+        self.connect("key-press-event", secondaryhold)
+        self.connect("key-release-event", secondaryrelease)
 
     def __clasif_scroll(self, _, param):
         if param == Gdk.ScrollDirection.UP:
