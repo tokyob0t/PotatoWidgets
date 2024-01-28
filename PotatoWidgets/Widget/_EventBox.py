@@ -29,7 +29,7 @@ class EventBox(Gtk.EventBox, Events, BasicProps):
         Gtk.EventBox.__init__(self)
         Events.__init__(
             self,
-            onclick=onclick,
+            onclick=None,
             onmiddleclick=onmiddleclick,
             onhover=onhover,
             onhoverlost=onhoverlost,
@@ -54,7 +54,7 @@ class EventBox(Gtk.EventBox, Events, BasicProps):
         self._scrollup = onscrollup
         self._scrolldown = onscrolldown
         self.connect("scroll-event", self.__clasif_scroll)
-
+        self.connect("button-press-event", self.__click_event) if onclick else None
         attributes(self) if attributes else None
 
     def __clasif_scroll(self, _, param):
