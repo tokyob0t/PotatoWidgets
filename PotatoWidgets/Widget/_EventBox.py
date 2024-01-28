@@ -42,7 +42,6 @@ class EventBox(Gtk.EventBox, Events, BasicProps):
 
         self.add(children) if children else None
         attributes(self) if attributes else None
-
         self._scrollup = onscrollup
         self._scrolldown = onscrolldown
 
