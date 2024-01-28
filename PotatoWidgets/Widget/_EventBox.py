@@ -27,17 +27,6 @@ class EventBox(Gtk.EventBox, Events, BasicProps):
         classname="",
     ):
         Gtk.EventBox.__init__(self)
-        Events.__init__(
-            self,
-            onclick=None,
-            onmiddleclick=onmiddleclick,
-            onhover=onhover,
-            onhoverlost=onhoverlost,
-            primaryhold=primaryhold,
-            primaryrelease=primaryrelease,
-            secondaryhold=secondaryhold,
-            secondaryrelease=secondaryrelease,
-        )
 
         BasicProps.__init__(
             self,
@@ -50,12 +39,22 @@ class EventBox(Gtk.EventBox, Events, BasicProps):
             visible=visible,
             classname=classname,
         )
+
         self.add(children) if children else None
+        attributes(self) if attributes else None
+
         self._scrollup = onscrollup
         self._scrolldown = onscrolldown
-        self.connect("scroll-event", self.__clasif_scroll)
-        self.connect("button-press-event", self.__click_event) if onclick else None
-        attributes(self) if attributes else None
+
+        self.connect_signal("button-press-event", onclick)
+        self.connect_signal("button-release-event", onmiddleclick)
+        self.connect_signal("enter-notify-event", onhover)
+        self.connect_signal("leave-notify-event", onhoverlost)
+        self.connect_signal("scroll-event", self.__clasif_scroll)
+        self.connect_signal("key-press-event", primaryhold)
+        self.connect_signal("key-release-event", primaryrelease)
+        self.connect_signal("key-press-event", secondaryhold)
+        self.connect_signal("key-release-event", secondaryrelease)
 
     def __clasif_scroll(self, _, param):
         if param == Gdk.ScrollDirection.UP:
