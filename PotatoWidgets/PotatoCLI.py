@@ -56,10 +56,6 @@ def main():
     parser.add_argument(
         "--toggle", metavar="window", help="Toggle window with the given name"
     )
-    parser.add_argument(
-        "--toggle", metavar="window", help="Toggle window with the given name"
-    )
-
     args = parser.parse_args()
 
     if args.windows:
