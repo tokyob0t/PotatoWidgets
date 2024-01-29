@@ -1,4 +1,7 @@
-from .__Import import *
+# from .__Import import *
+import json
+import dbus
+import argparse
 
 
 def is_service_running(service_name):
@@ -22,7 +25,7 @@ def list_windows():
             "com.T0kyoB0y.PotatoWidgets", "/com/T0kyoB0y/PotatoWidgets"
         )
         iface = dbus.Interface(obj, "com.T0kyoB0y.PotatoWidgets")
-        windows = iface.ListWindows()
+        windows = json.loads(iface.ListWindows())
         if windows:
             for window in windows:
                 if window["opened"]:
