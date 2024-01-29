@@ -52,7 +52,9 @@ def toggle_window(window_name):
 def main():
     parser = argparse.ArgumentParser(description="PotatoWidgets CLI")
 
-    parser.add_argument("--windows", help="List all exported windows")
+    parser.add_argument(
+        "--windows", action="store_true", help="List all exported windows"
+    )
     parser.add_argument(
         "--toggle", metavar="window", help="Toggle window with the given name"
     )
