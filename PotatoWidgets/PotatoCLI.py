@@ -1,19 +1,21 @@
 from .__Import import *
 
 
-def is_service_running(service_name):
+def is_service_running():
     try:
         bus = dbus.SessionBus()
-        obj = bus.get_object(service_name, "/com/T0kyoB0y/PotatoWidgets")
-        _ = dbus.Interface(obj, service_name)
+        obj = bus.get_object(
+            "com.T0kyoB0y.PotatoWidgets", "/com/T0kyoB0y/PotatoWidgets"
+        )
+        _ = dbus.Interface(obj, "com.T0kyoB0y.PotatoWidgets")
         return True
     except dbus.exceptions.DBusException:
+        print("PotatoWidgets service is not running.")
         return False
 
 
 def list_windows():
-    if not is_service_running("com.T0kyoB0y.PotatoWidgets"):
-        print("PotatoWidgets service is not running.")
+    if not is_service_running():
         return
 
     try:
@@ -33,8 +35,7 @@ def list_windows():
 
 
 def toggle_window(window_name):
-    if not is_service_running("com.T0kyoB0y.PotatoWidgets"):
-        print("PotatoWidgets service is not running.")
+    if not is_service_running():
         return
 
     try:
@@ -51,8 +52,9 @@ def toggle_window(window_name):
 def main():
     parser = argparse.ArgumentParser(description="PotatoWidgets CLI")
 
+    parser.add_argument("--windows", help="List all exported windows")
     parser.add_argument(
-        "--windows", action="store_true", help="List all exported windows"
+        "--toggle", metavar="window", help="Toggle window with the given name"
     )
     parser.add_argument(
         "--toggle", metavar="window", help="Toggle window with the given name"
