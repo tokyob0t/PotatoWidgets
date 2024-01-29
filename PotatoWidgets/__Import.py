@@ -7,9 +7,9 @@ import subprocess
 import importlib
 import dbus
 import dbus.service
-from dbus.mainloop.glib import DBusGMainLoop
-
+from dbus import SessionBus
 from random import randint
+from dbus.mainloop.glib import DBusGMainLoop
 
 gi.require_version("Gtk", "3.0")
 gi.require_version("Gdk", "3.0")

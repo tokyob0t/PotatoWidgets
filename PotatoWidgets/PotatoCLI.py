@@ -5,7 +5,7 @@ def is_service_running(service_name):
     try:
         bus = dbus.SessionBus()
         obj = bus.get_object(service_name, "/com/T0kyoB0y/PotatoWidgets")
-        iface = dbus.Interface(obj, service_name)
+        _ = dbus.Interface(obj, service_name)
         return True
     except dbus.exceptions.DBusException:
         return False
@@ -16,21 +16,20 @@ def list_windows():
         print("PotatoWidgets service is not running.")
         return
 
-    command = [
-        "gdbus",
-        "call",
-        "--session",
-        "--dest=com.T0kyoB0y.PotatoWidgets",
-        "--object-path=/com/T0kyoB0y/PotatoWidgets",
-        "--method=com.T0kyoB0y.PotatoWidgets.ListWindows",
-    ]
-
-    out = subprocess.getoutput(" ".join(command))
-    out = json.loads(out.replace("('", "").replace("',)", ""))
-    for i in out:
-        if i["opened"]:
-            print("*", end=" ")
-        print(i["name"])
+    try:
+        bus = dbus.SessionBus()
+        obj = bus.get_object(
+            "com.T0kyoB0y.PotatoWidgets", "/com/T0kyoB0y/PotatoWidgets"
+        )
+        iface = dbus.Interface(obj, "com.T0kyoB0y.PotatoWidgets")
+        windows = iface.ListWindows()
+        if windows:
+            for window in windows:
+                if window["opened"]:
+                    print("*", end=" ")
+                print(window["name"])
+    except dbus.exceptions.DBusException as e:
+        print(f"Error listing windows: {e}")
 
 
 def toggle_window(window_name):
@@ -38,17 +37,15 @@ def toggle_window(window_name):
         print("PotatoWidgets service is not running.")
         return
 
-    command = [
-        "gdbus",
-        "call",
-        "--session",
-        "--dest=com.T0kyoB0y.PotatoWidgets",
-        "--object-path=/com/T0kyoB0y/PotatoWidgets",
-        "--method=com.T0kyoB0y.PotatoWidgets.WindowAction",
-        "toggle",
-        window_name,
-    ]
-    subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    try:
+        bus = dbus.SessionBus()
+        obj = bus.get_object(
+            "com.T0kyoB0y.PotatoWidgets", "/com/T0kyoB0y/PotatoWidgets"
+        )
+        iface = dbus.Interface(obj, "com.T0kyoB0y.PotatoWidgets")
+        iface.WindowAction("toggle", window_name)
+    except dbus.exceptions.DBusException as e:
+        print(f"Error toggling window: {e}")
 
 
 def main():
@@ -57,7 +54,6 @@ def main():
     parser.add_argument(
         "--windows", action="store_true", help="List all exported windows"
     )
-
     parser.add_argument(
         "--toggle", metavar="window", help="Toggle window with the given name"
     )
