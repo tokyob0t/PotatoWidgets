@@ -73,19 +73,23 @@ def main():
 
     args = parser.parse_args()
 
-    iface = connect_to_dbus()
-
     if args.windows:
+        iface = connect_to_dbus()
         list_windows(iface)
     elif args.functions:
+        iface = connect_to_dbus()
         list_functions(iface)
     elif args.exec:
+        iface = connect_to_dbus()
         exec_function(iface, args.exec)
     elif args.open:
+        iface = connect_to_dbus()
         window_action(iface, "open", args.open)
     elif args.close:
+        iface = connect_to_dbus()
         window_action(iface, "close", args.close)
     elif args.toggle:
+        iface = connect_to_dbus()
         window_action(iface, "toggle", args.toggle)
     else:
         print("Usage: potatocli --help")
