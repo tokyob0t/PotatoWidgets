@@ -1,15 +1,20 @@
 from .__Import import *
 
-try:
-    bus = dbus.SessionBus()
-    obj = bus.get_object("com.T0kyoB0y.PotatoWidgets", "/com/T0kyoB0y/PotatoWidgets")
-    iface = dbus.Interface(obj, "com.T0kyoB0y.PotatoWidgets")
-except dbus.exceptions.DBusException:
-    print("PotatoWidgets service is not running.")
-    exit(0)
+
+def connect_to_dbus():
+    try:
+        session_bus = dbus.SessionBus()
+        obj = session_bus.get_object(
+            "com.T0kyoB0y.PotatoWidgets", "/com/T0kyoB0y/PotatoWidgets"
+        )
+        iface = dbus.Interface(obj, "com.T0kyoB0y.PotatoWidgets")
+        return iface
+    except dbus.exceptions.DBusException:
+        print("PotatoWidgets service is not running.")
+        sys.exit(1)
 
 
-def list_windows():
+def list_windows(iface):
     try:
         windows = json.loads(iface.ListWindows())
         if windows:
@@ -21,26 +26,24 @@ def list_windows():
         print(f"Error listing windows: {e}")
 
 
-def list_functions():
+def list_functions(iface):
     try:
         functions = json.loads(iface.ListFunctions())
-
         if functions:
             for func in functions:
                 print(func)
-
     except dbus.exceptions.DBusException as e:
-        print(f"Error listing windows: {e}")
+        print(f"Error listing functions: {e}")
 
 
-def exec_function(func_name):
+def exec_function(iface, func_name):
     try:
         iface.WindowAction("toggle", func_name)
     except dbus.exceptions.DBusException as e:
         print(f"Error while executing the callback: {e}")
 
 
-def window_action(action, window_name):
+def window_action(iface, action, window_name):
     try:
         iface.WindowAction(action, window_name)
     except dbus.exceptions.DBusException as e:
@@ -55,11 +58,13 @@ def main():
     )
 
     parser.add_argument(
-        "--function", action="store_true", help="List all exported functions"
+        "--functions", action="store_true", help="List all exported functions"
     )
+
     parser.add_argument(
-        "--exec", metavar="function", help="Execute an exported funcion"
+        "--exec", metavar="function", help="Execute an exported function"
     )
+
     parser.add_argument("--open", metavar="window", help="Open a window")
     parser.add_argument("--close", metavar="window", help="Close a window ")
     parser.add_argument(
@@ -68,19 +73,20 @@ def main():
 
     args = parser.parse_args()
 
-    if args.windows:
-        list_windows()
-    elif args.functions:
-        list_functions()
-    elif args.exec:
-        exec_function(args.exec)
-    elif args.open:
-        window_action("open", args.open)
-    elif args.close:
-        window_action("close", args.close)
-    elif args.toggle:
-        window_action("toggle", args.toggle)
+    iface = connect_to_dbus()
 
+    if args.windows:
+        list_windows(iface)
+    elif args.functions:
+        list_functions(iface)
+    elif args.exec:
+        exec_function(iface, args.exec)
+    elif args.open:
+        window_action(iface, "open", args.open)
+    elif args.close:
+        window_action(iface, "close", args.close)
+    elif args.toggle:
+        window_action(iface, "toggle", args.toggle)
     else:
         print("Usage: potatocli --help")
 
