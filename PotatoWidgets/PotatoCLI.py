@@ -38,7 +38,7 @@ def list_functions(iface):
 
 def exec_function(iface, func_name):
     try:
-        iface.WindowAction("toggle", func_name)
+        iface.ExecFunction(func_name)
     except dbus.exceptions.DBusException as e:
         print(f"Error while executing the callback: {e}")
 
