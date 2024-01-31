@@ -1,8 +1,8 @@
 from ..__Import import *
-from ._Box import Box
+from .. import Widget
 
 
-class CenterBox(Box):
+class CenterBox(Widget.Box):
     def __init__(
         self,
         start=Gtk.Box(),
