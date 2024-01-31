@@ -52,12 +52,5 @@ class Poll(Variable):
         self.set_value(self._callback())
         return GLib.SOURCE_CONTINUE
 
-    def get_value(self):
-        return self._value
-
-    def set_value(self, new_value):
-        self._value = new_value
-        self.emit("valuechanged")
-
     def __str__(self):
         return str(self._value)
