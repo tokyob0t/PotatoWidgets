@@ -9,11 +9,32 @@ class CenterBox(Box):
         center=Gtk.Box(),
         end=Gtk.Box(),
         orientation="h",
+        spacing=0,
+        homogeneous=False,
+        size=[5, 5],
+        attributes=None,
+        css=None,
+        halign="fill",
+        valign="fill",
+        hexpand=False,
+        vexpand=False,
+        visible=True,
         classname="",
-        *kwargs,
     ):
-        Box.__init__(self, kwargs)
-
+        super().__init__(
+            orientation=orientation,
+            spacing=spacing,
+            homogeneous=homogeneous,
+            size=size,
+            attributes=attributes,
+            css=css,
+            halign=halign,
+            valign=valign,
+            hexpand=hexpand,
+            vexpand=vexpand,
+            visible=visible,
+            classname=classname,
+        )
         self._start_widget = None
         self._center_widget = None
         self._end_widget = None
