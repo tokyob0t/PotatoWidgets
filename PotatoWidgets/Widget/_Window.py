@@ -24,7 +24,7 @@ class Window(Gtk.Window):
         children=None,
         monitor=0,
         parent=None,
-        focusable=False,
+        focusable="none",
         popup=False,
         namespace="gtk-layer-shell",
         attributes=None,
@@ -103,10 +103,13 @@ class Window(Gtk.Window):
                 self.close()
 
     def set_focusable(self, focusable):
-        if focusable:
-            GtkLayerShell.set_keyboard_mode(self, GtkLayerShell.KeyboardMode.ON_DEMAND)
-        else:
-            GtkLayerShell.set_keyboard_mode(self, GtkLayerShell.KeyboardMode.NONE)
+        focusable_mode = {
+            "onfocus": GtkLayerShell.KeyboardMode.ON_DEMAND,
+            "force": GtkLayerShell.KeyboardMode.EXCLUSIVE,
+            "none": GtkLayerShell.KeyboardMode.NONE,
+        }.get(focusable, GtkLayerShell.KeyboardMode.NONE)
+
+        GtkLayerShell.set_keyboard_mode(self, focusable_mode)
 
     def set_popup(self, popup):
         self.popup = popup
