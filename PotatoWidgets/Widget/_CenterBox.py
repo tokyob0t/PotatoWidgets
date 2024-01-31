@@ -30,7 +30,7 @@ class CenterBox(Box):
         self._start_widget = start
 
         if start:
-            self.pack_start(start, True, True, 0)
+            self.pack_start(start, False, False, 0)
 
     def get_end_widget(self):
         return self._end_widget
@@ -42,7 +42,7 @@ class CenterBox(Box):
         self._end_widget = end
 
         if end:
-            self.pack_end(self._end_widget, True, True, 0)
+            self.pack_end(self._end_widget, False, False, 0)
 
     def get_center_widget(self):
         return self._center_widget
