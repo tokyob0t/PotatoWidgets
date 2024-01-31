@@ -15,9 +15,6 @@ class Variable(GObject.Object):
         self._value = new_value
         self.emit("valuechanged")
 
-    def initial_value(self, value):
-        self._value = value
-
     def bind(self, callback):
         self.connect(
             "valuechanged",
