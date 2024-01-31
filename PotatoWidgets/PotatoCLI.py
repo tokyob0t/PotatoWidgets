@@ -62,13 +62,13 @@ def main():
     )
 
     parser.add_argument(
-        "--exec", metavar="<FUNCTION NAME>", help="Execute an exported function"
+        "--exec", metavar="<FUNCTION>", help="Execute an exported function"
     )
 
-    parser.add_argument("--open", metavar="<WINDOW NAME>", help="Open a window")
-    parser.add_argument("--close", metavar="<WINDOW NAME>", help="Close a window ")
+    parser.add_argument("--open", metavar="<WINDOW>", help="Open a window")
+    parser.add_argument("--close", metavar="<WINDOW>", help="Close a window ")
     parser.add_argument(
-        "--toggle", metavar="<WINDOW NAME>", help="Toggle window with the given name"
+        "--toggle", metavar="<WINDOW>", help="Toggle window with the given name"
     )
 
     args = parser.parse_args()
