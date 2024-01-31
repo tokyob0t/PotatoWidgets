@@ -2,7 +2,8 @@
 
 import subprocess
 from os import getenv
-from PotatoWidgets import PotatoLoop, Variable, Widget
+
+from PotatoWidgets import Listener, Poll, PotatoLoop, Variable, Widget
 
 if __name__ == "__main__":
 
@@ -30,9 +31,9 @@ if __name__ == "__main__":
                 if "activewindow>>" in line:
                     yield line.split(",")[1].capitalize()
 
-    date = Variable.Poll(1000, lambda: subprocess.getoutput("date '+%b %d %I:%M:%S'"))
-    volume = Variable.Listener(get_volume)
-    activewindow = Variable.Listener(hypr)
+    date = Poll(1000, lambda: subprocess.getoutput("date '+%b %d %I:%M:%S'"))
+    volume = Listener(get_volume)
+    activewindow = Listener(hypr)
 
     Topbar = Widget.EventBox(
         children=Widget.Box(

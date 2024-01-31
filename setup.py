@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="PotatoWidgets",
-    version="1.1.7",
+    version="1.2.7",
     packages=find_packages(),
     install_requires=["PyGObject"],
     entry_points={

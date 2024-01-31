@@ -1,5 +1,6 @@
-from . import Variable, Widget
+from . import Widget
+from .__Import import Gtk
+from .Methods import wait
 from .PotatoLoop import PotatoLoop
 from .Style import Style
-from .Methods import wait
-from .__Import import Gtk
+from .Variable import Listener, Poll, Variable
