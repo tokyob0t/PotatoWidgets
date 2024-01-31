@@ -10,8 +10,9 @@ class CenterBox(Box):
         end=Gtk.Box(),
         orientation="h",
         classname="",
+        *kwargs,
     ):
-        Box.__init__(self, orientation=orientation, classname=classname)
+        Box.__init__(self, kwargs)
 
         self._start_widget = None
         self._center_widget = None
