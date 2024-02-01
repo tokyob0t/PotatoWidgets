@@ -1,14 +1,16 @@
-import gi
-import sys
-import json
 import argparse
-import threading
-import subprocess
 import importlib
+import inspect
+import json
+import subprocess
+import sys
+import threading
+from random import randint
+
 import dbus
 import dbus.service
+import gi
 from dbus import SessionBus
-from random import randint
 from dbus.mainloop.glib import DBusGMainLoop
 
 gi.require_version("Gtk", "3.0")
@@ -18,4 +20,5 @@ gi.require_version("GdkPixbuf", "2.0")
 gi.require_version("GObject", "2.0")
 
 
-from gi.repository import Gdk, GdkPixbuf, Gio, GLib, GObject, Gtk, GtkLayerShell, Pango
+from gi.repository import (Gdk, GdkPixbuf, Gio, GLib, GObject, Gtk,
+                           GtkLayerShell, Pango)

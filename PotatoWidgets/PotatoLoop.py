@@ -17,6 +17,10 @@ class PotatoService(dbus.service.Object):
                 return {"windows": [], "functions": []}
 
         self.data = DATA()
+        if self.data["windows"]:
+            self.data["windows_name"] = [
+                self._Get_instance_name(i) for i in self.data["windows"]
+            ]
 
     @dbus.service.method(
         "com.T0kyoB0y.PotatoWidgets", in_signature="", out_signature="s"
@@ -25,8 +29,11 @@ class PotatoService(dbus.service.Object):
         return str(
             json.dumps(
                 [
-                    {"name": f"{i}", "opened": i.get_visible()}
-                    for i in self.data["windows"]
+                    {
+                        "name": self.data["window_names"][i],
+                        "opened": self.data["windows"][i].get_visible(),
+                    }
+                    for i in range(len(self.data["window_name"]))
                 ]
             )
         )
@@ -58,7 +65,7 @@ class PotatoService(dbus.service.Object):
         "com.T0kyoB0y.PotatoWidgets", in_signature="ss", out_signature=""
     )
     def WindowAction(self, action, window_name):
-        if window_name not in [str(i) for i in self.data["windows"]]:
+        if window_name not in self.data["window_names"]:
             return
         for i in self.data["windows"]:
             if window_name == str(i):
@@ -68,6 +75,12 @@ class PotatoService(dbus.service.Object):
                     i.open()
                 if action == "close":
                     i.close()
+
+    def _Get_instance_name(self, instance):
+        for name, obj in inspect.currentframe().f_back.f_locals.items():
+            if obj is instance:
+                return name
+        return None
 
 
 def PotatoLoop(confdir=""):
