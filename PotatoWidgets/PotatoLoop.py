@@ -18,8 +18,9 @@ class PotatoService(dbus.service.Object):
 
         self.data = DATA()
         if self.data["windows"]:
-            self.data["windows_name"] = [
-                self._Get_instance_name(i) for i in self.data["windows"]
+            self.data["window_names"] = [
+                {"name": self._Get_instance_name(i), "window": i}
+                for i in self.data["windows"]
             ]
 
     @dbus.service.method(
@@ -65,16 +66,23 @@ class PotatoService(dbus.service.Object):
         "com.T0kyoB0y.PotatoWidgets", in_signature="ss", out_signature=""
     )
     def WindowAction(self, action, window_name):
-        if window_name not in self.data["window_names"]:
+        window = next(
+            (
+                i["window"]
+                for i in self.data["window_names"]
+                if i["name"] == window_name
+            ),
+            False,
+        )
+
+        if not window:
             return
-        for i in self.data["windows"]:
-            if window_name == str(i):
-                if action == "toggle":
-                    i.toggle()
-                elif action == "open":
-                    i.open()
-                if action == "close":
-                    i.close()
+        if action == "toggle":
+            window.toggle()
+        elif action == "open":
+            window.open()
+        if action == "close":
+            window.close()
 
     def _Get_instance_name(self, instance):
         for name, obj in inspect.currentframe().f_back.f_locals.items():
