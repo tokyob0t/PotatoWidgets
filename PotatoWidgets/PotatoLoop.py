@@ -18,10 +18,14 @@ class PotatoService(dbus.service.Object):
 
         self.data = DATA()
         if self.data["windows"]:
+            local_vars = inspect.currentframe().f_back.f_locals
             self.data["window_names"] = [
-                {"name": str(self._Get_instance_name(i)), "window": i}
+                {"name": self._get_instance_name(i, local_vars), "window": i}
                 for i in self.data["windows"]
             ]
+
+    def _get_instance_name(self, instance, local_vars):
+        return next((name for name, obj in local_vars.items() if obj is instance), None)
 
     @dbus.service.method(
         "com.T0kyoB0y.PotatoWidgets", in_signature="", out_signature="s"
@@ -84,12 +88,6 @@ class PotatoService(dbus.service.Object):
             window.open()
         if action == "close":
             window.close()
-
-    def _Get_instance_name(self, instance):
-        for name, obj in inspect.currentframe().f_back.f_locals.items():
-            if obj is instance:
-                return name
-        return None
 
 
 def PotatoLoop(confdir=""):
