@@ -19,7 +19,7 @@ class PotatoService(dbus.service.Object):
         self.data = DATA()
         if self.data["windows"]:
             self.data["window_names"] = [
-                {"name": self._Get_instance_name(i), "window": i}
+                {"name": str(self._Get_instance_name(i)), "window": i}
                 for i in self.data["windows"]
             ]
 
@@ -31,7 +31,7 @@ class PotatoService(dbus.service.Object):
             json.dumps(
                 [
                     {
-                        "name": self.data["window_names"][i],
+                        "name": self.data["window_names"][i]["name"],
                         "opened": self.data["windows"][i].get_visible(),
                     }
                     for i in range(len(self.data["window_names"]))
@@ -77,6 +77,7 @@ class PotatoService(dbus.service.Object):
 
         if not window:
             return
+
         if action == "toggle":
             window.toggle()
         elif action == "open":
