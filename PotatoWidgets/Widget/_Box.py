@@ -10,7 +10,7 @@ class Box(Gtk.Box, BasicProps):
         orientation="h",
         spacing=0,
         homogeneous=False,
-        size=[5, 5],
+        size=[0],
         attributes=None,
         css=None,
         halign="fill",

@@ -14,7 +14,7 @@ class BasicProps(Gtk.Widget):
         classname,
         # tooltip,
         css,
-        size=[10, 10],
+        size=0,
     ):
         Gtk.Widget.__init__(self)
         self._default_classnames = self.get_style_context().list_classes()
