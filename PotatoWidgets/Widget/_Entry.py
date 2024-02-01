@@ -7,6 +7,7 @@ class Entry(Gtk.Entry, BasicProps):
         self,
         onchange=None,
         onenter=None,
+        placeholder="",
         attributes=None,
         css=None,
         halign="fill",
@@ -30,6 +31,8 @@ class Entry(Gtk.Entry, BasicProps):
             classname=classname,
         )
 
+        self.set_placeholder_text(placeholder)
+
         self.connect(
             "changed", lambda _: onchange(self.get_text())
         ) if onchange else None
@@ -39,3 +42,6 @@ class Entry(Gtk.Entry, BasicProps):
         ) if onenter else None
 
         attributes(self) if attributes else None
+
+    def set_placeholder_text(self, text):
+        super().set_placeholder_text(str(text))
