@@ -5,11 +5,11 @@ from ._Common._BasicProps import BasicProps
 class Entry(Gtk.Entry, BasicProps):
     def __init__(
         self,
+        placeholder="",
         onchange=None,
         onenter=None,
-        placeholder="",
+        css="",
         attributes=None,
-        css=None,
         halign="fill",
         valign="fill",
         hexpand=False,
