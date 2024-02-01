@@ -33,7 +33,7 @@ class PotatoService(dbus.service.Object):
                         "name": self.data["window_names"][i],
                         "opened": self.data["windows"][i].get_visible(),
                     }
-                    for i in range(len(self.data["window_name"]))
+                    for i in range(len(self.data["window_names"]))
                 ]
             )
         )
