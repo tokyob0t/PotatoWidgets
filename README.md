@@ -89,5 +89,9 @@ pip install git+https://github.com/T0kyoB0y/PotatoWidgets.git
   * [ ] Stack
 
 * [X] Use GObject to detect dynamic variables in Widgets Props to update Widgets
-* [ ] Add a CLI utility(?
+* [X] Add a CLI utility(?
 * [ ] Help x.x
+
+##### My Current Setup
+
+![img](./img/setup.png)  
