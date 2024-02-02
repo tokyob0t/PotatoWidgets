@@ -19,7 +19,7 @@ from PotatoWidgets import PotatoLoop, Variable, Widget
 
 if __name__ == "__main__":
 
-    time = Variable.Poll(interval=1000, callback=lambda: subprocess.getoutput("date"))
+    time = Variable.Poll(interval=1000, callback=datetime.now)
 
     MyFirstWindow = Widget.Window(
         at={"top": "20px",
