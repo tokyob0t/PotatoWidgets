@@ -25,15 +25,14 @@ class BasicProps(Gtk.Widget):
         self.set_visible(visible)
         self.set_active(active)
         self.set_classname(classname)
-        self.__clasif_size(size)
-        self.rand_classname = (
-            self.get_name().replace("+", "_") + "_" + str(randint(1111, 9999))
-            if css
-            else ""
-        )
+        self.set_size(size)
 
-        self.set_classname(self.rand_classname) if self.rand_classname else None
-        self.set_css(css)
+        if css:
+            self.rand_classname = (
+                self.get_name().replace("+", "_") + "_" + str(randint(1111, 9999))
+            )
+            self.set_classname(self.rand_classname)
+            self.set_css(css)
 
         for key, value in locals().items():
             callback = {
