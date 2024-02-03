@@ -31,7 +31,6 @@ class Scroll(Gtk.ScrolledWindow, BasicProps):
         )
 
         self.set_children(children)
-        self.set_orientation(orientation)
         self.set_visible(visible)
 
         attributes(self)
@@ -54,15 +53,6 @@ class Scroll(Gtk.ScrolledWindow, BasicProps):
                 }.get(key)
 
                 self.bind(value, callback) if callback else None
-
-    def set_orientation(self, orientation):
-        super().set_orientation(self.__clasif_orientation(orientation))
-
-    def __clasif_orientation(self, orientation):
-        if orientation.lower() in ["vertical", "v", 0, False]:
-            return Gtk.Orientation.VERTICAL
-        elif orientation.lower() in ["horizontal", "h", 1, True]:
-            return Gtk.Orientation.HORIZONTAL
 
     def set_children(self, children):
         if children:
