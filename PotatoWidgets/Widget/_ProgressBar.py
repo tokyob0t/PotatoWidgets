@@ -8,15 +8,15 @@ class ProgressBar(Gtk.ProgressBar, BasicProps):
         value=50,
         inverted=False,
         orientation="h",
-        attributes=None,
-        css=None,
-        size=[10],
+        attributes=lambda self: self,
+        css="",
+        classname="",
         halign="fill",
         valign="fill",
+        size=10,
         hexpand=False,
         vexpand=False,
         visible=True,
-        classname="",
     ):
         Gtk.Scale.__init__(self)
         BasicProps.__init__(
@@ -36,7 +36,7 @@ class ProgressBar(Gtk.ProgressBar, BasicProps):
         self.set_inverted(inverted)
         self.set_orientation(orientation)
 
-        attributes(self) if attributes else None
+        attributes(self)
 
     def set_value(self, value):
         self.set_fraction(value / 100)

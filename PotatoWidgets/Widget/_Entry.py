@@ -9,7 +9,7 @@ class Entry(Gtk.Entry, BasicProps):
         onchange=None,
         onenter=None,
         css="",
-        attributes=None,
+        attributes=lambda self: self,
         halign="fill",
         valign="fill",
         hexpand=False,
@@ -41,7 +41,7 @@ class Entry(Gtk.Entry, BasicProps):
             "activate", lambda _: onenter(self.get_text())
         ) if onenter else None
 
-        attributes(self) if attributes else None
+        attributes(self)
 
     def set_placeholder_text(self, text):
         super().set_placeholder_text(str(text))

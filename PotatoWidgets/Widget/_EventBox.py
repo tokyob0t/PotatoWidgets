@@ -17,8 +17,8 @@ class EventBox(Gtk.EventBox, Events, BasicProps):
         primaryrelease=None,
         secondaryhold=None,
         secondaryrelease=None,
-        attributes=None,
-        css=None,
+        attributes=lambda self: self,
+        css="",
         halign="fill",
         valign="fill",
         hexpand=False,
@@ -41,7 +41,7 @@ class EventBox(Gtk.EventBox, Events, BasicProps):
         )
 
         self.add(children) if children else None
-        attributes(self) if attributes else None
+        attributes(self)
         self.dict = {
             "onclick": onclick,
             "onmiddleclick": onmiddleclick,

@@ -11,8 +11,8 @@ class Box(Gtk.Box, BasicProps):
         spacing=0,
         homogeneous=False,
         size=[0],
-        attributes=None,
-        css=None,
+        attributes=lambda self: self,
+        css="",
         halign="fill",
         valign="fill",
         hexpand=False,
@@ -40,7 +40,7 @@ class Box(Gtk.Box, BasicProps):
         self.set_homogeneous(homogeneous) if homogeneous else None
         self.set_children(children)
 
-        attributes(self) if attributes else None
+        attributes(self)
         for key, value in locals().items():
             if key not in [
                 "self",

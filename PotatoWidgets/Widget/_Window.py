@@ -27,7 +27,7 @@ class Window(Gtk.Window):
         focusable="none",
         popup=False,
         namespace="gtk-layer-shell",
-        attributes=None,
+        attributes=lambda self: self,
         **kwargs,
     ):
         Gtk.Window.__init__(self)
@@ -72,7 +72,7 @@ class Window(Gtk.Window):
 
         self.set_focusable(focusable)
         self.set_popup(popup)
-        attributes(self) if attributes else None
+        attributes(self)
 
         if self.popup:
             # Connect the key-press-event signal to handle the Escape key

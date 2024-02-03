@@ -6,6 +6,7 @@ class Separator(Gtk.Separator, BasicProps):
     def __init__(
         self,
         orientation="h",
+        attributes=lambda self: self,
         halign="fill",
         valign="fill",
         hexpand=False,
@@ -27,6 +28,7 @@ class Separator(Gtk.Separator, BasicProps):
             css=css,
             size=size,
         )
+        attributes(self)
 
     def set_orientation(self, param):
         return super().set_orientation(self.__clasif_orientation(param))

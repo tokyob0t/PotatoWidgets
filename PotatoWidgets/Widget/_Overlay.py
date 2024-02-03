@@ -7,14 +7,14 @@ class Overlay(Gtk.Overlay, BasicProps):
     def __init__(
         self,
         children=[],
-        attributes=None,
-        css=None,
+        attributes=lambda self: self,
+        css="",
+        classname="",
         halign="fill",
         valign="fill",
         hexpand=False,
         vexpand=False,
         visible=True,
-        classname="",
     ):
         Gtk.Overlay.__init__(self)
 
@@ -30,6 +30,18 @@ class Overlay(Gtk.Overlay, BasicProps):
             classname=classname,
         )
 
-        self.add(children[0]) if children else None
-        [self.add_overlay(i) for i in children[1:]] if children else None
-        attributes(self) if attributes else None
+        self.set_children(children)
+        attributes(self)
+
+    def set_children(self, newChildrenList=[]):
+        if not newChildrenList:
+            return
+
+        for i in self.get_children():
+            if i not in newChildrenList:
+                i.destroy()
+            self.remove(i)
+
+        self.add(newChildrenList[0])
+        [self.add_overlay(i) for i in newChildrenList[1:] if i]
+        self.show_all()
