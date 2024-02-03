@@ -6,10 +6,10 @@ from ._Common._BasicProps import BasicProps
 class Scroll(Gtk.ScrolledWindow, BasicProps):
     def __init__(
         self,
-        children=Gtk.Box(),
-        attributes=lambda self: self,
+        children=None,
+        attributes=None,
         orientation="h",
-        css="",
+        css=None,
         halign="fill",
         valign="fill",
         hexpand=False,
@@ -30,10 +30,11 @@ class Scroll(Gtk.ScrolledWindow, BasicProps):
             classname=classname,
         )
 
-        self.set_children(children)
+        self.__clasif_orientation(orientation)
         self.set_visible(visible)
+        self.add_with_viewport(children) if children else None
 
-        attributes(self)
+        attributes(self) if attributes else None
         for key, value in locals().items():
             if key not in [
                 "self",
@@ -54,6 +55,11 @@ class Scroll(Gtk.ScrolledWindow, BasicProps):
 
                 self.bind(value, callback) if callback else None
 
-    def set_children(self, children):
-        if children:
-            super().add_with_viewport(children)
+    def set_orientation(self, param):
+        super().set_orientation(self.__clasif_orientation(param))
+
+    def __clasif_orientation(self, orientation):
+        if orientation.lower() in ["vertical", "v", 0, False]:
+            return Gtk.Orientation.VERTICAL
+        elif orientation.lower() in ["horizontal", "h", 1, True]:
+            return Gtk.Orientation.HORIZONTAL

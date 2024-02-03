@@ -12,8 +12,8 @@ class Label(Gtk.Label, BasicProps):
         angle=0.0,
         maxchars=-1,
         wrap=False,
-        attributes=lambda self: self,
-        css="",
+        attributes=None,
+        css=None,
         halign="fill",
         valign="fill",
         hexpand=False,
@@ -43,7 +43,7 @@ class Label(Gtk.Label, BasicProps):
         self.set_wrap(wrap)
         self.set_justify(justify)
 
-        attributes(self)
+        attributes(self) if attributes else None
 
         for key, value in locals().items():
             if key not in [
@@ -65,8 +65,8 @@ class Label(Gtk.Label, BasicProps):
                     "maxchars": self.set_maxchars,
                     "justify": self.set_justify,
                 }.get(key)
-                if callback:
-                    self.bind(value, callback)
+
+                self.bind(value, callback) if callback else None
 
     def set_text(self, text):
         super().set_text(str(text))

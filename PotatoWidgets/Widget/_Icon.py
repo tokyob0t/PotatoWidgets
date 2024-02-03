@@ -6,14 +6,14 @@ from ._Common._BasicProps import BasicProps
 class Icon(Gtk.Image, BasicProps):
     def __init__(
         self,
-        icon="",
+        icon=None,
         size=20,
-        attributes=lambda self: self,
-        css="",
-        classname="",
+        attributes=None,
+        css=None,
         halign="fill",
         valign="fill",
         visible=True,
+        classname="",
     ):
         Gtk.Image.__init__(self)
         BasicProps.__init__(
@@ -26,7 +26,7 @@ class Icon(Gtk.Image, BasicProps):
             active=True,
             visible=visible,
             classname=classname,
-            size=size,
+            size=None,
         )
         self.set_size(size)
         self.set_icon(icon)

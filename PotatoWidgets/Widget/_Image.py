@@ -12,8 +12,8 @@ class Image(Gtk.Image, BasicProps):
         valign="fill",
         visible=True,
         classname="",
-        attributes=lambda self: self,
-        css="",
+        attributes=None,
+        css=None,
     ):
         Gtk.Image.__init__(self)
         BasicProps.__init__(
@@ -31,7 +31,7 @@ class Image(Gtk.Image, BasicProps):
         self.size = size
         self.path = path
         self.__reload_image()
-        attributes(self)
+        attributes(self) if attributes else None
         for key, value in locals().items():
             if key not in [
                 "self",

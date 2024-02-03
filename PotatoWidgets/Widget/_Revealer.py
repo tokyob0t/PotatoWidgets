@@ -6,14 +6,12 @@ from ._Common._BasicProps import BasicProps
 class Revealer(Gtk.Revealer, BasicProps):
     def __init__(
         self,
-        children=Gtk.Box(),
+        children=None,
         reveal=True,
         transition="crossfade",
         duration=500,
-        attributes=lambda self: self,
+        attributes=None,
         halign="fill",
-        css="",
-        size=5,
         valign="fill",
         hexpand=False,
         vexpand=False,
@@ -24,7 +22,7 @@ class Revealer(Gtk.Revealer, BasicProps):
 
         BasicProps.__init__(
             self,
-            css=css,
+            css=None,
             halign=halign,
             valign=valign,
             hexpand=hexpand,
@@ -32,7 +30,7 @@ class Revealer(Gtk.Revealer, BasicProps):
             active=None,
             visible=visible,
             classname=classname,
-            size=size,
+            size=None,
         )
         self.add(children) if children else None
         self.set_duration(duration)

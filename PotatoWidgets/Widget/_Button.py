@@ -14,8 +14,8 @@ class Button(Gtk.Button, BasicProps):
         primaryrelease=None,
         secondaryhold=None,
         secondaryrelease=None,
-        attributes=lambda self: self,
-        css="",
+        attributes=None,
+        css=None,
         halign="fill",
         valign="fill",
         hexpand=False,
@@ -37,7 +37,7 @@ class Button(Gtk.Button, BasicProps):
             classname=classname,
         )
 
-        attributes(self)
+        attributes(self) if attributes else None
 
         if children:
             self.add(children)
