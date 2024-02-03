@@ -21,6 +21,7 @@ class Box(Gtk.Box, BasicProps):
         classname="",
     ):
         Gtk.Box.__init__(self, spacing=spacing)
+
         BasicProps.__init__(
             self,
             size=size,

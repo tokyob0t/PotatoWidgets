@@ -1,4 +1,5 @@
 from ._Box import Box
+from ._Separator import Separator
 from ._Button import Button
 from ._CenterBox import CenterBox
 from ._CheckBox import CheckBox
