@@ -140,6 +140,11 @@ class BasicProps(Gtk.Widget):
                     "valuechanged",
                     lambda _: GLib.idle_add(lambda: callback(self=self)),
                 )
+            else:
+                variable.connect(
+                    "valuechanged",
+                    lambda out: GLib.idle_add(lambda: callback(out.get_value())),
+                )
         else:
             variable.connect(
                 "valuechanged",

@@ -72,6 +72,8 @@ class Button(Gtk.Button, BasicProps):
                 GLib.idle_add(lambda: callback(widget=widget))
             elif "event" in arg_tuple:
                 GLib.idle_add(lambda: callback(event=event))
+            else:
+                GLib.idle_add(lambda: callback(event))
         else:
             GLib.idle_add(callback)
 
