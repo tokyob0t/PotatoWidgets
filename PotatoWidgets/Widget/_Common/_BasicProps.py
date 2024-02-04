@@ -116,7 +116,27 @@ class BasicProps(Gtk.Widget):
 
     def bind(self, variable, callback):
         if isinstance(variable, (Listener, Variable, Poll)):
+            self.__clasif_args(variable, callback)
+
+    def __clasif_args(self, variable, callback):
+        arg_num = callback.__code__.co_argcount
+        arg_tuple = callback.__code__.co_varnames[:arg_num]
+
+        if arg_num == 2:
             variable.connect(
                 "valuechanged",
-                lambda out: GLib.idle_add(lambda: callback(out.get_value())),
+                lambda out: GLib.idle_add(lambda: callback(self=self, event=out)),
             )
+        elif arg_num == 1:
+            if "out" in arg_tuple:
+                variable.connect(
+                    "valuechanged",
+                    lambda out: GLib.idle_add(lambda: callback(event=out)),
+                )
+            elif "self" in arg_tuple:
+                variable.connect(
+                    "valuechanged",
+                    lambda out: GLib.idle_add(lambda: callback(self=self)),
+                )
+        else:
+            GLib.idle_add(callback)
