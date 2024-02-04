@@ -125,21 +125,23 @@ class BasicProps(Gtk.Widget):
         if arg_num == 2:
             variable.connect(
                 "valuechanged",
-                lambda out: GLib.idle_add(lambda: callback(self=self, event=out)),
+                lambda out: GLib.idle_add(
+                    lambda: callback(self=self, event=out.get_value())
+                ),
             )
         elif arg_num == 1:
             if "out" in arg_tuple:
                 variable.connect(
                     "valuechanged",
-                    lambda out: GLib.idle_add(lambda: callback(event=out)),
+                    lambda out: GLib.idle_add(lambda: callback(event=out.get_value())),
                 )
             elif "self" in arg_tuple:
                 variable.connect(
                     "valuechanged",
-                    lambda out: GLib.idle_add(lambda: callback(self=self)),
+                    lambda _: GLib.idle_add(lambda: callback(self=self)),
                 )
         else:
             variable.connect(
                 "valuechanged",
-                lambda out: GLib.idle_add(lambda: callback()),
+                lambda _: GLib.idle_add(lambda: callback()),
             )
