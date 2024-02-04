@@ -59,65 +59,60 @@ class Button(Gtk.Button, BasicProps):
         self.connect("enter-notify-event", self.__enter_event)
         self.connect("leave-notify-event", self.__leave_event)
 
+    # Classification
+    def __clasif_args(self, widget, event, callback):
+        arg_num = callback.__code__.co_argcount
+        arg_tuple = callback.__code__.co_varnames[:arg_num]
+
+        if arg_num == 2:
+            GLib.idle_add(lambda: callback(widget=widget, event=event))
+
+        elif arg_num == 1:
+            if "widget" in arg_tuple:
+                GLib.idle_add(lambda: callback(widget=widget))
+            elif "event" in arg_tuple:
+                GLib.idle_add(lambda: callback(event=event))
+        else:
+            GLib.idle_add(callback)
+
     def __click_event_idle(self, _):
-        GLib.idle_add(self.__click_event)
+        callback = self.dict.get("onclick")
 
-    def __press_event(self, _, event):
+        if callback:
+            GLib.idle_add(callback)
+
+    def __press_event(self, widget, event):
         if event.button == Gdk.BUTTON_PRIMARY:
-            GLib.idle_add(self.__primaryhold_event)
+            callback = self.dict.get("primaryhold")
         elif event.button == Gdk.BUTTON_SECONDARY:
-            GLib.idle_add(self.__secondaryhold_event)
+            callback = self.dict.get("secondaryhold")
         elif event.button == Gdk.BUTTON_MIDDLE:
-            GLib.idle_add(self.__onmiddleclick_event)
+            callback = self.dict.get("onmiddleclick")
+        else:
+            callback = None
 
-    def __release_event(self, _, event):
+        if callback:
+            self.__clasif_args(widget=widget, event=event, callback=callback)
+
+    def __release_event(self, widget, event):
         if event.button == Gdk.BUTTON_PRIMARY:
-            GLib.idle_add(self.__primaryrelease_event)
+            callback = self.dict.get("primaryrelease")
+
         elif event.button == Gdk.BUTTON_SECONDARY:
-            GLib.idle_add(self.__secondaryrelease_event)
+            callback = self.dict.get("secondaryrelease")
+        else:
+            callback = None
 
-    def __enter_event(self, *_):
-        GLib.idle_add(self.__hover_event)
-
-    def __leave_event(self, *_):
-        GLib.idle_add(self.__hoverlost_event)
-
-    def __click_event(self):
-        callback = self.dict.get("onclick", None)
         if callback:
-            callback()
+            self.__clasif_args(widget=widget, event=event, callback=callback)
 
-    def __primaryhold_event(self):
-        callback = self.dict.get("primaryhold", None)
+    def __enter_event(self, widget, event):
+        callback = self.dict.get("onhover")
         if callback:
-            callback()
+            self.__clasif_args(widget=widget, event=event, callback=callback)
 
-    def __primaryrelease_event(self):
-        callback = self.dict.get("primaryrelease", None)
-        if callback:
-            callback()
+    def __leave_event(self, widget, event):
+        callback = self.dict.get("onhoverlost")
 
-    def __secondaryhold_event(self):
-        callback = self.dict.get("secondaryhold", None)
         if callback:
-            callback()
-
-    def __secondaryrelease_event(self):
-        callback = self.dict.get("secondaryrelease", None)
-        if callback:
-            callback()
-
-    def __onmiddleclick_event(self):
-        callback = self.dict.get("onmiddleclick", None)
-        if callback:
-            callback()
-
-    def __hover_event(self):
-        callback = self.dict.get("onhover", None)
-        if callback:
-            callback()
-
-    def __hoverlost_event(self):
-        callback = self.dict.get("onhoverlost", None)
-        if callback:
-            callback()
+            self.__clasif_args(widget=widget, event=event, callback=callback)
