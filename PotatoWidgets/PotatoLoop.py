@@ -19,7 +19,13 @@ class PotatoService(dbus.service.Object):
                 return {"windows": [], "functions": []}
 
         self.data = DATA()
-        Style(f"{confdir}/style.scss")
+        try:
+            Style(f"{confdir}/style.scss")
+        except:
+            try:
+                Style(f"{confdir}/style.css")
+            except:
+                print("An exception occurred")
 
     @dbus.service.method(
         "com.T0kyoB0y.PotatoWidgets", in_signature="", out_signature="s"
