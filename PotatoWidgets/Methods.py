@@ -1,5 +1,5 @@
-from .Variable import Poll
 from .Imports import *
+from .Variable import Poll
 
 
 def wait(time_ms, callback):
