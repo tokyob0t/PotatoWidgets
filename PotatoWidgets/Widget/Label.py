@@ -6,7 +6,7 @@ from ..Variable import Listener, Poll, Variable
 class Label(Gtk.Label, BasicProps):
     def __init__(
         self,
-        text="",
+        text: SupportsStr = "",
         yalign=0.5,
         xalign=0.5,
         angle=0.0,

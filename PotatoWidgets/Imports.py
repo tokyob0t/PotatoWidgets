@@ -5,13 +5,13 @@ import json
 import subprocess
 import sys
 import threading
-from random import randint
-
 import dbus
 import dbus.service
-import gi
+from random import randint
 from dbus import SessionBus
 from dbus.mainloop.glib import DBusGMainLoop
+from typing import SupportsStr, Union
+import gi
 
 gi.require_version("Gtk", "3.0")
 gi.require_version("Gdk", "3.0")
