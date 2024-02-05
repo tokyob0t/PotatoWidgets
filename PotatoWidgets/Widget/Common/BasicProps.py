@@ -116,7 +116,16 @@ class BasicProps(Gtk.Widget):
 
     def bind(self, variable, callback):
         if isinstance(variable, (Listener, Variable, Poll)):
-            self.__clasif_args(variable, callback)
+            # self.__clasif_args(variable, callback)
+
+            variable.connect(
+                "valuechanged",
+                lambda out: callback(out.get_value()),
+            )
+            # variable.connect(
+            #     "valuechanged",
+            #     lambda out: GLib.idle_add(lambda: callback(out.get_value())),
+            # )
 
     def __clasif_args(self, variable, callback):
         arg_num = callback.__code__.co_argcount
@@ -129,6 +138,7 @@ class BasicProps(Gtk.Widget):
                     lambda: callback(self=self, out=out.get_value())
                 ),
             )
+
         elif arg_num == 1:
             if "out" in arg_tuple:
                 variable.connect(
