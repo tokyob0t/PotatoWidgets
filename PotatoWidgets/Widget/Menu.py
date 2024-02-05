@@ -8,6 +8,7 @@ class Menu(Gtk.Menu, BasicProps):
         self,
         children=[],
         css="",
+        size=[0],
         valign="fill",
         halign="fill",
         hexpand=False,
@@ -17,6 +18,7 @@ class Menu(Gtk.Menu, BasicProps):
         Gtk.Menu.__init__(self)
         BasicProps.__init__(
             self,
+            size=size,
             css=css,
             halign=halign,
             valign=valign,
