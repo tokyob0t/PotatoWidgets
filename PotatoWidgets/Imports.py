@@ -10,7 +10,7 @@ import dbus.service
 from random import randint
 from dbus import SessionBus
 from dbus.mainloop.glib import DBusGMainLoop
-from typing import Union, Optional, Callable, Any
+from typing import Union, Optional, Callable, Any, Literal
 import gi
 
 gi.require_version("Gtk", "3.0")

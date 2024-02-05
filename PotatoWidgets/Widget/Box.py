@@ -1,6 +1,6 @@
 from ..Imports import *
-from .Common import BasicProps
 from ..Variable import Listener, Poll, Variable
+from .Common import BasicProps
 
 
 class Box(Gtk.Box, BasicProps):
@@ -12,7 +12,7 @@ class Box(Gtk.Box, BasicProps):
         homogeneous=False,
         size=[0],
         attributes=None,
-        css=None,
+        css=,
         halign="fill",
         valign="fill",
         hexpand=False,
@@ -66,16 +66,20 @@ class Box(Gtk.Box, BasicProps):
     def set_orientation(self, param):
         return super().set_orientation(self.__clasif_orientation(param))
 
-    def set_children(self, newChildrenList=[]):
-        if not newChildrenList:
+    def set_children(self, newChildren=Union[list, Gtk.Widget]):
+        if not newChildren:
             return
+        
+        if isinstance(newChildren, (list)):
+            for i in self.get_children():
+                if i not in newChildren:
+                    i.destroy()
+                self.remove(i)
 
-        for i in self.get_children():
-            if i not in newChildrenList:
-                i.destroy()
-            self.remove(i)
+            [self.add(i) for i in newChildren if i]
+        elif isinstance(newChildren, (Gtk.Widget)):
+            self.add(newChildren)
 
-        [self.add(i) for i in newChildrenList if i]
         self.show_all()
 
     def __clasif_orientation(self, orientation):
