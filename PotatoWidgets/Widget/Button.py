@@ -77,6 +77,7 @@ class Button(Gtk.Button, BasicProps):
                 lambda: self.__enter_event(widget, event),
             ),
         )
+
         self.connect(
             "leave-notify-event",
             lambda widget, event: GLib.idle_add(

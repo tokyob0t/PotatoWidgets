@@ -1,3 +1,4 @@
+from .Variable import Poll
 from .Imports import *
 
 
@@ -6,7 +7,7 @@ def wait(time_ms, callback):
         callback()
         return False
 
-    GLib.timeout_add(time_ms, on_timeout)
+    return GLib.timeout_add(Poll._parse_interval(time_ms), on_timeout)
 
 
 def lookup_icon(icon_name, size=128, path=True):

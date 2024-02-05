@@ -11,7 +11,7 @@ class Poll(Variable):
         self.start_poll()
 
     @staticmethod
-    def _parse_interval(interval):
+    def _parse_interval(interval: int | str = 1000):
         try:
             if isinstance(interval, str):
                 unit = interval[-1].lower()
