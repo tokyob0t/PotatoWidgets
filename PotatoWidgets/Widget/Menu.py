@@ -60,4 +60,28 @@ class MenuItem(Gtk.MenuItem, BasicProps):
         )
         self.add(children) if children else None
         self.set_submenu(submenu) if submenu else None
-        self.connect("activate", onactivate) if onactivate else None
+
+        self.connect(
+            "activate",
+            lambda widget: self.__clasif_args(
+                widget=widget, event=False, callback=onactivate
+            ),
+        )
+
+    def __clasif_args(self, widget, event, callback):
+        arg_num = callback.__code__.co_argcount
+        arg_tuple = callback.__code__.co_varnames[:arg_num]
+
+        if arg_num == 2:
+            callback(widget=widget, event=event)
+
+        elif arg_num == 1:
+            if "widget" in arg_tuple and widget:
+                callback(widget=widget)
+            elif "event" in arg_tuple and event:
+                callback(event=event)
+            else:
+                callback(event)
+        else:
+            # GLib.idle_add(callback)
+            callback()
