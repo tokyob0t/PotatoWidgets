@@ -1,5 +1,6 @@
-from ..__Import import *
-from ._Common._BasicProps import BasicProps
+from ..Imports import *
+from .Common import BasicProps
+from ..Variable import Listener, Poll, Variable
 
 
 class ComboBox(Gtk.ComboBoxText, BasicProps):

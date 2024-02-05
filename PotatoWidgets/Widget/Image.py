@@ -1,6 +1,6 @@
-from ..__Import import *
+from ..Imports import *
+from .Common import BasicProps
 from ..Variable import Listener, Poll, Variable
-from ._Common._BasicProps import BasicProps
 
 
 class Image(Gtk.Image, BasicProps):
@@ -26,7 +26,7 @@ class Image(Gtk.Image, BasicProps):
             active=True,
             visible=visible,
             classname=classname,
-            size=size,
+            size=0,
         )
         self.size = size
         self.path = path

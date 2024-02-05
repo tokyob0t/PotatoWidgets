@@ -1,14 +1,17 @@
-from ..__Import import *
+from ..Imports import *
+from .Common import BasicProps
 from ..Variable import Listener, Poll, Variable
-from ._Common._BasicProps import BasicProps
 
 
-class Scroll(Gtk.ScrolledWindow, BasicProps):
+class Box(Gtk.Box, BasicProps):
     def __init__(
         self,
-        children=None,
-        attributes=None,
+        children=[],
         orientation="h",
+        spacing=0,
+        homogeneous=False,
+        size=[0],
+        attributes=None,
         css=None,
         halign="fill",
         valign="fill",
@@ -17,22 +20,25 @@ class Scroll(Gtk.ScrolledWindow, BasicProps):
         visible=True,
         classname="",
     ):
-        Gtk.ScrolledWindow.__init__(self)
+        Gtk.Box.__init__(self, spacing=spacing)
+
         BasicProps.__init__(
             self,
+            size=size,
             css=css,
             halign=halign,
             valign=valign,
             hexpand=hexpand,
             vexpand=vexpand,
-            active=None,
+            active=True,
             visible=visible,
             classname=classname,
         )
 
-        self.__clasif_orientation(orientation)
+        self.set_orientation(orientation)
         self.set_visible(visible)
-        self.add_with_viewport(children) if children else None
+        self.set_homogeneous(homogeneous) if homogeneous else None
+        self.set_children(children)
 
         attributes(self) if attributes else None
         for key, value in locals().items():
@@ -50,13 +56,27 @@ class Scroll(Gtk.ScrolledWindow, BasicProps):
                 callback = {
                     "orientation": self.set_orientation,
                     "visible": self.set_visible,
-                    "children": self.add_with_viewport,
+                    "spacing": self.set_spacing,
+                    "homogeneous": self.set_homogeneous,
+                    "children": self.set_children,
                 }.get(key)
 
                 self.bind(value, callback) if callback else None
 
     def set_orientation(self, param):
-        super().set_orientation(self.__clasif_orientation(param))
+        return super().set_orientation(self.__clasif_orientation(param))
+
+    def set_children(self, newChildrenList=[]):
+        if not newChildrenList:
+            return
+
+        for i in self.get_children():
+            if i not in newChildrenList:
+                i.destroy()
+            self.remove(i)
+
+        [self.add(i) for i in newChildrenList if i]
+        self.show_all()
 
     def __clasif_orientation(self, orientation):
         if orientation.lower() in ["vertical", "v", 0, False]:

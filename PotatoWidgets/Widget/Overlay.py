@@ -1,6 +1,6 @@
-from ..__Import import *
+from ..Imports import *
+from .Common import BasicProps
 from ..Variable import Listener, Poll, Variable
-from ._Common._BasicProps import BasicProps
 
 
 class Overlay(Gtk.Overlay, BasicProps):

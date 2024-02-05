@@ -1,6 +1,6 @@
-from ..__Import import *
+from ..Imports import *
+from .Common import BasicProps
 from ..Variable import Listener, Poll, Variable
-from ._Common._BasicProps import BasicProps
 
 
 class Label(Gtk.Label, BasicProps):
@@ -30,7 +30,7 @@ class Label(Gtk.Label, BasicProps):
             valign=valign,
             hexpand=hexpand,
             vexpand=vexpand,
-            active=None,
+            active=True,
             visible=visible,
             classname=classname,
         )

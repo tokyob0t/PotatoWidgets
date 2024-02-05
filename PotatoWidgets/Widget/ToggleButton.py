@@ -1,12 +1,14 @@
-from ..__Import import *
-from ._Button import Button
+from ..Imports import *
+from .Common import BasicProps
+from ..Variable import Listener, Poll, Variable
 
 
-class CheckBox(Gtk.CheckButton, Button):
+class ToggleButton(Gtk.ToggleButton, BasicProps):
     def __init__(
         self,
         children=None,
         onclick=None,
+        css="",
         halign="fill",
         valign="fill",
         hexpand=False,
@@ -15,12 +17,10 @@ class CheckBox(Gtk.CheckButton, Button):
         visible=True,
         classname="",
     ):
-        super().__init__()
+        Gtk.ToggleButton.__init__(self)
 
-        Button.__init__(
+        BasicProps.__init__(
             self,
-            children=children,
-            onclick=onclick,
             halign=halign,
             valign=valign,
             hexpand=hexpand,
@@ -28,4 +28,7 @@ class CheckBox(Gtk.CheckButton, Button):
             active=active,
             visible=visible,
             classname=classname,
+            css=css,
         )
+
+        self.add(children) if children else None

@@ -1,4 +1,4 @@
-from ...__Import import *
+from ...Imports import *
 
 
 class Events(Gtk.Widget):

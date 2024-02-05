@@ -1,4 +1,4 @@
-from ...__Import import *
+from ...Imports import *
 from ...Variable import Listener, Poll, Variable
 
 
@@ -10,10 +10,10 @@ class BasicProps(Gtk.Widget):
         hexpand,
         vexpand,
         active,
-        visible,
         classname,
         # tooltip,
         css,
+        visible=True,
         size=0,
     ):
         Gtk.Widget.__init__(self)

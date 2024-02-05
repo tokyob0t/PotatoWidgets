@@ -1,4 +1,4 @@
-from .__Import import *
+from .Imports import *
 
 
 def wait(time_ms, callback):

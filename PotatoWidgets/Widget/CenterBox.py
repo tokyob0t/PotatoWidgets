@@ -1,8 +1,10 @@
-from ..__Import import *
-from .. import Widget
+from ..Imports import *
+from .Common import BasicProps
+from ..Variable import Listener, Poll, Variable
+from .Box import Box
 
 
-class CenterBox(Widget.Box):
+class CenterBox(Box):
     def __init__(
         self,
         start=Gtk.Box(),

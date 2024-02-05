@@ -1,6 +1,6 @@
-from ..__Import import *
+from ..Imports import *
+from .Common import BasicProps
 from ..Variable import Listener, Poll, Variable
-from ._Common._BasicProps import BasicProps
 
 
 class Revealer(Gtk.Revealer, BasicProps):
@@ -10,6 +10,7 @@ class Revealer(Gtk.Revealer, BasicProps):
         reveal=True,
         transition="crossfade",
         duration=500,
+        size=0,
         attributes=None,
         halign="fill",
         valign="fill",
@@ -30,7 +31,7 @@ class Revealer(Gtk.Revealer, BasicProps):
             active=None,
             visible=visible,
             classname=classname,
-            size=None,
+            size=size,
         )
         self.add(children) if children else None
         self.set_duration(duration)
