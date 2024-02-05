@@ -12,7 +12,7 @@ class Box(Gtk.Box, BasicProps):
         homogeneous=False,
         size=[0],
         attributes=None,
-        css=,
+        css="",
         halign="fill",
         valign="fill",
         hexpand=False,
@@ -41,6 +41,7 @@ class Box(Gtk.Box, BasicProps):
         self.set_children(children)
 
         attributes(self) if attributes else None
+
         for key, value in locals().items():
             if key not in [
                 "self",
@@ -69,7 +70,7 @@ class Box(Gtk.Box, BasicProps):
     def set_children(self, newChildren=Union[list, Gtk.Widget]):
         if not newChildren:
             return
-        
+
         if isinstance(newChildren, (list)):
             for i in self.get_children():
                 if i not in newChildren:
@@ -77,6 +78,7 @@ class Box(Gtk.Box, BasicProps):
                 self.remove(i)
 
             [self.add(i) for i in newChildren if i]
+
         elif isinstance(newChildren, (Gtk.Widget)):
             self.add(newChildren)
 
