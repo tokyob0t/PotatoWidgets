@@ -1,6 +1,6 @@
-from ..__Import import *
-from ._Common._BasicProps import BasicProps
-from ._Common._Events import Events
+from ..Imports import *
+from .Common import BasicProps, Events
+from ..Variable import Listener, Poll, Variable
 
 
 class EventBox(Gtk.EventBox, Events, BasicProps):
