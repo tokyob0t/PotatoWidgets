@@ -18,7 +18,6 @@ class Variable(GObject.Object):
     def bind(self, callback):
         self.connect(
             "valuechanged",
-            # lambda out: GLib.idle_add(lambda: callback(out.get_value())),
             lambda out: callback(out.get_value()),
         )
 
