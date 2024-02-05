@@ -114,10 +114,7 @@ class BasicProps(Gtk.Widget):
                 print(e)
 
     def bind(self, variable: Union[Poll, Listener, Variable], callback: Callable):
-        variable.connect(
-            "valuechanged",
-            lambda out: callback(out.get_value()),
-        )
+        variable.connect("valuechanged", callback)
 
     def __clasif_args(self, variable, callback):
         arg_num = callback.__code__.co_argcount
