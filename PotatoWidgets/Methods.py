@@ -27,4 +27,5 @@ def lookup_icon(icon_name, size=128, path=True):
             )
             if icon_info is not None:
                 return icon_info.get_filename() if path else icon_info
-    return None
+
+    return "" if path else lookup_icon("application-x-addon-symbolic")
