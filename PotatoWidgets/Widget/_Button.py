@@ -65,17 +65,22 @@ class Button(Gtk.Button, BasicProps):
         arg_tuple = callback.__code__.co_varnames[:arg_num]
 
         if arg_num == 2:
-            GLib.idle_add(lambda: callback(widget=widget, event=event))
+            # GLib.idle_add(lambda: callback(widget=widget, event=event))
+            callback(widget=widget, event=event)
 
         elif arg_num == 1:
             if "widget" in arg_tuple and widget:
-                GLib.idle_add(lambda: callback(widget=widget))
+                # GLib.idle_add(lambda: callback(widget=widget))
+                callback(widget=widget)
             elif "event" in arg_tuple and event:
-                GLib.idle_add(lambda: callback(event=event))
+                # GLib.idle_add(lambda: callback(event=event))
+                callback(event=event)
             else:
-                GLib.idle_add(lambda: callback(event))
+                # GLib.idle_add(lambda: callback(event))
+                callback(event)
         else:
-            GLib.idle_add(callback)
+            # GLib.idle_add(callback)
+            callback()
 
     def __click_event_idle(self, event):
         callback = self.dict.get("onclick")

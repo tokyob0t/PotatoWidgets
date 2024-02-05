@@ -42,11 +42,12 @@ class Events(Gtk.Widget):
             callback = self.dict.get("primaryhold", None)
             if callback:
                 callback()
-                return
+
         elif event.button == Gdk.BUTTON_SECONDARY:
             callback = self.dict.get("secondaryhold", None)
             if callback:
                 callback()
+
         elif event.button == Gdk.BUTTON_MIDDLE:
             callback = self.dict.get("onmiddleclick", None)
             if callback:
