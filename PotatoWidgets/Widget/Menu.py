@@ -36,6 +36,7 @@ class MenuItem(Gtk.MenuItem, BasicProps):
         children=None,
         submenu=None,
         onactivate=lambda x: x,
+        size=[0],
         css="",
         valign="fill",
         halign="fill",
@@ -46,6 +47,7 @@ class MenuItem(Gtk.MenuItem, BasicProps):
         Gtk.MenuItem.__init__(self)
         BasicProps.__init__(
             self,
+            size=size,
             css=css,
             halign=halign,
             valign=valign,
