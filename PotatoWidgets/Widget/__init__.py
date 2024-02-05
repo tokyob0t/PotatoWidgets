@@ -16,3 +16,4 @@ from .Scale import Scale
 from .Scroll import Scroll
 from .ToggleButton import ToggleButton
 from .Window import Window
+from .Menu import Menu, MenuItem
