@@ -1,4 +1,3 @@
-from gi.repository.Gtk import events_pending
 from ..Imports import *
 from .Common import BasicProps
 from ..Variable import Listener, Poll, Variable
@@ -16,15 +15,15 @@ class Button(Gtk.Button, BasicProps):
         primaryrelease=None,
         secondaryhold=None,
         secondaryrelease=None,
-        attributes=None,
-        css=None,
+        attributes=lambda self: self,
+        css="",
+        classname="",
         halign="fill",
         valign="fill",
         hexpand=False,
         vexpand=False,
         active=True,
         visible=True,
-        classname="",
     ):
         Gtk.Button.__init__(self)
         BasicProps.__init__(
@@ -59,30 +58,22 @@ class Button(Gtk.Button, BasicProps):
 
         self.connect(
             "button-press-event",
-            lambda widget, event: GLib.idle_add(
-                lambda: self.__press_event(widget, event),
-            ),
+            self.__press_event,
         )
 
         self.connect(
             "button-release-event",
-            lambda widget, event: GLib.idle_add(
-                lambda: self.__release_event(widget, event),
-            ),
+            self.__release_event,
         )
 
         self.connect(
             "enter-notify-event",
-            lambda widget, event: GLib.idle_add(
-                lambda: self.__enter_event(widget, event),
-            ),
+            self.__enter_event,
         )
 
         self.connect(
             "leave-notify-event",
-            lambda widget, event: GLib.idle_add(
-                lambda: self.__leave_event(widget, event),
-            ),
+            self.__leave_event,
         )
 
     def __clasif_args(self, widget, event, callback):
