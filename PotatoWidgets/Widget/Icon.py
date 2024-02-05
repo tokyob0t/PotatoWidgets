@@ -47,7 +47,7 @@ class Icon(Gtk.Image, BasicProps):
             ] and isinstance(value, (Listener, Poll, Variable)):
                 callback = {"icon": self.set_icon, "size": self.set_size}.get(key)
 
-                self.bind(value, callback) if value else None
+                self.bind(variable=value, callback=callback) if callback else None
 
     def set_icon(self, icon):
         self.set_from_icon_name(icon, Gtk.IconSize.DIALOG)
