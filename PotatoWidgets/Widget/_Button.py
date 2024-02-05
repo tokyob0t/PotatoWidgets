@@ -68,20 +68,20 @@ class Button(Gtk.Button, BasicProps):
             GLib.idle_add(lambda: callback(widget=widget, event=event))
 
         elif arg_num == 1:
-            if "widget" in arg_tuple:
+            if "widget" in arg_tuple and widget:
                 GLib.idle_add(lambda: callback(widget=widget))
-            elif "event" in arg_tuple:
+            elif "event" in arg_tuple and event:
                 GLib.idle_add(lambda: callback(event=event))
             else:
                 GLib.idle_add(lambda: callback(event))
         else:
             GLib.idle_add(callback)
 
-    def __click_event_idle(self, _):
+    def __click_event_idle(self, event):
         callback = self.dict.get("onclick")
 
         if callback:
-            GLib.idle_add(callback)
+            self.__clasif_args(widget=False, event=event, callback=callback)
 
     def __press_event(self, widget, event):
         if event.button == Gdk.BUTTON_PRIMARY:
