@@ -55,33 +55,44 @@ class Button(Gtk.Button, BasicProps):
         }
 
         self.connect("clicked", self.__click_event_idle) if onclick else None
-        self.connect("button-press-event", self.__press_event)
-        self.connect("button-release-event", self.__release_event)
-        self.connect("enter-notify-event", self.__enter_event)
-        self.connect("leave-notify-event", self.__leave_event)
+        self.connect("button-press-event", lambda: GLib.idle_add(self.__press_event))
 
-    # Classification
+        self.connect(
+            "button-release-event",
+            lambda widget, event: GLib.idle_add(
+                lambda: self.__release_event(widget, event)
+            ),
+        )
+
+        self.connect(
+            "enter-notify-event",
+            lambda widget, event: GLib.idle_add(
+                lambda: self.__enter_event(widget, event)
+            ),
+        )
+        self.connect(
+            "leave-notify-event",
+            lambda widget, event: GLib.idle_add(
+                lambda: self.__leave_event(widget, event)
+            ),
+        )
+
     def __clasif_args(self, widget, event, callback):
         arg_num = callback.__code__.co_argcount
         arg_tuple = callback.__code__.co_varnames[:arg_num]
 
         if arg_num == 2:
-            # GLib.idle_add(lambda: callback(widget=widget, event=event))
-            callback(widget=widget, event=event)
+            return callback(widget=widget, event=event)
 
         elif arg_num == 1:
             if "widget" in arg_tuple and widget:
-                # GLib.idle_add(lambda: callback(widget=widget))
-                callback(widget=widget)
+                return callback(widget=widget)
             elif "event" in arg_tuple and event:
-                # GLib.idle_add(lambda: callback(event=event))
-                callback(event=event)
+                return callback(event=event)
             else:
-                # GLib.idle_add(lambda: callback(event))
-                callback(event)
+                return callback(event)
         else:
-            # GLib.idle_add(callback)
-            callback()
+            return callback()
 
     def __click_event_idle(self, event):
         callback = self.dict.get("onclick")

@@ -1,3 +1,4 @@
+from gi.repository.Gdk import KEY_Amacron
 from ..Imports import *
 from .Common import BasicProps
 from ..Variable import Listener, Poll, Variable
@@ -63,8 +64,12 @@ class MenuItem(Gtk.MenuItem, BasicProps):
 
         self.connect(
             "activate",
-            lambda widget: self.__clasif_args(
-                widget=widget, event=False, callback=onactivate
+            lambda widget: GLib.idle_add(
+                lambda: self.__clasif_args(
+                    callback=onactivate,
+                    widget=widget,
+                    event=False,
+                )
             ),
         )
 
@@ -73,15 +78,14 @@ class MenuItem(Gtk.MenuItem, BasicProps):
         arg_tuple = callback.__code__.co_varnames[:arg_num]
 
         if arg_num == 2:
-            callback(widget=widget, event=event)
+            return callback(widget=widget, event=event)
 
         elif arg_num == 1:
             if "widget" in arg_tuple and widget:
-                callback(widget=widget)
+                return callback(widget=widget)
             elif "event" in arg_tuple and event:
-                callback(event=event)
+                return callback(event=event)
             else:
-                callback(event)
+                return callback(event)
         else:
-            # GLib.idle_add(callback)
-            callback()
+            return callback()
