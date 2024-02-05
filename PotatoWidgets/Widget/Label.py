@@ -6,22 +6,22 @@ from ..Variable import Listener, Poll, Variable
 class Label(Gtk.Label, BasicProps):
     def __init__(
         self,
-        text: SupportsStr = "",
-        yalign=0.5,
-        xalign=0.5,
-        angle=0.0,
+        text: Any = "",
+        yalign: float = 0.5,
+        xalign: float = 0.5,
+        angle: float = 0.0,
         maxchars=-1,
-        wrap=False,
-        attributes=None,
-        css=None,
-        halign="fill",
-        valign="fill",
-        hexpand=False,
-        vexpand=False,
-        visible=True,
-        classname="",
-        justify="justified",
-    ):
+        wrap: bool = False,
+        attributes: Callable = lambda self: self,
+        css: str = "",
+        halign: str = "fill",
+        valign: str = "fill",
+        hexpand: bool = False,
+        vexpand: bool = False,
+        visible: bool = True,
+        classname: str = "",
+        justify: str = "justified",
+    ) -> None:
         Gtk.Label.__init__(self)
         BasicProps.__init__(
             self,
