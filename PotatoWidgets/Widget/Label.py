@@ -34,6 +34,7 @@ class Label(Gtk.Label, BasicProps):
             visible=visible,
             classname=classname,
         )
+
         self.set_text(text)
         self.set_yalign(yalign)
         self.set_xalign(xalign)
@@ -68,10 +69,10 @@ class Label(Gtk.Label, BasicProps):
 
                 self.bind(value, callback) if callback else None
 
-    def set_text(self, text):
+    def set_text(self, text: Any):
         super().set_text(str(text))
 
-    def set_wrap(self, wrap):
+    def set_wrap(self, wrap: bool):
         super().set_line_wrap(wrap)
 
     def set_maxchars(self, chars):
@@ -79,7 +80,7 @@ class Label(Gtk.Label, BasicProps):
             super().set_max_width_chars(chars)
             super().set_ellipsize(Pango.EllipsizeMode.END)
 
-    def set_justify(self, justification):
+    def set_justify(self, justification: str):
         if justification == "left":
             super().set_justify(Gtk.Justification.LEFT)
         elif justification == "center":
