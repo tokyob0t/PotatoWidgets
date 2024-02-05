@@ -1,3 +1,4 @@
+from gi.repository.Gtk import events_pending
 from ..Imports import *
 from .Common import BasicProps
 from ..Variable import Listener, Poll, Variable
@@ -55,25 +56,31 @@ class Button(Gtk.Button, BasicProps):
         }
 
         self.connect("clicked", self.__click_event_idle) if onclick else None
-        self.connect("button-press-event", lambda: GLib.idle_add(self.__press_event))
+
+        self.connect(
+            "button-press-event",
+            lambda widget, event: GLib.idle_add(
+                lambda: self.__press_event(widget, event),
+            ),
+        )
 
         self.connect(
             "button-release-event",
             lambda widget, event: GLib.idle_add(
-                lambda: self.__release_event(widget, event)
+                lambda: self.__release_event(widget, event),
             ),
         )
 
         self.connect(
             "enter-notify-event",
             lambda widget, event: GLib.idle_add(
-                lambda: self.__enter_event(widget, event)
+                lambda: self.__enter_event(widget, event),
             ),
         )
         self.connect(
             "leave-notify-event",
             lambda widget, event: GLib.idle_add(
-                lambda: self.__leave_event(widget, event)
+                lambda: self.__leave_event(widget, event),
             ),
         )
 
@@ -82,17 +89,17 @@ class Button(Gtk.Button, BasicProps):
         arg_tuple = callback.__code__.co_varnames[:arg_num]
 
         if arg_num == 2:
-            return callback(widget=widget, event=event)
+            callback(widget=widget, event=event)
 
         elif arg_num == 1:
             if "widget" in arg_tuple and widget:
-                return callback(widget=widget)
+                callback(widget=widget)
             elif "event" in arg_tuple and event:
-                return callback(event=event)
+                callback(event=event)
             else:
-                return callback(event)
+                callback(event)
         else:
-            return callback()
+            callback()
 
     def __click_event_idle(self, event):
         callback = self.dict.get("onclick")

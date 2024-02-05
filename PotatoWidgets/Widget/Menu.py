@@ -78,14 +78,14 @@ class MenuItem(Gtk.MenuItem, BasicProps):
         arg_tuple = callback.__code__.co_varnames[:arg_num]
 
         if arg_num == 2:
-            return callback(widget=widget, event=event)
+            callback(widget=widget, event=event)
 
         elif arg_num == 1:
             if "widget" in arg_tuple and widget:
-                return callback(widget=widget)
+                callback(widget=widget)
             elif "event" in arg_tuple and event:
-                return callback(event=event)
+                callback(event=event)
             else:
-                return callback(event)
+                callback(event)
         else:
-            return callback()
+            callback()
