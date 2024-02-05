@@ -81,7 +81,6 @@ class Box(Gtk.Box, BasicProps):
 
         elif isinstance(newChildren, (Gtk.Widget)):
             self.add(newChildren)
-
         self.show_all()
 
     def __clasif_orientation(self, orientation):
