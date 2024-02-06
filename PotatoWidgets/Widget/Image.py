@@ -7,13 +7,13 @@ class Image(Gtk.Image, BasicProps):
     def __init__(
         self,
         path="",
-        size=20,
+        size: Union[list, int] = 20,
         halign="fill",
         valign="fill",
         visible=True,
         classname="",
-        attributes=None,
-        css=None,
+        attributes=lambda self: self,
+        css="",
     ):
         Gtk.Image.__init__(self)
         BasicProps.__init__(

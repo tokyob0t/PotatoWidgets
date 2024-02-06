@@ -5,27 +5,27 @@ from ...Variable import Listener, Poll, Variable
 class BasicProps(Gtk.Widget):
     def __init__(
         self,
-        halign: Literal["start", "center", "end", "fill", "baseline"],
-        valign: Literal["start", "center", "end", "fill", "baseline"],
-        hexpand: bool,
-        vexpand: bool,
-        active: bool,
-        classname: str,
+        halign,
+        valign,
+        hexpand,
+        vexpand,
+        active,
+        classname,
         # tooltip,
-        css: str,
-        visible: bool = True,
-        size: Union[int, list] = 0,
+        css,
+        visible=True,
+        size=0,
     ):
         Gtk.Widget.__init__(self)
         self._default_classnames = self.get_style_context().list_classes()
-        self.set_hexpand(hexpand)
-        self.set_vexpand(vexpand)
+        self.set_hexpand(True if hexpand else False)
+        self.set_vexpand(True if vexpand else False)
         self.set_halign(halign)
         self.set_valign(valign)
         self.set_visible(visible)
         self.set_active(active)
         self.set_classname(classname)
-        self.set_size(size)
+        self.__clasif_size(size)
         self.rand_classname = (
             self.get_name().replace("+", "_") + "_" + str(randint(1111, 9999))
             if css
@@ -49,19 +49,20 @@ class BasicProps(Gtk.Widget):
 
             self.bind(value, callback) if callback else None
 
-    def set_size(self, size: Union[int, list]):
+    def set_size(self, size):
         self.__clasif_size(size)
 
-    def set_halign(self, alignment: str):
-        super().set_halign(self.__clasif_align(alignment))
+    def set_halign(self, param):
+        super().set_halign(self.__clasif_align(str(param)))
 
-    def set_valign(self, alignment: str):
-        super().set_valign(self.__clasif_align(alignment))
+    def set_valign(self, param):
+        super().set_valign(self.__clasif_align(str(param)))
 
-    def set_active(self, active: bool):
-        super().set_sensitive(active)
+    def set_active(self, param):
+        if param != None and param:
+            super().set_sensitive(param)
 
-    def __clasif_size(self, size: Union[int, list]):
+    def __clasif_size(self, size):
         if isinstance(size, int):
             self.set_size_request(size, size)
         elif isinstance(size, list):
@@ -98,7 +99,7 @@ class BasicProps(Gtk.Widget):
                 if isinstance(i, (Listener, Variable, Poll)):
                     pass
 
-    def set_css(self, css_rules: str):
+    def set_css(self, css_rules):
         if css_rules and self.rand_classname:
             context = self.get_style_context()
 
@@ -113,9 +114,18 @@ class BasicProps(Gtk.Widget):
             except Exception as e:
                 print(e)
 
-    def bind(self, variable: Union[Poll, Listener, Variable], callback: Callable):
-        if isinstance(variable, (Listener, Poll, Variable)):
-            variable.bind(callback)
+    def bind(self, variable, callback):
+        if isinstance(variable, (Listener, Variable, Poll)):
+            # self.__clasif_args(variable, callback)
+
+            variable.connect(
+                "valuechanged",
+                lambda out: callback(out.get_value()),
+            )
+            # variable.connect(
+            #     "valuechanged",
+            #     lambda out: GLib.idle_add(lambda: callback(out.get_value())),
+            # )
 
     def __clasif_args(self, variable, callback):
         arg_num = callback.__code__.co_argcount

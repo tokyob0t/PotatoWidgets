@@ -1,6 +1,6 @@
 from ..Imports import *
-from ..Variable import Listener, Poll, Variable
 from .Common import BasicProps
+from ..Variable import Listener, Poll, Variable
 
 
 class Label(Gtk.Label, BasicProps):
@@ -10,17 +10,17 @@ class Label(Gtk.Label, BasicProps):
         yalign: float = 0.5,
         xalign: float = 0.5,
         angle: float = 0.0,
-        maxchars: int = -1,
+        maxchars=-1,
         wrap: bool = False,
         attributes: Callable = lambda self: self,
         css: str = "",
-        classname: str = "",
-        halign: Literal["start", "center", "end", "fill", "baseline"] = "fill",
-        valign: Literal["start", "center", "end", "fill", "baseline"] = "fill",
+        halign: str = "fill",
+        valign: str = "fill",
         hexpand: bool = False,
         vexpand: bool = False,
         visible: bool = True,
-        justify: Literal["left", "center", "right", "justified"] = "justified",
+        classname: str = "",
+        justify: str = "justified",
     ) -> None:
         Gtk.Label.__init__(self)
         BasicProps.__init__(
@@ -69,7 +69,7 @@ class Label(Gtk.Label, BasicProps):
 
                 self.bind(value, callback) if callback else None
 
-    def set_text(self, text: Any = ""):
+    def set_text(self, text: Any):
         super().set_text(str(text))
 
     def set_wrap(self, wrap: bool):
@@ -80,14 +80,12 @@ class Label(Gtk.Label, BasicProps):
             super().set_max_width_chars(chars)
             super().set_ellipsize(Pango.EllipsizeMode.END)
 
-    def set_justify(
-        self, jtype: Literal["left", "center", "right", "justified"] = "center"
-    ):
-        jtype_map = {
-            "left": Gtk.Justification.LEFT,
-            "center": Gtk.Justification.CENTER,
-            "right": Gtk.Justification.RIGHT,
-            "justified": Gtk.Justification.FILL,
-        }.get(jtype)
-
-        super().set_justify(jtype_map) if jtype_map else None
+    def set_justify(self, justification: str):
+        if justification == "left":
+            super().set_justify(Gtk.Justification.LEFT)
+        elif justification == "center":
+            super().set_justify(Gtk.Justification.CENTER)
+        elif justification == "right":
+            super().set_justify(Gtk.Justification.RIGHT)
+        elif justification == "justified":
+            super().set_justify(Gtk.Justification.FILL)
