@@ -9,7 +9,8 @@ class Scroll(Gtk.ScrolledWindow, BasicProps):
         children=None,
         attributes=None,
         orientation="h",
-        css=None,
+        size=[0],
+        css="",
         halign="fill",
         valign="fill",
         hexpand=False,
@@ -20,12 +21,13 @@ class Scroll(Gtk.ScrolledWindow, BasicProps):
         Gtk.ScrolledWindow.__init__(self)
         BasicProps.__init__(
             self,
+            size=size,
             css=css,
             halign=halign,
             valign=valign,
             hexpand=hexpand,
             vexpand=vexpand,
-            active=None,
+            active=True,
             visible=visible,
             classname=classname,
         )
