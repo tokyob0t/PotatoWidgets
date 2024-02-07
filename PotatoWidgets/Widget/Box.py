@@ -11,7 +11,7 @@ class Box(Gtk.Box, BasicProps):
         spacing=0,
         homogeneous=False,
         size=[0],
-        attributes=None,
+        attributes=lambda self: self,
         css="",
         halign="fill",
         valign="fill",

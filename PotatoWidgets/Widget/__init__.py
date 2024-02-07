@@ -1,4 +1,5 @@
 from .Box import Box
+from .Fixed import Fixed
 from .Separator import Separator
 from .Button import Button
 from .CenterBox import CenterBox
