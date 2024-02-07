@@ -57,8 +57,9 @@ class Revealer(Gtk.Revealer, BasicProps):
                     "transition": self.set_transition,
                     "duration": self.set_duration,
                 }.get(key)
-
-                self.bind(value, callback) if callback else None
+                if callback:
+                    callback(value.get_value())
+                    self.bind(value, callback)
 
     def set_transition(self, transition):
         super().set_transition_type(self.__clasif_transition(transition))
