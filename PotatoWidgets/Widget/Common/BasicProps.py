@@ -116,12 +116,8 @@ class BasicProps(Gtk.Widget):
 
     def bind(self, variable, callback):
         if isinstance(variable, (Listener, Variable, Poll)):
-            # self.__clasif_args(variable, callback)
+            variable.bind(callback)
 
-            variable.connect(
-                "valuechanged",
-                lambda out: callback(out.get_value()),
-            )
             # variable.connect(
             #     "valuechanged",
             #     lambda out: GLib.idle_add(lambda: callback(out.get_value())),
