@@ -107,7 +107,8 @@ class BasicProps(Gtk.Widget):
                 provider = Gtk.CssProvider()
                 provider.load_from_data(css_style.encode())
 
-                context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+                # context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+                context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_FALLBACK)
 
             except Exception as e:
                 print(e)
