@@ -94,10 +94,12 @@ class BasicProps(Gtk.Widget):
 
     def _add_randclassname(self):
         if not self.rand_classname:
+            context = self.get_style_context()
+
             self.rand_classname = (
                 self.get_name().replace("+", "_") + "_" + str(randint(1111, 9999))
             )
-            self.add_class(self.rand_classname)
+            context.add_class(self.rand_classname)
 
     def set_css(self, css_rules):
         self._add_randclassname()
