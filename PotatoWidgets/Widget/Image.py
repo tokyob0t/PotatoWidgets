@@ -29,26 +29,30 @@ class Image(Gtk.Image, BasicProps):
             size=0,
         )
 
-        self._path = path
-        self._size = size
-        self.set_image(self._path, self._size)
+        self._img_path = path
+        self._img_size = size
+        self.set_image(self._img_path, self._img_size)
 
         attributes(self) if attributes else None
 
     def set_size(self, size):
-        self._size = size
-        self.set_image(self._path, self._size)
+        self._img_size = size
+        self.set_image(self._img_path, self._img_size)
 
     def set_path(self, path):
-        self._path = path
-        self.set_image(self._path, self._size)
+        self._img_path = path
+        self.set_image(self._img_path, self._img_size)
 
     def set_image(self, path, size):
+        self._img_path = path
+        self._img_size = size
+
         size = [size, size] if isinstance(size, (int)) else size
 
         pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(path, size[0], size[1], True)
 
         self.set_from_pixbuf(pixbuf)
+
         super().set_size(size)
 
         self.show()
