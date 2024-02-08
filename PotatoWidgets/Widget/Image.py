@@ -28,8 +28,8 @@ class Image(Gtk.Image, BasicProps):
             classname=classname,
             size=0,
         )
-        self.size = size
-        self.path = path
+        self._size = size
+        self._path = path
         self.__reload_image()
         attributes(self) if attributes else None
         for key, value in locals().items():
@@ -49,13 +49,13 @@ class Image(Gtk.Image, BasicProps):
                 self.bind(value, callback) if callback else None
 
     def __reload_image(self) -> None:
-        self.set_from_file(self.path)
-        self.set_size(self.size)
+        self.set_from_file(self._path)
+        self.set_size(self._size)
 
     def set_path(self, path) -> None:
-        self.path = path
+        self._path = path
         self.__reload_image()
 
     def set_size(self, size) -> None:
-        self.size = size
+        self._size = size
         self.__reload_image()
