@@ -28,6 +28,7 @@ class Image(Gtk.Image, BasicProps):
             classname=classname,
             size=0,
         )
+
         self.set_image(path, size)
         attributes(self) if attributes else None
 
@@ -41,20 +42,3 @@ class Image(Gtk.Image, BasicProps):
         super().set_size(size)
 
         self.show()
-
-    def set_size(self, size):
-        if isinstance(size, int):
-            size = [size, size]
-        elif not isinstance(size, list) or len(size) != 2:
-            raise ValueError("Size must be an integer or a list of two integers.")
-        self.set_image(self.get_path(), size)
-
-    def set_path(self, path):
-        self.set_image(path, self.get_size())
-
-    def get_size(self):
-        width, height = self.get_pixbuf().get_width(), self.get_pixbuf().get_height()
-        return [width, height]
-
-    def get_path(self):
-        return self.props.file
