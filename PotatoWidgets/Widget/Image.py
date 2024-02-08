@@ -36,7 +36,7 @@ class Image(Gtk.Image, BasicProps):
 
         pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(path, size[0], size[1], True)
 
-        self.new_from_pixbuf(pixbuf)
+        self.set_from_pixbuf(pixbuf)
         super().set_size(size)
 
         self.show()
