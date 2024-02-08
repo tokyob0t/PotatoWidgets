@@ -49,8 +49,9 @@ class Image(Gtk.Image, BasicProps):
                 self.bind(value, callback) if callback else None
 
     def __reload_image(self) -> None:
-        self.set_from_file(self._path)
-        self.set_size(self._size)
+        if self._path:
+            self.set_from_file(self._path)
+            super().set_size(self._size)
 
     def set_path(self, path) -> None:
         self._path = path
