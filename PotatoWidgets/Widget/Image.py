@@ -49,18 +49,21 @@ class Image(Gtk.Image, BasicProps):
                 self.bind(value, callback) if callback else None
 
     def __reload_image(self):
-        file = Gio.File.new_for_path(self.path)
-        if file.query_exists():
-            pixbuf = GdkPixbuf.Pixbuf.new_from_file(self.path)
-            pixbuf = pixbuf.scale_simple(
-                self.size if isinstance(self.size, (int)) else self.size[0],
-                self.size if isinstance(self.size, (int)) else self.size[1],
-                GdkPixbuf.InterpType.BILINEAR,
-            )
-            self.set_from_pixbuf(pixbuf)
-            self.show()
-        else:
-            self.hide()
+        try:
+            file = Gio.File.new_for_path(self.path)
+            if file.query_exists():
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file(self.path)
+                pixbuf = pixbuf.scale_simple(
+                    self.size if isinstance(self.size, (int)) else self.size[0],
+                    self.size if isinstance(self.size, (int)) else self.size[1],
+                    GdkPixbuf.InterpType.BILINEAR,
+                )
+                self.set_from_pixbuf(pixbuf)
+                self.show()
+            else:
+                self.hide()
+        except Exception as r:
+            print(r)
 
     def set_path(self, path):
         self.path = path
