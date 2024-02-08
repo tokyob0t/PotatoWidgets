@@ -28,8 +28,17 @@ class Image(Gtk.Image, BasicProps):
             classname=classname,
             size=0,
         )
-        self.set_image(path, size)
+        self._path = path
+        self._size = size
         attributes(self) if attributes else None
+
+    def set_size(self, size):
+        self._size = size
+        self.set_image(self._path, self._size)
+
+    def set_path(self, path):
+        self._path = path
+        self.set_image(self._path, self._size)
 
     def set_image(self, path, size):
         size = [size, size] if isinstance(size, (int)) else size
