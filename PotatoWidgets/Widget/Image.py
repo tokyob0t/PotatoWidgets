@@ -26,7 +26,7 @@ class Image(Gtk.Image, BasicProps):
             active=True,
             visible=visible,
             classname=classname,
-            size=0,
+            size=size,
         )
         self.size = size
         self.path = path
