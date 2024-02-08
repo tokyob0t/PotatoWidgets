@@ -28,35 +28,7 @@ class Image(Gtk.Image, BasicProps):
             classname=classname,
             size=0,
         )
-        self._size = size
-        self._path = path
-        self.__reload_image()
+        self.set_from_file(path)
+        self.set_size(size)
+
         attributes(self) if attributes else None
-        for key, value in locals().items():
-            if key not in [
-                "self",
-                "halign",
-                "valign",
-                "hexpand",
-                "vexpand",
-                "visible",
-                "active",
-                "visible",
-                "classname",
-            ] and isinstance(value, (Listener, Poll, Variable)):
-                callback = {"path": self.set_path, "size": self.set_size}.get(key)
-
-                self.bind(value, callback) if callback else None
-
-    def __reload_image(self) -> None:
-        if self._path:
-            self.set_from_file(self._path)
-            super().set_size(self._size)
-
-    def set_path(self, path) -> None:
-        self._path = path
-        self.__reload_image()
-
-    def set_size(self, size) -> None:
-        self._size = size
-        self.__reload_image()
