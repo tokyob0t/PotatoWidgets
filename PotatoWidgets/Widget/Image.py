@@ -49,18 +49,8 @@ class Image(Gtk.Image, BasicProps):
                 self.bind(value, callback) if callback else None
 
     def __reload_image(self) -> None:
-        file = Gio.File.new_for_path(self.path)
-        if file.query_exists():
-            pixbuf = GdkPixbuf.Pixbuf.new_from_file(self.path)
-            pixbuf = pixbuf.scale_simple(
-                self.size if isinstance(self.size, (int)) else self.size[0],
-                self.size if isinstance(self.size, (int)) else self.size[1],
-                GdkPixbuf.InterpType.BILINEAR,
-            )
-            self.set_from_pixbuf(pixbuf)
-            self.show()
-        else:
-            self.hide()
+        self.set_from_file(self.path)
+        self.set_size(self.size)
 
     def set_path(self, path) -> None:
         self.path = path
