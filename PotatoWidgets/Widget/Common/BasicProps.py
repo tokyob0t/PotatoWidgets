@@ -26,14 +26,9 @@ class BasicProps(Gtk.Widget):
         self.set_active(active)
         self.set_classname(classname)
         self.set_size(size)
-        self.rand_classname = (
-            self.get_name().replace("+", "_") + "_" + str(randint(1111, 9999))
-            if css
-            else ""
-        )
 
-        self.set_classname(self.rand_classname) if self.rand_classname else None
-        self.set_css(css)
+        if css:
+            self.set_css(css)
 
         for key, value in locals().items():
             callback = {
@@ -97,7 +92,16 @@ class BasicProps(Gtk.Widget):
                 if isinstance(i, (Listener, Variable, Poll)):
                     pass
 
+    def _add_randclassname(self):
+        if not self.rand_classname:
+            self.rand_classname = (
+                self.get_name().replace("+", "_") + "_" + str(randint(1111, 9999))
+            )
+            self.add_class(self.rand_classname)
+
     def set_css(self, css_rules):
+        self._add_randclassname()
+
         if css_rules and self.rand_classname:
             context = self.get_style_context()
 
@@ -107,8 +111,7 @@ class BasicProps(Gtk.Widget):
                 provider = Gtk.CssProvider()
                 provider.load_from_data(css_style.encode())
 
-                # context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
-                context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_FALLBACK)
+                context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
             except Exception as e:
                 print(e)
@@ -116,11 +119,6 @@ class BasicProps(Gtk.Widget):
     def bind(self, variable, callback):
         if isinstance(variable, (Listener, Variable, Poll)):
             variable.bind(callback)
-
-            # variable.connect(
-            #     "valuechanged",
-            #     lambda out: GLib.idle_add(lambda: callback(out.get_value())),
-            # )
 
     def __clasif_args(self, variable, callback):
         arg_num = callback.__code__.co_argcount
