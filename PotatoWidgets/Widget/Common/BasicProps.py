@@ -50,7 +50,14 @@ class BasicProps(Gtk.Widget):
             self.bind(value, callback) if callback else None
 
     def set_size(self, size):
-        self.__clasif_size(size)
+        if size:
+            if isinstance(size, int):
+                self.set_size_request(size, size)
+            elif isinstance(size, list):
+                if len(size) == 2:
+                    self.set_size_request(size[0], size[1])
+                elif len(size) == 1:
+                    self.set_size_request(size[0], size[0])
 
     def set_halign(self, param):
         super().set_halign(self.__clasif_align(str(param)))
@@ -61,15 +68,6 @@ class BasicProps(Gtk.Widget):
     def set_active(self, param):
         if param != None and param:
             super().set_sensitive(param)
-
-    def __clasif_size(self, size):
-        if isinstance(size, int):
-            self.set_size_request(size, size)
-        elif isinstance(size, list):
-            if len(size) == 2:
-                self.set_size_request(size[0], size[1])
-            elif len(size) == 1:
-                self.set_size_request(size[0], size[0])
 
     def __clasif_align(self, param):
         dict = {

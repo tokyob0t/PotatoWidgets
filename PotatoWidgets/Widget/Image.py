@@ -16,18 +16,18 @@ class Image(Gtk.Image, BasicProps):
         css="",
     ) -> None:
         Gtk.Image.__init__(self)
-        # BasicProps.__init__(
-        #     self,
-        #     css=css,
-        #     halign=halign,
-        #     valign=valign,
-        #     hexpand=False,
-        #     vexpand=False,
-        #     active=True,
-        #     visible=visible,
-        #     classname=classname,
-        #     size=0,
-        # )
+        BasicProps.__init__(
+            self,
+            css=css,
+            halign=halign,
+            valign=valign,
+            hexpand=False,
+            vexpand=False,
+            active=True,
+            visible=visible,
+            classname=classname,
+            size=0,
+        )
         self.size = size
         self.path = path
         self.__reload_image()
