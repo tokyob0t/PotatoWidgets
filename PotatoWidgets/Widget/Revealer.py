@@ -10,6 +10,7 @@ class Revealer(Gtk.Revealer, BasicProps):
         reveal=True,
         transition="crossfade",
         duration=500,
+        css="",
         size=0,
         attributes=None,
         halign="fill",
@@ -23,7 +24,7 @@ class Revealer(Gtk.Revealer, BasicProps):
 
         BasicProps.__init__(
             self,
-            css=None,
+            css=css,
             halign=halign,
             valign=valign,
             hexpand=hexpand,
