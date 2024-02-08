@@ -31,8 +31,7 @@ class Image(Gtk.Image, BasicProps):
 
         self._img_path = path
         self._img_size = size
-        self.set_image(self._img_path, self._img_size)
-
+        self.set_image(path, size)
         attributes(self) if attributes else None
 
     def set_size(self, size):
