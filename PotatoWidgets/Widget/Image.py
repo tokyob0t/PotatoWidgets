@@ -28,8 +28,11 @@ class Image(Gtk.Image, BasicProps):
             classname=classname,
             size=0,
         )
+
         self._path = path
         self._size = size
+        self.set_image(self._path, self._size)
+
         attributes(self) if attributes else None
 
     def set_size(self, size):
