@@ -28,10 +28,13 @@ class Image(Gtk.Image, BasicProps):
             classname=classname,
             size=0,
         )
-        self.set_from_file(path)
-        self.set_size(size)
+        self.set_image(path, size)
         attributes(self) if attributes else None
 
-    def set_size(self, size):
-        self.set_pixel_size(size)
+    def set_image(self, path, size):
+        size = [size, size] if isinstance(size, (int)) else size
+
+        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(path, size[0], size[1])
+
+        self.new_from_pixbuf(pixbuf)
         super().set_size(size)
