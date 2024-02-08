@@ -30,5 +30,8 @@ class Image(Gtk.Image, BasicProps):
         )
         self.set_from_file(path)
         self.set_size(size)
-
         attributes(self) if attributes else None
+
+    def set_size(self, size):
+        self.set_pixel_size(size)
+        super().set_size(size)
