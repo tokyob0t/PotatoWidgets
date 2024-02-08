@@ -17,14 +17,15 @@ class EventBox(Gtk.EventBox, Events, BasicProps):
         primaryrelease=None,
         secondaryhold=None,
         secondaryrelease=None,
-        attributes=None,
-        css=None,
+        attributes=lambda self: self,
+        size=[0],
+        css="",
+        classname="",
         halign="fill",
         valign="fill",
         hexpand=False,
         vexpand=False,
         visible=True,
-        classname="",
     ):
         Gtk.EventBox.__init__(self)
 
@@ -35,9 +36,10 @@ class EventBox(Gtk.EventBox, Events, BasicProps):
             valign=valign,
             hexpand=hexpand,
             vexpand=vexpand,
-            active=None,
+            active=True,
             visible=visible,
             classname=classname,
+            size=size,
         )
 
         self.add(children) if children else None
