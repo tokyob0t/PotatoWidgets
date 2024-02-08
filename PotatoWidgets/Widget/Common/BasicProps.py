@@ -26,6 +26,7 @@ class BasicProps(Gtk.Widget):
         self.set_active(active)
         self.set_classname(classname)
         self.set_size(size)
+        self.rand_classname = ""
 
         if css:
             self.set_css(css)
