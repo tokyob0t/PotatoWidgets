@@ -50,8 +50,8 @@ class Image(Gtk.Image, BasicProps):
 
     def __reload_image(self):
         try:
-            file = Gio.File.new_for_path(self.path)
-            if file.query_exists():
+            _file = Gio.File.new_for_path(self.path)
+            if _file.query_exists():
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file(self.path)
                 pixbuf = pixbuf.scale_simple(
                     self.size if isinstance(self.size, (int)) else self.size[0],
