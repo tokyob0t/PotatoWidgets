@@ -1,6 +1,7 @@
-from ..Imports import *
+from typing import Union
 from .Common import BasicProps
 from ..Variable import Listener, Poll, Variable
+from ..Imports import *
 
 
 class Image(Gtk.Image, BasicProps):
@@ -31,7 +32,10 @@ class Image(Gtk.Image, BasicProps):
         self.size = size
         self.path = path
         self.__reload_image()
-        attributes(self) if attributes else None
+
+        if attributes:
+            attributes(self)
+
         for key, value in locals().items():
             if key not in [
                 "self",
@@ -41,29 +45,32 @@ class Image(Gtk.Image, BasicProps):
                 "vexpand",
                 "visible",
                 "active",
-                "visible",
                 "classname",
             ] and isinstance(value, (Listener, Poll, Variable)):
                 callback = {"path": self.set_path, "size": self.set_size}.get(key)
-
-                self.bind(value, callback) if callback else None
+                if callback:
+                    self.bind(value, callback)
 
     def __reload_image(self):
         try:
-            _file = Gio.File.new_for_path(self.path)
-            if _file.query_exists():
+            file = Gio.File.new_for_path(self.path)
+            file_info = file.query_info("*", Gio.FileQueryInfoFlags.NONE, None)
+            if file_info.exists():
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file(self.path)
+                if isinstance(self.size, int):
+                    width = height = self.size
+                else:
+                    width, height = self.size
+
                 pixbuf = pixbuf.scale_simple(
-                    self.size if isinstance(self.size, (int)) else self.size[0],
-                    self.size if isinstance(self.size, (int)) else self.size[1],
-                    GdkPixbuf.InterpType.BILINEAR,
+                    width, height, GdkPixbuf.InterpType.BILINEAR
                 )
                 self.set_from_pixbuf(pixbuf)
                 self.show()
             else:
                 self.hide()
-        except Exception as r:
-            print(r)
+        except Exception as e:
+            print(f"Error al cargar la imagen: {e}")
 
     def set_path(self, path):
         self.path = path
