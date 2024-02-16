@@ -5,16 +5,16 @@ from ...Variable import Listener, Poll, Variable
 class BasicProps(Gtk.Widget):
     def __init__(
         self,
-        halign,
-        valign,
-        hexpand,
-        vexpand,
-        active,
-        classname,
+        halign: str,
+        valign: str,
+        hexpand: bool,
+        vexpand: bool,
+        active: bool,
+        classname: str,
         # tooltip,
-        css,
-        visible=True,
-        size=0,
+        css: str,
+        visible: bool = True,
+        size: Union[int, list] = 0,
     ):
         Gtk.Widget.__init__(self)
         self._default_classnames = self.get_style_context().list_classes()

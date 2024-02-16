@@ -16,6 +16,7 @@ class Button(Gtk.Button, BasicProps):
         secondaryhold=None,
         secondaryrelease=None,
         attributes=lambda self: self,
+        size: Union[list, int] = [0],
         css="",
         classname="",
         halign="fill",
@@ -29,6 +30,7 @@ class Button(Gtk.Button, BasicProps):
         BasicProps.__init__(
             self,
             css=css,
+            size=size,
             halign=halign,
             valign=valign,
             hexpand=hexpand,
