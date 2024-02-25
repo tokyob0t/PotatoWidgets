@@ -1,237 +1,181 @@
 from ..Imports import *
+from .Common import BasicProps
 from ..Variable import Listener, Poll, Variable
-
-cleantextX = (
-    lambda x, perheight: perheight(str(x).replace("%", ""))
-    if "%" in str(x)
-    else float(str(x).replace("px", ""))
-)
-cleantextY = (
-    lambda x, perwidth: perwidth(str(x).replace("%", ""))
-    if "%" in str(x)
-    else float(str(x).replace("px", ""))
-)
 
 
 class Window(Gtk.Window):
     def __init__(
         self,
-        size=[0, 0],
-        at={},
-        position="center",
-        layer="top",
-        exclusive=False,
-        children=None,
+        size: list,
+        at: dict = {},
+        position: str = "center",
+        layer: str = "top",
+        exclusive: Union[bool, int] = False,
+        children: Gtk.Widget = Gtk.Box(),
         monitor=0,
-        parent=None,
-        focusable="none",
-        popup=False,
-        namespace="gtk-layer-shell",
-        attributes=None,
+        namespace: str = "gtk-layer-shell",
+        attributes: Callable = lambda self: self,
         **kwargs,
-    ):
+    ) -> None:
         Gtk.Window.__init__(self)
-        self.monitor = monitor
-        self._screen_width, self._screen_height = self.__calculateResolution(
-            self.monitor
-        )
-        self._perheight = lambda x: (float(x) * self._screen_height) / 100
-        self._perwidth = lambda x: (float(x) * self._screen_width) / 100
-        self.properties = self.__adjustProps(
-            {
-                "size": size,
-                "at": at,
-                "position": position,
-                "layer": layer,
-                "exclusive": exclusive,
-                "namespace": namespace,
-            }
-        )
-        self.add(children) if children else None
-        # Other settings for the window
-        # Useful for popups or something like that
-        self.set_transient_for(parent) if parent else None
-        self.set_destroy_with_parent(True if parent else False)
 
-        # GtkLayerShell SETTING, etc...
-        if not locals().get("disable_gtklayershell", False):
+        self._wayland_display = bool(GLib.getenv("WAYLAND_DISPLAY"))
+        self.monitor= monitor
+        self.namespace = namespace
+
+        if self._wayland_display:
             GtkLayerShell.init_for_window(self)
-            GtkLayerShell.set_namespace(self, self.properties.get("namespace"))
-            GtkLayerShell.set_layer(
-                self, self.__clasif_layer(self.properties.get("layer", "top"))
-            )
+            GtkLayerShell.set_namespace(self, self.namespace)
 
-        self.__clasif_position(self.properties.get("position", "center"))
-        self.__clasif_exclusive(self.properties.get("exclusive", False))
-        self.__clasif_at(self.properties.get("at", False))
-        self.set_size_request(
-            max(self.properties["size"][0], 10), max(self.properties["size"][1], 10)
-        )
+        self.add(children) if children else None
+        self.set_layer(layer)
+        self.set_size(size)
+        self.set_margin(at)
+        self.set_exclusive(exclusive)
+        self.set_position(position)
+        self.hide()
+        attributes(self)
 
-        # self.connect("destroy", Gtk.main_quit)
+    def set_position(self, position: str) -> None:
+        position = position.lower()
 
-        self.set_focusable(focusable)
-        self.set_popup(popup)
-        attributes(self) if attributes else None
+        if self._wayland_display:
+            if position == "center":
+                for j in [
+                    GtkLayerShell.Edge.TOP,
+                    GtkLayerShell.Edge.RIGHT,
+                    GtkLayerShell.Edge.LEFT,
+                    GtkLayerShell.Edge.BOTTOM,
+                ]:
+                    GtkLayerShell.set_anchor(self, j, False)
+            else:
+                for j in position.split():
+                    _position = {
+                        "top": GtkLayerShell.Edge.TOP,
+                        "right": GtkLayerShell.Edge.RIGHT,
+                        "left": GtkLayerShell.Edge.LEFT,
+                        "bottom": GtkLayerShell.Edge.BOTTOM,
+                    }.get(j)
 
-        if self.popup:
-            # Connect the key-press-event signal to handle the Escape key
-            self.connect("key-press-event", self.on_key_press)
-            # Connect the button-press-event signal to handle clicks outside the window
-            self.connect("button-press-event", self.on_button_press)
-
-        self.close()
-
-    def on_key_press(self, _, event):
-        # Handle key-press-event signal (Escape key)
-        if event.keyval == Gdk.KEY_Escape:
-            self.close()
-
-    def on_button_press(self, _, event):
-        # Handle button-press-event signal (click outside the window)
-        if (
-            event.type == Gdk.EventType.BUTTON_PRESS and event.button == 1
-        ):  # Left mouse button
-            x, y = event.x_root, event.y_root
-            frame_extents = self.get_window().get_frame_extents()
-            if (
-                x < frame_extents.x
-                or x >= frame_extents.x + frame_extents.width
-                or y < frame_extents.y
-                or y >= frame_extents.y + frame_extents.height
-            ):
-                self.close()
-
-    def set_focusable(self, focusable):
-        focusable_mode = {
-            "onfocus": GtkLayerShell.KeyboardMode.ON_DEMAND,
-            "force": GtkLayerShell.KeyboardMode.EXCLUSIVE,
-            "none": GtkLayerShell.KeyboardMode.NONE,
-        }.get(focusable, GtkLayerShell.KeyboardMode.NONE)
-
-        GtkLayerShell.set_keyboard_mode(self, focusable_mode)
-
-    def set_popup(self, popup):
-        self.popup = popup
-        if popup:
-            # Set the window type hint to POPUP
-            self.set_type_hint(Gdk.WindowTypeHint.POPUP_MENU)
+                    if _position:
+                        GtkLayerShell.set_anchor(self, _position, True)
         else:
-            # Set the window type hint to NORMAL
-            self.set_type_hint(Gdk.WindowTypeHint.NORMAL)
+            _size = self.get_size() or [10, 10]
 
-    def __adjustProps(self, props):
-        at = props.get("at", {"top": 0, "bottom": 0, "left": 0, "right": 0})
+            width, height = get_screen_size(self.monitor)
+            width -= _size[0]
+            height -= _size[1]
 
-        at["top"] = cleantextY(at.get("top", 0), self._perwidth)
-        at["bottom"] = cleantextY(at.get("bottom", 0), self._perwidth)
-        at["left"] = cleantextX(at.get("left", 0), self._perheight)
-        at["right"] = cleantextX(at.get("right", 0), self._perheight)
+            if position == "center":
+                self.move(width // 2, height // 2)
+            else:
+                for j in position.split():
+                    _position = {
+                        "top": [width // 2, 0],
+                        "bottom": [width // 2, height],
+                        "left": [0, height // 2],
+                        "right": [width, height // 2],
+                    }.get(j)
+                    if _position:
+                        self.move(_position[0], _position[1])
 
-        size = props.get("size", [0, 0])
+    def set_margin(self, margins: dict) -> None:
+        if self._wayland_display:
+            for key, value in margins.items():
+                _key = {
+                    "top": GtkLayerShell.Edge.TOP,
+                    "bottom": GtkLayerShell.Edge.BOTTOM,
+                    "left": GtkLayerShell.Edge.LEFT,
+                    "right": GtkLayerShell.Edge.RIGHT,
+                }.get(key)
 
-        props["size"] = [
-            cleantextX(size[0], self._perwidth),
-            cleantextY(size[1], self._perheight),
-        ]
-        props["at"] = at
-
-        return props
-
-    def __calculateResolution(self, monitor):
-        display = Gdk.Display.get_default()
-        n_monitors = display.get_n_monitors()
-
-        if monitor < 0 or monitor >= n_monitors:
-            raise ValueError(f"Invalid monitor index: {monitor}")
-
-        monitors = [display.get_monitor(i).get_geometry() for i in range(n_monitors)]
-        selected_monitor = monitors[monitor]
-
-        return selected_monitor.width, selected_monitor.height
-
-    def __clasif_layer(self, layer):
-        if layer.lower() in ["background", "bg"]:
-            return GtkLayerShell.Layer.BACKGROUND
-        elif layer.lower() in ["bottom", "bt"]:
-            return GtkLayerShell.Layer.BOTTOM
-        elif layer.lower() in ["top", "tp"]:
-            return GtkLayerShell.Layer.TOP
-        elif layer.lower() in ["overlay", "ov"]:
-            return GtkLayerShell.Layer.OVERLAY
-
-    def __clasif_position(self, position):
-        for i in position.lower().split(" "):
-            if i in ["top", "tp"]:
-                GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.TOP, True)
-
-            elif i in ["bottom", "bt"]:
-                GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.BOTTOM, True)
-
-            elif i in ["left", "lf"]:
-                GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.LEFT, True)
-
-            elif i in ["right", "rg"]:
-                GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.RIGHT, True)
-
-            elif i in ["center", "ct"]:
-                GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.TOP, False)
-                GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.RIGHT, False)
-                GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.LEFT, False)
-                GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.BOTTOM, False)
-
-    def __clasif_exclusive(self, exclusivity):
-        if exclusivity == True:
-            return GtkLayerShell.auto_exclusive_zone_enable(self)
-        elif isinstance(exclusivity, int):
-            return GtkLayerShell.set_exclusive_zone(self, exclusivity)
+                if _key:
+                    GtkLayerShell.set_margin(self, _key, value)
         else:
-            return
+            print(margins)
+            for key, value in margins.items():
+                pass
 
-    def __clasif_at(self, at):
-        if at:
-            for key, value in at.items():
-                if key in ["top", "tp"]:
-                    GtkLayerShell.set_margin(self, GtkLayerShell.Edge.TOP, value)
+    def set_exclusive(self, exclusivity: Union[int, bool]) -> None:
+        if self._wayland_display:
+            if exclusivity == True:
+                GtkLayerShell.auto_exclusive_zone_enable(self)
+            elif isinstance(exclusivity, int):
+                GtkLayerShell.set_exclusive_zone(self, exclusivity)
+            else:
+                return
+        else:
+            pass
 
-                elif key in ["bottom", "bt"]:
-                    GtkLayerShell.set_margin(self, GtkLayerShell.Edge.BOTTOM, value)
+    def set_layer(self, layer: str) -> None:
+        layer = layer.lower()
 
-                elif key in ["left", "lf"]:
-                    GtkLayerShell.set_margin(self, GtkLayerShell.Edge.LEFT, value)
+        if self._wayland_display:
+            _layer = {
+                "desktop": GtkLayerShell.Layer.BACKGROUND,
+                "background": GtkLayerShell.Layer.BACKGROUND,
+                "bottom": GtkLayerShell.Layer.BOTTOM,
+                "menu": GtkLayerShell.Layer.BOTTOM,
+                "dock": GtkLayerShell.Layer.TOP,
+                "top": GtkLayerShell.Layer.TOP,
+                "popup": GtkLayerShell.Layer.OVERLAY,
+                "overlay": GtkLayerShell.Layer.OVERLAY,
+            }.get(layer, GtkLayerShell.Layer.TOP)
 
-                elif key in ["right", "rg"]:
-                    GtkLayerShell.set_margin(self, GtkLayerShell.Edge.RIGHT, value)
+            GtkLayerShell.set_layer(self, _layer)
 
-                elif key in ["center", "ct"]:
-                    GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.TOP, False)
-                    GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.RIGHT, False)
-                    GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.LEFT, False)
-                    GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.BOTTOM, False)
+        else:
+            _layer = {
+                "normal": Gdk.WindowTypeHint.NORMAL,
+                "dialog": Gdk.WindowTypeHint.DIALOG,
+                "tooltip": Gdk.WindowTypeHint.TOOLTIP,
+                "notification": Gdk.WindowTypeHint.NOTIFICATION,
+                "overlay": Gdk.WindowTypeHint.NOTIFICATION,
+                "combo": Gdk.WindowTypeHint.COMBO,
+                "dnd": Gdk.WindowTypeHint.DND,
+                "bottom": Gdk.WindowTypeHint.MENU,
+                "menu": Gdk.WindowTypeHint.MENU,
+                "toolbar": Gdk.WindowTypeHint.TOOLBAR,
+                "splashscreen": Gdk.WindowTypeHint.SPLASHSCREEN,
+                "utility": Gdk.WindowTypeHint.UTILITY,
+                "dock": Gdk.WindowTypeHint.DOCK,
+                "top": Gdk.WindowTypeHint.DOCK,
+                "desktop": Gdk.WindowTypeHint.DESKTOP,
+                "background": Gdk.WindowTypeHint.DESKTOP,
+                "dropdown": Gdk.WindowTypeHint.DROPDOWN_MENU,
+                "popup": Gdk.WindowTypeHint.POPUP_MENU,
+            }.get(layer, Gdk.WindowTypeHint.DOCK)
 
-    def bind(self, var, callback):
-        if isinstance(var, (Listener, Variable, Poll)):
-            var.connect(
-                "valuechanged", lambda x: GLib.idle_add(lambda: callback(x.get_value()))
-            )
+            self.set_type_hint(_layer)
 
-    def open(self, duration=0):
+    def set_size(self, size: list) -> None:
+        screen = get_screen_size(self.monitor)
+        width = parse_screen_size(size[0], screen[0])
+        height = parse_screen_size(size[0] if len(size) == 1 else size[1], screen[1])
+
+
+        self.set_size_request(width, height)
+
+    def bind(self, var:Union[Listener, Variable, Poll], callback:Callable) -> None:
+        var.bind(callback)
+
+    def open(self, duration: Union[int, str] = 0) -> None:
         self.show()
 
-        if duration > 0:
-            GLib.timeout_add(duration, lambda: self.close())
+        if bool(duration):
+            GLib.timeout_add(parse_interval(duration), self.close)
 
-    def close(self):
+    def close(self) -> None:
         self.hide()
 
-    def toggle(self):
+    def toggle(self) -> None:
         if self.get_visible():
             self.close()
         else:
             self.open()
 
     def __str__(self) -> str:
-        return str(self.properties["namespace"])
+        return str(self.namespace)
 
     def __repr__(self) -> str:
-        return str(self.properties["namespace"])
+        return str(self.namespace)
