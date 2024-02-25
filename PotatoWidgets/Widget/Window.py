@@ -92,7 +92,6 @@ class Window(Gtk.Window):
                 if _key:
                     GtkLayerShell.set_margin(self, _key, value)
         else:
-            print(margins)
             for key, value in margins.items():
                 pass
 
