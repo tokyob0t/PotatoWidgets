@@ -49,7 +49,7 @@ class Window(Gtk.Window):
                 ]:
                     GtkLayerShell.set_anchor(self, j, False)
             else:
-                for j in position.split():
+                for j in position.split(" "):
                     _position = {
                         "top": GtkLayerShell.Edge.TOP,
                         "right": GtkLayerShell.Edge.RIGHT,
@@ -69,7 +69,7 @@ class Window(Gtk.Window):
             if position == "center":
                 self.move(width // 2, height // 2)
             else:
-                for j in position.split():
+                for j in position.split(" "):
                     _position = {
                         "top": [width // 2, 0],
                         "bottom": [width // 2, height],
