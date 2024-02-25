@@ -1,7 +1,17 @@
 from .Imports import *
 
 
-def parse_interval(interval: Union[int, str] = 1000) -> int:
+def parse_interval(interval: Union[int, str] = 1000, fallback_interval: int= 1000) -> int:
+    """Parse the interval in milliseconds.
+
+    Args:
+        interval (Union[int, str], optional): The interval to parse, can be in milliseconds (int)
+            or in string format indicating seconds ('s'), minutes ('m'), or hours ('h').
+            Defaults to 1000 (1 second).
+
+    Returns:
+        int: The parsed interval in milliseconds.
+    """
     try:
         if isinstance(interval, str):
             unit = interval[-1].lower()
@@ -13,12 +23,54 @@ def parse_interval(interval: Union[int, str] = 1000) -> int:
                 return int(value * 60 * 1000)
             elif unit == "h":
                 return int(value * 60 * 60 * 1000)
-        elif isinstance(interval, int):
+        else:
             return int(interval)
+
     except (ValueError, IndexError):
         pass
 
-    return int(interval)
+    return fallback_interval
+
+
+def get_screen_size(monitor_index: int = 0, fallback_size: tuple = (1920, 1080)) -> tuple:
+    """Get the screen size.
+
+    Args:
+        monitor_index (int, optional): The index of the monitor to get the size of. Defaults to 0.
+        fallback_size (tuple, optional): A tuple containing the width and height to return
+            if the display is not available or the monitor index is out of range.
+            Defaults to (1920, 1080).
+
+    Returns:
+        tuple: A tuple containing the width and height of the specified monitor,
+            or the fallback size if the display is not available or the index is out of range.
+    """
+    display = Gdk.Display.get_default()
+    if display and 0 <= monitor_index < display.get_n_monitors():
+        monitor = display.get_monitor(monitor_index)
+        geometry = monitor.get_geometry()
+        return geometry.width, geometry.height
+    else:
+        return fallback_size
+
+def parse_screen_size(value: Union[int, str, bool], total=0) -> int:
+    """Parse the screen size.
+
+    Args:
+        value (Union[int, str, bool]): The screen size value, which can be a string with percentage,
+            an integer, or a boolean.
+        total (int, optional): Total value. Defaults to 0.
+
+    Returns:
+        int: The parsed screen size.
+    """
+    if isinstance(value, str) and "%" in value:
+        percentage = float(value.strip("%")) / 100
+        return int(total * percentage)
+    elif isinstance(value, (int, float)):
+        return int(value)
+    else:
+        return 10
 
 
 def wait(time_ms: Union[str, int], callback: Callable) -> None:
@@ -37,10 +89,10 @@ def wait(time_ms: Union[str, int], callback: Callable) -> None:
 
 
 def lookup_icon(
-    icon_name: str,
+        icon_name: str,
     size: Literal[8, 16, 32, 64, 128] = 128,
     path: bool = True,
-    fallback: str = "application-x-addon-symbolic",
+    fallback: str = "application-x-addon-symbolic"
 ) -> str:
     """Look up an icon by name and return its file path or icon info.
 
