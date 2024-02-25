@@ -29,11 +29,11 @@ class Window(Gtk.Window):
             GtkLayerShell.set_namespace(self, self.namespace)
 
         self.add(children) if children else None
+        self.set_size(size)
         self.set_layer(layer)
         self.set_position(position)
         self.set_exclusive(exclusive)
         self.set_margin(at)
-        self.set_size(size)
         attributes(self)
 
         self.close()
