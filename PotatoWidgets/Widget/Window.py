@@ -1,7 +1,7 @@
 from ..Imports import *
 from .Common import BasicProps
 from ..Variable import Listener, Poll, Variable
-
+from ..Methods import get_screen_size, parse_screen_size
 
 class Window(Gtk.Window):
     def __init__(
