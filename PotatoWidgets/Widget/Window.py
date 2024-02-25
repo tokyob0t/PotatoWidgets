@@ -30,12 +30,13 @@ class Window(Gtk.Window):
 
         self.add(children) if children else None
         self.set_layer(layer)
-        self.set_size(size)
-        self.set_margin(at)
         self.set_position(position)
         self.set_exclusive(exclusive)
-        self.hide()
+        self.set_margin(at)
+        self.set_size(size)
         attributes(self)
+
+        self.close()
 
     def set_position(self, position: str) -> None:
         position = position.lower()
