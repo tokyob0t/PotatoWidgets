@@ -6,7 +6,7 @@ from ..Methods import get_screen_size, parse_screen_size
 class Window(Gtk.Window):
     def __init__(
         self,
-        size: list,
+        size: list=[0, 0],
         at: dict = {},
         position: str = "center",
         layer: str = "top",
