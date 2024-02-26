@@ -111,8 +111,10 @@ class Window(Gtk.Window):
                 }.get(key)
                 if _key:
                     if key in ["top", "bottom"]:
+                        value = parse_screen_size(value, height)
                         self.move_relative(y=value)
                     elif key in ["left", "right"]:
+                        value = parse_screen_size(value, width)
                         self.move_relative(x=value)
 
     def move_relative(self, x: int = 0, y: int = 0) -> None:
