@@ -19,6 +19,7 @@ class Window(Gtk.Window):
         **kwargs,
     ) -> None:
         Gtk.Window.__init__(self)
+        self._size = size
 
         self._wayland_display = bool(GLib.getenv("WAYLAND_DISPLAY"))
         self.monitor = monitor
@@ -35,8 +36,8 @@ class Window(Gtk.Window):
         self.set_exclusive(exclusive)
         self.set_margin(at)
         attributes(self)
-
         self.close()
+        self.connect("size-allocate", lambda *_: self.set_size(self._size))
 
     def set_position(self, position: str) -> None:
         position = position.lower()
@@ -195,6 +196,7 @@ class Window(Gtk.Window):
 
         self.set_size_request(width, height)
         self.set_size_request(max(width, 10), max(height, 10))
+        self._size = [width, height]
 
     def bind(self, var: Union[Listener, Variable, Poll], callback: Callable) -> None:
         var.bind(callback)
