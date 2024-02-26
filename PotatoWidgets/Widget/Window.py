@@ -1,13 +1,13 @@
 from ..Imports import *
-from .Common import BasicProps
+from ..Methods import get_screen_size, parse_interval, parse_screen_size
 from ..Variable import Listener, Poll, Variable
-from ..Methods import get_screen_size, parse_screen_size, parse_interval
+from .Common import BasicProps
 
 
 class Window(Gtk.Window):
     def __init__(
         self,
-        size: list=[0, 0],
+        size: list = [0, 0],
         at: dict = {},
         position: str = "center",
         layer: str = "top",
@@ -21,7 +21,7 @@ class Window(Gtk.Window):
         Gtk.Window.__init__(self)
 
         self._wayland_display = bool(GLib.getenv("WAYLAND_DISPLAY"))
-        self.monitor= monitor
+        self.monitor = monitor
         self.namespace = namespace
 
         if self._wayland_display:
@@ -79,7 +79,7 @@ class Window(Gtk.Window):
                         "right": [width, height // 2],
                     }.get(j)
                     if _position:
-                        self.move(_position[0], _position[1])
+                        self.move_relative(_position[0], _position[1])
 
     def set_margin(self, margins: dict) -> None:
         if self._wayland_display:
@@ -94,8 +94,34 @@ class Window(Gtk.Window):
                 if _key:
                     GtkLayerShell.set_margin(self, _key, value)
         else:
+            _size = self.get_size() or [10, 10]
+
+            width, height = get_screen_size(self.monitor)
+            width -= _size[0]
+            height -= _size[1]
+
+            posx, posy = self.get_position()
+
             for key, value in margins.items():
-                pass
+                _key = {
+                    "top": posy == 0,
+                    "bottom": posy == height,
+                    "left": posx == 0,
+                    "right": posx == width,
+                }.get(key)
+                if _key:
+                    if key in ["top", "bottom"]:
+                        self.move_relative(y=value)
+                    elif key in ["left", "right"]:
+                        self.move_relative(x=value)
+
+    def move_relative(self, x: int = 0, y: int = 0) -> None:
+        if x != 0:
+            _x, _y = self.get_position()
+            self.move(_x + x, _y)
+        if y != 0:
+            _x, _y = self.get_position()
+            self.move(_x, _y + y)
 
     def set_exclusive(self, exclusivity: Union[int, bool]) -> None:
         if self._wayland_display:
@@ -154,12 +180,10 @@ class Window(Gtk.Window):
         width = parse_screen_size(size[0], screen[0])
         height = parse_screen_size(size[0] if len(size) == 1 else size[1], screen[1])
 
-
         self.set_size_request(width, height)
-        self.set_size_request(
-            max(width, 10), max(height, 10)
-        )
-    def bind(self, var:Union[Listener, Variable, Poll], callback:Callable) -> None:
+        self.set_size_request(max(width, 10), max(height, 10))
+
+    def bind(self, var: Union[Listener, Variable, Poll], callback: Callable) -> None:
         var.bind(callback)
 
     def open(self, duration: Union[int, str] = 0) -> None:
