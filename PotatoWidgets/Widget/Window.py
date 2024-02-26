@@ -94,11 +94,6 @@ class Window(Gtk.Window):
                 }.get(key)
 
                 if _key:
-                    value = parse_screen_size(value, height)
-
-                    if key in ["bottom", "right"]:
-                        value = abs(value) * -1
-
                     if key in ["bottom", "top"]:
                         GtkLayerShell.set_margin(self, _key, value)
                     elif key in ["left", "right"]:
@@ -121,6 +116,11 @@ class Window(Gtk.Window):
                     "right": posx == width,
                 }.get(key)
                 if _key:
+                    value = parse_screen_size(value, height)
+
+                    if key in ["bottom", "right"]:
+                        value = abs(value) * -1
+
                     if key in ["top", "bottom"]:
                         value = parse_screen_size(value, height)
                         self.move_relative(y=value)
