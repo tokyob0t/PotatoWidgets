@@ -83,6 +83,8 @@ class Window(Gtk.Window):
 
     def set_margin(self, margins: dict) -> None:
         if self._wayland_display:
+            width, height = get_screen_size(self.monitor)
+
             for key, value in margins.items():
                 _key = {
                     "top": GtkLayerShell.Edge.TOP,
@@ -92,7 +94,16 @@ class Window(Gtk.Window):
                 }.get(key)
 
                 if _key:
-                    GtkLayerShell.set_margin(self, _key, value)
+                    value = parse_screen_size(value, height)
+
+                    if key in ["bottom", "right"]:
+                        value = abs(value) * -1
+
+                    if key in ["bottom", "top"]:
+                        GtkLayerShell.set_margin(self, _key, value)
+                    elif key in ["left", "right"]:
+                        value = parse_screen_size(value, width)
+                        GtkLayerShell.set_margin(self, _key, value)
         else:
             _size = self.get_size() or [10, 10]
 
