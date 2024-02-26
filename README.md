@@ -1,8 +1,8 @@
-## PotatoWidgets  
+## PotatoWidgets
 
-#### Wiki Under construction  
+#### Wiki Under construction
 
-#### PotatoWidgets is a Python library or framework designed to simplify interaction with Python and GTK. It focuses on being simple yet powerful, drawing inspiration from AGS and EWW. The syntax is designed to be declarative, providing an intuitive way to define GTK widgets  
+#### PotatoWidgets is a Python library or framework designed to simplify interaction with Python and GTK. It focuses on being simple yet powerful, drawing inspiration from AGS and EWW. The syntax is designed to be declarative, providing an intuitive way to define GTK widgets
 
 ### Syntax
 
@@ -54,8 +54,8 @@ if __name__ == "__main__":
     PotatoLoop()
 ```
 
-![img](./img/Preview.png)  
-  
+![img](./img/Preview.png)
+
 #### Installation
 
 ```bash
@@ -94,4 +94,6 @@ pip install git+https://github.com/T0kyoB0y/PotatoWidgets.git
 
 ##### My Current Setup
 
-![img](./img/setup.png)  
+![img](./img/setup.png)
+![img](./img/setup2.png)
+![img](./img/setup3.png)
