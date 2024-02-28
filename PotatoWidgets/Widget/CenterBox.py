@@ -20,7 +20,7 @@ class CenterBox(Box):
         vexpand: bool = False,
         visible: bool = True,
         classname: str = "",
-    ):
+    ) -> None:
         super().__init__(
             orientation=orientation,
             spacing=spacing,
@@ -39,15 +39,17 @@ class CenterBox(Box):
         self._center_widget = center
         self._end_widget = end
 
-        self.set_start_widget(start)
-        self.set_center_widget(center)
-        self.set_end_widget(end)
-        self.show_all()
+        self.start_widget(start)
+        self.center_widget(center)
+        self.end_widget(end)
+        # self.show_all()
 
-    def get_start_widget(self) -> Gtk.Widget:
+    @property
+    def start_widget(self) -> Gtk.Widget:
         return self._start_widget
 
-    def set_start_widget(self, start: Gtk.Widget) -> None:
+    @start_widget.setter
+    def start_widget(self, start: Gtk.Widget) -> None:
         if self._start_widget:
             self._start_widget.destroy()
 
@@ -56,10 +58,12 @@ class CenterBox(Box):
         if start:
             self.pack_start(start, False, False, 0)
 
-    def get_end_widget(self):
+    @property
+    def end_widget(self) -> Gtk.Widget:
         return self._end_widget
 
-    def set_end_widget(self, end):
+    @end_widget.setter
+    def end_widget(self, end: Gtk.Widget) -> None:
         if self._end_widget:
             self._end_widget.destroy()
 
@@ -68,10 +72,12 @@ class CenterBox(Box):
         if end:
             self.pack_end(self._end_widget, False, False, 0)
 
-    def get_center_widget(self):
+    @property
+    def center_widget(self) -> Gtk.Widget:
         return self._center_widget
 
-    def set_center_widget(self, center):
+    @center_widget.setter
+    def center_widget(self, center: Gtk.Widget) -> None:
         if self._center_widget:
             self._center_widget.destroy()
         self._center_widget = center
