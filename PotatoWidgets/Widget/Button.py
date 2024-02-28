@@ -6,7 +6,7 @@ from .Common import BasicProps
 class Button(Gtk.Button, BasicProps):
     def __init__(
         self,
-        children: Union[Gtk.Widget, None],
+        children: Union[Gtk.Widget, None] = None,
         onclick: Union[Callable, None] = None,
         onmiddleclick: Union[Callable, None] = None,
         onhover: Union[Callable, None] = None,
