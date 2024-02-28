@@ -37,9 +37,10 @@ class CenterBox(Box):
             visible=visible,
             classname=classname,
         )
-        self._start_widget = None
-        self._center_widget = None
-        self._end_widget = None
+        self._start_widget = start
+        self._center_widget = center
+        self._end_widget = end
+
         self.start_widget(start)
         self.center_widget(center)
         self.end_widget(end)
