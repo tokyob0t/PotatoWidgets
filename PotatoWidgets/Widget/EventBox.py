@@ -1,31 +1,31 @@
 from ..Imports import *
-from .Common import BasicProps, Events
 from ..Variable import Listener, Poll, Variable
+from .Common import BasicProps, Events
 
 
 class EventBox(Gtk.EventBox, Events, BasicProps):
     def __init__(
         self,
-        children=None,
-        onclick=None,
-        onmiddleclick=None,
-        onhover=None,
-        onhoverlost=None,
-        onscrollup=None,
-        onscrolldown=None,
-        primaryhold=None,
-        primaryrelease=None,
-        secondaryhold=None,
-        secondaryrelease=None,
+        children: Union[Gtk.Widget, None] = None,
+        onclick: Union[Callable, None] = None,
+        onmiddleclick: Union[Callable, None] = None,
+        onhover: Union[Callable, None] = None,
+        onhoverlost: Union[Callable, None] = None,
+        primaryhold: Union[Callable, None] = None,
+        primaryrelease: Union[Callable, None] = None,
+        secondaryhold: Union[Callable, None] = None,
+        secondaryrelease: Union[Callable, None] = None,
+        onscrollup: Union[Callable, None] = None,
+        onscrolldown: Union[Callable, None] = None,
         attributes=lambda self: self,
-        size=[0],
-        css="",
-        classname="",
-        halign="fill",
-        valign="fill",
-        hexpand=False,
-        vexpand=False,
-        visible=True,
+        size: Union[int, str, List[Union[int, str]]] = 0,
+        css: str = "",
+        classname: str = "",
+        halign: str = "fill",
+        valign: str = "fill",
+        hexpand: bool = False,
+        vexpand: bool = False,
+        visible: bool = True,
     ):
         Gtk.EventBox.__init__(self)
 

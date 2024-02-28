@@ -1,20 +1,20 @@
 from ..Imports import *
-from .Common import BasicProps
 from ..Variable import Listener, Poll, Variable
+from .Common import BasicProps
 
 
 class ComboBox(Gtk.ComboBoxText, BasicProps):
     def __init__(
         self,
-        children=[],
-        css=None,
-        halign="fill",
-        valign="fill",
-        hexpand=False,
-        vexpand=False,
-        active=True,
-        visible=True,
-        classname="",
+        children: list = [],
+        css: str = "",
+        halign: str = "fill",
+        valign: str = "fill",
+        hexpand: bool = False,
+        vexpand: bool = False,
+        active: bool = True,
+        visible: bool = True,
+        classname: str = "",
     ):
         Gtk.ComboBoxText.__init__(self)
 

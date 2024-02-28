@@ -1,4 +1,5 @@
 from ...Imports import *
+from ...Methods import get_screen_size, parse_screen_size
 from ...Variable import Listener, Poll, Variable
 
 
@@ -14,12 +15,13 @@ class BasicProps(Gtk.Widget):
         # tooltip,
         css: str,
         visible: bool = True,
-        size: Union[int, list] = 0,
+        size: Union[int, str, List[Union[int, str]], List[int]] = 0,
+        attributes: Callable = lambda self: self,
     ):
         Gtk.Widget.__init__(self)
         self._default_classnames = self.get_style_context().list_classes()
-        self.set_hexpand(True if hexpand else False)
-        self.set_vexpand(True if vexpand else False)
+        self.set_hexpand(hexpand)
+        self.set_vexpand(vexpand)
         self.set_halign(halign)
         self.set_valign(valign)
         self.set_visible(visible)
@@ -28,8 +30,7 @@ class BasicProps(Gtk.Widget):
         self.set_size(size)
         self.rand_classname = ""
 
-        if css:
-            self.set_css(css)
+        self.set_css(css) if css else None
 
         for key, value in locals().items():
             callback = {
@@ -45,37 +46,59 @@ class BasicProps(Gtk.Widget):
 
             self.bind(value, callback) if callback else None
 
-    def set_size(self, size):
-        if size:
-            if isinstance(size, int):
-                self.set_size_request(size, size)
-            elif isinstance(size, list):
-                if len(size) == 2:
-                    self.set_size_request(size[0], size[1])
-                elif len(size) == 1:
-                    self.set_size_request(size[0], size[0])
+        attributes(self)
 
-    def set_halign(self, param):
-        super().set_halign(self.__clasif_align(str(param)))
+    def set_size(self, size: Union[int, str, List[Union[int, str]], List[int]]) -> None:
+        if size is not None:
+            if isinstance(size, (int, str)):
+                size = [size, size]
+            elif isinstance(size, (list)):
+                if len(size) == 1:
+                    size = [size[0], size[0]]
+                elif len(size) >= 2:
+                    size = size[:2]
 
-    def set_valign(self, param):
-        super().set_valign(self.__clasif_align(str(param)))
+            width, height = get_screen_size()
+            _width = parse_screen_size(size[0], width)
+            _height = parse_screen_size(size[1], height)
 
-    def set_active(self, param):
+            self.set_size_request(_width, _height)
+
+    def set_halign(self, align: Union[str, Gtk.Align] = Gtk.Align.FILL) -> None:
+
+        if isinstance(align, (str)):
+            _alignment = {
+                "fill": Gtk.Align.FILL,
+                "start": Gtk.Align.START,
+                "end": Gtk.Align.END,
+                "center": Gtk.Align.CENTER,
+                "baseline": Gtk.Align.BASELINE,
+            }.get(align, Gtk.Align.FILL)
+        else:
+            _alignment = align
+
+        super().set_halign(_alignment)
+
+    def set_valign(self, align: Union[str, Gtk.Align] = Gtk.Align.FILL) -> None:
+
+        if isinstance(align, (str)):
+            _alignment = {
+                "fill": Gtk.Align.FILL,
+                "start": Gtk.Align.START,
+                "end": Gtk.Align.END,
+                "center": Gtk.Align.CENTER,
+                "baseline": Gtk.Align.BASELINE,
+            }.get(align, Gtk.Align.FILL)
+        else:
+            _alignment = align
+
+        super().set_valign(_alignment)
+
+    def set_active(self, param) -> None:
         if param != None and param:
             super().set_sensitive(param)
 
-    def __clasif_align(self, param):
-        dict = {
-            "fill": Gtk.Align.FILL,
-            "start": Gtk.Align.START,
-            "end": Gtk.Align.END,
-            "center": Gtk.Align.CENTER,
-            "baseline": Gtk.Align.BASELINE,
-        }
-        return dict.get(param.lower(), Gtk.Align.FILL)
-
-    def set_classname(self, classname):
+    def set_classname(self, classname: str) -> None:
         if isinstance(classname, (str)):
             context = self.get_style_context()
             [
@@ -88,12 +111,7 @@ class BasicProps(Gtk.Widget):
                 if j != " ":
                     context.add_class(j)
 
-        elif isinstance(classname, (list)):
-            for i in classname:
-                if isinstance(i, (Listener, Variable, Poll)):
-                    pass
-
-    def _add_randclassname(self):
+    def _add_randclassname(self) -> None:
         if not self.rand_classname:
             context = self.get_style_context()
 
@@ -102,7 +120,7 @@ class BasicProps(Gtk.Widget):
             )
             context.add_class(self.rand_classname)
 
-    def set_css(self, css_rules):
+    def set_css(self, css_rules) -> None:
         self._add_randclassname()
 
         if css_rules and self.rand_classname:
@@ -119,40 +137,41 @@ class BasicProps(Gtk.Widget):
             except Exception as e:
                 print(e)
 
-    def bind(self, variable, callback):
-        if isinstance(variable, (Listener, Variable, Poll)):
-            variable.bind(callback)
+    def bind(
+        self, variable: Union[Listener, Poll, Variable], callback: Callable
+    ) -> None:
+        variable.bind(callback)
 
-    def __clasif_args(self, variable, callback):
-        arg_num = callback.__code__.co_argcount
-        arg_tuple = callback.__code__.co_varnames[:arg_num]
+    # def __clasif_args(self, variable, callback):
+    #     arg_num = callback.__code__.co_argcount
+    #     arg_tuple = callback.__code__.co_varnames[:arg_num]
 
-        if arg_num == 2:
-            variable.connect(
-                "valuechanged",
-                lambda out: GLib.idle_add(
-                    lambda: callback(self=self, out=out.get_value())
-                ),
-            )
+    #     if arg_num == 2:
+    #         variable.connect(
+    #             "valuechanged",
+    #             lambda out: GLib.idle_add(
+    #                 lambda: callback(self=self, out=out.get_value())
+    #             ),
+    #         )
 
-        elif arg_num == 1:
-            if "out" in arg_tuple:
-                variable.connect(
-                    "valuechanged",
-                    lambda out: GLib.idle_add(lambda: callback(out=out.get_value())),
-                )
-            elif "self" in arg_tuple:
-                variable.connect(
-                    "valuechanged",
-                    lambda _: GLib.idle_add(lambda: callback(self=self)),
-                )
-            else:
-                variable.connect(
-                    "valuechanged",
-                    lambda out: GLib.idle_add(lambda: callback(out.get_value())),
-                )
-        else:
-            variable.connect(
-                "valuechanged",
-                lambda _: GLib.idle_add(callback),
-            )
+    #     elif arg_num == 1:
+    #         if "out" in arg_tuple:
+    #             variable.connect(
+    #                 "valuechanged",
+    #                 lambda out: GLib.idle_add(lambda: callback(out=out.get_value())),
+    #             )
+    #         elif "self" in arg_tuple:
+    #             variable.connect(
+    #                 "valuechanged",
+    #                 lambda _: GLib.idle_add(lambda: callback(self=self)),
+    #             )
+    #         else:
+    #             variable.connect(
+    #                 "valuechanged",
+    #                 lambda out: GLib.idle_add(lambda: callback(out.get_value())),
+    #             )
+    #     else:
+    #         variable.connect(
+    #             "valuechanged",
+    #             lambda _: GLib.idle_add(callback),
+    #         )

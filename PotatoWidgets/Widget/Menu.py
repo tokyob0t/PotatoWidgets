@@ -1,20 +1,19 @@
-from gi.repository.Gdk import KEY_Amacron
 from ..Imports import *
-from .Common import BasicProps
 from ..Variable import Listener, Poll, Variable
+from .Common import BasicProps
 
 
 class Menu(Gtk.Menu, BasicProps):
     def __init__(
         self,
-        children=[],
-        css="",
-        size=[0],
-        valign="fill",
-        halign="fill",
-        hexpand=False,
-        vexpand=False,
-        classname="",
+        children: List[Gtk.MenuItem],
+        css: str = "",
+        size: Union[int, str, List[Union[int, str]], List[int]] = 0,
+        valign: str = "fill",
+        halign: str = "fill",
+        hexpand: bool = False,
+        vexpand: bool = False,
+        classname: str = "",
     ):
         Gtk.Menu.__init__(self)
         BasicProps.__init__(
@@ -36,16 +35,16 @@ class Menu(Gtk.Menu, BasicProps):
 class MenuItem(Gtk.MenuItem, BasicProps):
     def __init__(
         self,
-        children=None,
-        submenu=None,
-        onactivate=lambda x: x,
-        size=[0],
-        css="",
-        valign="fill",
-        halign="fill",
-        hexpand=False,
-        vexpand=False,
-        classname="",
+        children: Gtk.Widget,
+        submenu: Union[Gtk.Menu, None] = None,
+        onactivate: Callable = lambda callback: callback,
+        size: Union[int, str, List[Union[int, str]], List[int]] = 0,
+        css: str = "",
+        valign: str = "fill",
+        halign: str = "fill",
+        hexpand: bool = False,
+        vexpand: bool = False,
+        classname: str = "",
     ):
         Gtk.MenuItem.__init__(self)
         BasicProps.__init__(
@@ -73,7 +72,7 @@ class MenuItem(Gtk.MenuItem, BasicProps):
             ),
         )
 
-    def __clasif_args(self, widget, event, callback):
+    def __clasif_args(self, widget, event, callback) -> None:
         arg_num = callback.__code__.co_argcount
         arg_tuple = callback.__code__.co_varnames[:arg_num]
 

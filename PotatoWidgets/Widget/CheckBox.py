@@ -1,21 +1,21 @@
 from ..Imports import *
-from .Common import BasicProps
 from ..Variable import Listener, Poll, Variable
 from .Button import Button
+from .Common import BasicProps
 
 
 class CheckBox(Gtk.CheckButton, Button):
     def __init__(
         self,
-        children=None,
-        onclick=None,
-        halign="fill",
-        valign="fill",
-        hexpand=False,
-        vexpand=False,
-        active=True,
-        visible=True,
-        classname="",
+        children: Gtk.Widget,
+        onclick: Union[Callable, None] = None,
+        halign: str = "fill",
+        valign: str = "fill",
+        hexpand: bool = False,
+        vexpand: bool = False,
+        active: bool = True,
+        visible: bool = True,
+        classname: str = "",
     ):
         super().__init__()
 

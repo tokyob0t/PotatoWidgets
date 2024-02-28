@@ -1,30 +1,30 @@
 from ..Imports import *
-from .Common import BasicProps
 from ..Variable import Listener, Poll, Variable
+from .Common import BasicProps
 
 
 class Button(Gtk.Button, BasicProps):
     def __init__(
         self,
-        children=None,
-        onclick=None,
-        onmiddleclick=None,
-        onhover=None,
-        onhoverlost=None,
-        primaryhold=None,
-        primaryrelease=None,
-        secondaryhold=None,
-        secondaryrelease=None,
-        attributes=lambda self: self,
-        size: Union[list, int] = [0],
-        css="",
-        classname="",
-        halign="fill",
-        valign="fill",
-        hexpand=False,
-        vexpand=False,
-        active=True,
-        visible=True,
+        children: Gtk.Widget,
+        onclick: Union[Callable, None] = None,
+        onmiddleclick: Union[Callable, None] = None,
+        onhover: Union[Callable, None] = None,
+        onhoverlost: Union[Callable, None] = None,
+        primaryhold: Union[Callable, None] = None,
+        primaryrelease: Union[Callable, None] = None,
+        secondaryhold: Union[Callable, None] = None,
+        secondaryrelease: Union[Callable, None] = None,
+        attributes: Callable = lambda self: self,
+        size: Union[int, str, List[Union[int, str]], List[int]] = 0,
+        css: str = "",
+        classname: str = "",
+        halign: str = "fill",
+        valign: str = "fill",
+        hexpand: bool = False,
+        vexpand: bool = False,
+        active: bool = True,
+        visible: bool = True,
     ):
         Gtk.Button.__init__(self)
         BasicProps.__init__(
@@ -78,7 +78,7 @@ class Button(Gtk.Button, BasicProps):
             self.__leave_event,
         )
 
-    def __clasif_args(self, widget, event, callback):
+    def __clasif_args(self, widget, event, callback: Callable) -> None:
         arg_num = callback.__code__.co_argcount
         arg_tuple = callback.__code__.co_varnames[:arg_num]
 

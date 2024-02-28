@@ -1,6 +1,6 @@
 from ..Imports import *
-from .Common import BasicProps
 from ..Variable import Listener, Poll, Variable
+from .Common import BasicProps
 
 
 class Label(Gtk.Label, BasicProps):
@@ -10,7 +10,7 @@ class Label(Gtk.Label, BasicProps):
         yalign: float = 0.5,
         xalign: float = 0.5,
         angle: float = 0.0,
-        maxchars=-1,
+        maxchars: int = -1,
         wrap: bool = False,
         attributes: Callable = lambda self: self,
         css: str = "",
@@ -69,23 +69,26 @@ class Label(Gtk.Label, BasicProps):
 
                 self.bind(value, callback) if callback else None
 
-    def set_text(self, text: Any):
+    def set_text(self, text: Any) -> None:
         super().set_text(str(text))
 
-    def set_wrap(self, wrap: bool):
+    def set_wrap(self, wrap: bool) -> None:
         super().set_line_wrap(wrap)
 
-    def set_maxchars(self, chars):
-        if isinstance(chars, (int)) and chars > 0:
+    def set_maxchars(self, chars: int) -> None:
+        if chars > 0:
             super().set_max_width_chars(chars)
             super().set_ellipsize(Pango.EllipsizeMode.END)
 
-    def set_justify(self, justification: str):
-        if justification == "left":
-            super().set_justify(Gtk.Justification.LEFT)
-        elif justification == "center":
-            super().set_justify(Gtk.Justification.CENTER)
-        elif justification == "right":
-            super().set_justify(Gtk.Justification.RIGHT)
-        elif justification == "justified":
-            super().set_justify(Gtk.Justification.FILL)
+    def set_justify(self, jtype: Union[str, Gtk.Justification]) -> None:
+        if isinstance(jtype, (str)):
+            if jtype == "left":
+                super().set_justify(Gtk.Justification.LEFT)
+            elif jtype == "center":
+                super().set_justify(Gtk.Justification.CENTER)
+            elif jtype == "right":
+                super().set_justify(Gtk.Justification.RIGHT)
+            elif jtype == "justified":
+                super().set_justify(Gtk.Justification.FILL)
+        else:
+            super().set_justify(jtype)

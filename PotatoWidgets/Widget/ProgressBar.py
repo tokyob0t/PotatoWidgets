@@ -1,25 +1,26 @@
 from ..Imports import *
-from .Common import BasicProps
 from ..Variable import Listener, Poll, Variable
+from .Common import BasicProps
 
 
 class ProgressBar(Gtk.ProgressBar, BasicProps):
     def __init__(
         self,
-        value=50,
-        inverted=False,
-        orientation="h",
-        attributes=None,
-        css=None,
-        size=[10],
-        halign="fill",
-        valign="fill",
-        hexpand=False,
-        vexpand=False,
-        visible=True,
-        classname="",
+        value: Union[int, float] = 50,
+        inverted: bool = False,
+        orientation: str = "h",
+        attributes: Callable = lambda self: self,
+        css: str = "",
+        size: Union[int, str, List[Union[int, str]], List[int]] = 0,
+        halign: str = "fill",
+        valign: str = "fill",
+        hexpand: bool = False,
+        vexpand: bool = False,
+        visible: bool = True,
+        classname: str = "",
     ):
-        Gtk.Scale.__init__(self)
+        Gtk.ProgressBar.__init__(self)
+
         BasicProps.__init__(
             self,
             css=css,
@@ -27,7 +28,7 @@ class ProgressBar(Gtk.ProgressBar, BasicProps):
             valign=valign,
             hexpand=hexpand,
             vexpand=vexpand,
-            active=None,
+            active=True,
             visible=visible,
             classname=classname,
             size=size,
@@ -39,14 +40,19 @@ class ProgressBar(Gtk.ProgressBar, BasicProps):
 
         attributes(self) if attributes else None
 
-    def set_value(self, value):
+    def set_value(self, value: Union[int, float]) -> None:
         self.set_fraction(value / 100)
 
-    def set_orientation(self, param):
-        return super().set_orientation(self.__clasif_orientation(param))
+    def set_orientation(
+        self, orientation: Union[Gtk.Orientation, str] = Gtk.Orientation.HORIZONTAL
+    ) -> None:
+        _orientation = Gtk.Orientation.HORIZONTAL
 
-    def __clasif_orientation(self, orientation):
-        if orientation.lower() in ["vertical", "v", 0, False]:
-            return Gtk.Orientation.VERTICAL
-        elif orientation.lower() in ["horizontal", "h", 1, True]:
-            return Gtk.Orientation.HORIZONTAL
+        if isinstance(orientation, (Gtk.Orientation)):
+            _orientation = orientation
+        elif orientation == "v":
+            _orientation = Gtk.Orientation.VERTICAL
+        else:
+            _orientation = Gtk.Orientation.HORIZONTAL
+
+        super().set_orientation(_orientation)

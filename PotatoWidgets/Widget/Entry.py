@@ -1,23 +1,23 @@
 from ..Imports import *
-from .Common import BasicProps
 from ..Variable import Listener, Poll, Variable
+from .Common import BasicProps
 
 
 class Entry(Gtk.Entry, BasicProps):
     def __init__(
         self,
-        placeholder="",
-        onchange=None,
-        onenter=None,
-        css="",
-        attributes=None,
-        halign="fill",
-        valign="fill",
-        hexpand=False,
-        vexpand=False,
-        visible=True,
-        active=True,
-        classname="",
+        placeholder: str = "",
+        onchange: Union[Callable, None] = None,
+        onenter: Union[Callable, None] = None,
+        css: str = "",
+        attributes: Callable = lambda self: self,
+        halign: str = "fill",
+        valign: str = "fill",
+        hexpand: bool = False,
+        vexpand: bool = False,
+        visible: bool = True,
+        active: bool = True,
+        classname: str = "",
     ):
         Gtk.Entry.__init__(self)
         BasicProps.__init__(
@@ -34,15 +34,19 @@ class Entry(Gtk.Entry, BasicProps):
 
         self.set_placeholder_text(placeholder)
 
-        self.connect(
-            "changed", lambda _: onchange(self.get_text())
-        ) if onchange else None
+        (
+            self.connect("changed", lambda _: onchange(self.get_text()))
+            if onchange
+            else None
+        )
 
-        self.connect(
-            "activate", lambda _: onenter(self.get_text())
-        ) if onenter else None
+        (
+            self.connect("activate", lambda _: onenter(self.get_text()))
+            if onenter
+            else None
+        )
 
         attributes(self) if attributes else None
 
-    def set_placeholder_text(self, text):
+    def set_placeholder_text(self, text: Any = "") -> None:
         super().set_placeholder_text(str(text))

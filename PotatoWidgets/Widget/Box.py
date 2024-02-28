@@ -6,20 +6,20 @@ from .Common import BasicProps
 class Box(Gtk.Box, BasicProps):
     def __init__(
         self,
-        children=[],
-        orientation="h",
-        spacing=0,
-        homogeneous=False,
-        size=[0],
-        attributes=lambda self: self,
-        css="",
-        halign="fill",
-        valign="fill",
-        hexpand=False,
-        vexpand=False,
-        visible=True,
+        children: Union[List[Gtk.Widget], Gtk.Widget] = [],
+        orientation: str = "h",
+        spacing: int = 0,
+        homogeneous: bool = False,
+        size: Union[int, str, List[Union[int, str]], List[int]] = 0,
+        attributes: Callable = lambda self: self,
+        css: str = "",
+        halign: str = "fill",
+        valign: str = "fill",
+        hexpand: bool = False,
+        vexpand: bool = False,
+        visible: bool = True,
         classname="",
-    ):
+    ) -> None:
         Gtk.Box.__init__(self, spacing=spacing)
 
         BasicProps.__init__(
@@ -64,28 +64,37 @@ class Box(Gtk.Box, BasicProps):
 
                 self.bind(value, callback) if callback else None
 
-    def set_orientation(self, param):
-        return super().set_orientation(self.__clasif_orientation(param))
+    def set_orientation(
+        self, orientation: Union[Gtk.Orientation, str] = Gtk.Orientation.HORIZONTAL
+    ) -> None:
+        _orientation = Gtk.Orientation.HORIZONTAL
 
-    def set_children(self, newChildren=Union[list, Gtk.Widget]):
+        if isinstance(orientation, (Gtk.Orientation)):
+            _orientation = orientation
+        elif orientation == "v":
+            _orientation = Gtk.Orientation.VERTICAL
+        else:
+            _orientation = Gtk.Orientation.HORIZONTAL
+
+        super().set_orientation(_orientation)
+
+    def set_children(
+        self, newChildren: Union[List[Gtk.Widget], Gtk.Widget, list]
+    ) -> None:
         if not newChildren:
             return
 
         if isinstance(newChildren, (list)):
-            for i in self.get_children():
-                if i not in newChildren:
-                    i.destroy()
-                self.remove(i)
+            for children in self.get_children():
+                if children not in newChildren:
+                    children.destroy()
+                self.remove(children)
 
-            [self.add(i) for i in newChildren if i]
+            for children in newChildren:
+                if children:
+                    self.add(children)
 
         elif isinstance(newChildren, (Gtk.Widget)):
             self.add(newChildren)
 
         self.show_all()
-
-    def __clasif_orientation(self, orientation):
-        if orientation.lower() in ["vertical", "v", 0, False]:
-            return Gtk.Orientation.VERTICAL
-        elif orientation.lower() in ["horizontal", "h", 1, True]:
-            return Gtk.Orientation.HORIZONTAL

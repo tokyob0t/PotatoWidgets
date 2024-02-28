@@ -7,13 +7,13 @@ class Fixed(Gtk.Fixed, BasicProps):
     def __init__(
         self,
         attributes=lambda self: self,
-        halign="fill",
-        valign="fill",
-        classname="",
-        css="",
-        hexpand=False,
-        vexpand=False,
-        size=[0],
+        halign: str = "fill",
+        valign: str = "fill",
+        classname: str = "",
+        css: str = "",
+        hexpand: bool = False,
+        vexpand: bool = False,
+        size: Union[int, str, List[Union[int, str]], List[int]] = 0,
     ) -> None:
         Gtk.Fixed.__init__(self)
         BasicProps.__init__(

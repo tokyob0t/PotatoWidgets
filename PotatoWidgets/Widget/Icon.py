@@ -1,19 +1,21 @@
 from ..Imports import *
-from .Common import BasicProps
 from ..Variable import Listener, Poll, Variable
+from .Common import BasicProps
 
 
 class Icon(Gtk.Image, BasicProps):
     def __init__(
         self,
-        icon=None,
-        size=20,
-        attributes=None,
-        css=None,
-        halign="fill",
-        valign="fill",
-        visible=True,
-        classname="",
+        icon: str = "",
+        size: int = 20,
+        attributes: Callable = lambda self: self,
+        css: str = "",
+        halign: str = "fill",
+        valign: str = "fill",
+        hexpand: bool = False,
+        vexpand: bool = False,
+        visible: bool = True,
+        classname: str = "",
     ):
         Gtk.Image.__init__(self)
         BasicProps.__init__(
@@ -21,36 +23,21 @@ class Icon(Gtk.Image, BasicProps):
             css=css,
             halign=halign,
             valign=valign,
-            hexpand=False,
-            vexpand=False,
+            hexpand=hexpand,
+            vexpand=vexpand,
             active=True,
             visible=visible,
             classname=classname,
             size=0,
         )
-        self.set_size(size)
-        self.set_icon(icon)
+        self.__size = size
+        self.__icon = icon
+        self.set_icon(icon, size)
 
         attributes(self) if attributes else None
 
-        for key, value in locals().items():
-            if key not in [
-                "self",
-                "halign",
-                "valign",
-                "hexpand",
-                "vexpand",
-                "visible",
-                "active",
-                "visible",
-                "classname",
-            ] and isinstance(value, (Listener, Poll, Variable)):
-                callback = {"icon": self.set_icon, "size": self.set_size}.get(key)
-
-                self.bind(value, callback) if value else None
-
-    def set_icon(self, icon):
-        self.set_from_icon_name(icon, Gtk.IconSize.DIALOG)
-
-    def set_size(self, size):
-        self.set_pixel_size(size)
+    def set_icon(self, icon: str, size: int) -> None:
+        self.__icon = icon
+        self.__size = size
+        self.set_from_icon_name(self.__icon, Gtk.IconSize.DIALOG)
+        self.set_pixel_size(self.__size)

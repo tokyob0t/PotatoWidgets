@@ -1,13 +1,13 @@
 from ..Imports import *
 from ..Variable import Listener, Poll, Variable
 
-cleantextX = (
-    lambda x, perheight: perheight(str(x).replace("%", ""))
+cleantextX = lambda x, perheight: (
+    perheight(str(x).replace("%", ""))
     if "%" in str(x)
     else float(str(x).replace("px", ""))
 )
-cleantextY = (
-    lambda x, perwidth: perwidth(str(x).replace("%", ""))
+cleantextY = lambda x, perwidth: (
+    perwidth(str(x).replace("%", ""))
     if "%" in str(x)
     else float(str(x).replace("px", ""))
 )

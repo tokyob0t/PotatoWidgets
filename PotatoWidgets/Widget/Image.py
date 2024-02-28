@@ -1,6 +1,6 @@
 from ..Imports import *
-from .Common import BasicProps
 from ..Variable import Listener, Poll, Variable
+from .Common import BasicProps
 
 
 class Image(Gtk.Image, BasicProps):
@@ -14,7 +14,7 @@ class Image(Gtk.Image, BasicProps):
         valign="fill",
         visible=True,
         classname="",
-        attributes=lambda self: self,
+        attributes: Callable = lambda self: self,
         css="",
     ) -> None:
         Gtk.Image.__init__(self)
@@ -34,7 +34,7 @@ class Image(Gtk.Image, BasicProps):
         self.set_image(path, size)
         attributes(self) if attributes else None
 
-    def set_image(self, path, size):
+    def set_image(self, path: str, size: Union[int, List[int]]) -> None:
         size = [size, size] if isinstance(size, (int)) else size
 
         pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(path, size[0], size[1], True)

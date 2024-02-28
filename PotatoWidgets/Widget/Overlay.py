@@ -1,20 +1,20 @@
 from ..Imports import *
-from .Common import BasicProps
 from ..Variable import Listener, Poll, Variable
+from .Common import BasicProps
 
 
 class Overlay(Gtk.Overlay, BasicProps):
     def __init__(
         self,
-        children=[],
-        attributes=None,
-        css=None,
-        halign="fill",
-        valign="fill",
-        hexpand=False,
-        vexpand=False,
-        visible=True,
-        classname="",
+        children: List[Gtk.Widget],
+        attributes=lambda self: self,
+        css: str = "",
+        halign: str = "fill",
+        valign: str = "fill",
+        hexpand: bool = False,
+        vexpand: bool = False,
+        visible: bool = True,
+        classname: str = "",
     ):
         Gtk.Overlay.__init__(self)
 
@@ -25,11 +25,16 @@ class Overlay(Gtk.Overlay, BasicProps):
             valign=valign,
             hexpand=hexpand,
             vexpand=vexpand,
-            active=None,
+            active=True,
             visible=visible,
             classname=classname,
         )
 
         self.add(children[0]) if children else None
-        [self.add_overlay(i) for i in children[1:]] if children else None
+
+        if children[1:]:
+            for i in children[1:]:
+                if i:
+                    self.add_overlay(i)
+
         attributes(self) if attributes else None

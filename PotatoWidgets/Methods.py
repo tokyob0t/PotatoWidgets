@@ -1,7 +1,9 @@
 from .Imports import *
 
 
-def parse_interval(interval: Union[int, str] = 1000, fallback_interval: int= 1000) -> int:
+def parse_interval(
+    interval: Union[int, str] = 1000, fallback_interval: int = 1000
+) -> int:
     """Parse the interval in milliseconds.
 
     Args:
@@ -32,7 +34,9 @@ def parse_interval(interval: Union[int, str] = 1000, fallback_interval: int= 100
     return fallback_interval
 
 
-def get_screen_size(monitor_index: int = 0, fallback_size: tuple = (1920, 1080)) -> tuple:
+def get_screen_size(
+    monitor_index: int = 0, fallback_size: tuple = (1920, 1080)
+) -> tuple:
     """Get the screen size.
 
     Args:
@@ -49,9 +53,13 @@ def get_screen_size(monitor_index: int = 0, fallback_size: tuple = (1920, 1080))
     if display and 0 <= monitor_index < display.get_n_monitors():
         monitor = display.get_monitor(monitor_index)
         geometry = monitor.get_geometry()
-        return geometry.width, geometry.height
+        if geometry:
+            return geometry.width, geometry.height
+        else:
+            return fallback_size
     else:
         return fallback_size
+
 
 def parse_screen_size(value: Union[int, str, bool], total=0) -> int:
     """Parse the screen size.
@@ -89,10 +97,10 @@ def wait(time_ms: Union[str, int], callback: Callable) -> None:
 
 
 def lookup_icon(
-        icon_name: str,
+    icon_name: str,
     size: Literal[8, 16, 32, 64, 128] = 128,
     path: bool = True,
-    fallback: str = "application-x-addon-symbolic"
+    fallback: str = "application-x-addon-symbolic",
 ) -> str:
     """Look up an icon by name and return its file path or icon info.
 

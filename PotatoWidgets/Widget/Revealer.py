@@ -1,24 +1,26 @@
+from PotatoWidgets.Methods import parse_interval
+
 from ..Imports import *
-from .Common import BasicProps
 from ..Variable import Listener, Poll, Variable
+from .Common import BasicProps
 
 
 class Revealer(Gtk.Revealer, BasicProps):
     def __init__(
         self,
-        children=None,
-        reveal=True,
-        transition="crossfade",
-        duration=500,
-        css="",
-        size=0,
-        attributes=None,
-        halign="fill",
-        valign="fill",
-        hexpand=False,
-        vexpand=False,
-        visible=True,
-        classname="",
+        children: Gtk.Widget,
+        reveal: bool = True,
+        transition: str = "crossfade",
+        duration: Union[int, str] = 500,
+        css: str = "",
+        size: Union[int, str, List[Union[int, str]], List[int]] = 0,
+        attributes: Callable = lambda self: self,
+        halign: str = "fill",
+        valign: str = "fill",
+        hexpand: bool = False,
+        vexpand: bool = False,
+        visible: bool = True,
+        classname: str = "",
     ):
         Gtk.Revealer.__init__(self)
 
@@ -29,7 +31,7 @@ class Revealer(Gtk.Revealer, BasicProps):
             valign=valign,
             hexpand=hexpand,
             vexpand=vexpand,
-            active=None,
+            active=True,
             visible=visible,
             classname=classname,
             size=size,
@@ -62,24 +64,27 @@ class Revealer(Gtk.Revealer, BasicProps):
                     callback(value.get_value())
                     self.bind(value, callback)
 
-    def set_transition(self, transition):
-        super().set_transition_type(self.__clasif_transition(transition))
+    def set_transition(
+        self, transition: Union[str, Gtk.RevealerTransitionType]
+    ) -> None:
+        if isinstance(transition, (str)):
+            anim = {
+                "none": Gtk.RevealerTransitionType.NONE,
+                "crossfade": Gtk.RevealerTransitionType.CROSSFADE,
+                "slideright": Gtk.RevealerTransitionType.SLIDE_RIGHT,
+                "slideleft": Gtk.RevealerTransitionType.SLIDE_LEFT,
+                "slideright": Gtk.RevealerTransitionType.SLIDE_RIGHT,
+                "slideup": Gtk.RevealerTransitionType.SLIDE_UP,
+                "slidedown": Gtk.RevealerTransitionType.SLIDE_DOWN,
+            }.get(transition.lower(), Gtk.RevealerTransitionType.NONE)
+        else:
+            anim = transition
 
-    def set_duration(self, duration_ms):
-        super().set_transition_duration(duration_ms)
+        super().set_transition_type(anim)
 
-    def set_revealed(self, reveal):
+    def set_duration(self, duration_ms: Union[int, str]) -> None:
+        _duration = parse_interval(interval=duration_ms, fallback_interval=500)
+        super().set_transition_duration(_duration)
+
+    def set_revealed(self, reveal: bool) -> None:
         super().set_reveal_child(reveal)
-
-    def __clasif_transition(self, param):
-        anim = {
-            "none": Gtk.RevealerTransitionType.NONE,
-            "crossfade": Gtk.RevealerTransitionType.CROSSFADE,
-            "slideright": Gtk.RevealerTransitionType.SLIDE_RIGHT,
-            "slideleft": Gtk.RevealerTransitionType.SLIDE_LEFT,
-            "slideright": Gtk.RevealerTransitionType.SLIDE_RIGHT,
-            "slideup": Gtk.RevealerTransitionType.SLIDE_UP,
-            "slidedown": Gtk.RevealerTransitionType.SLIDE_DOWN,
-        }.get(param.lower(), Gtk.RevealerTransitionType.CROSSFADE)
-
-        return anim

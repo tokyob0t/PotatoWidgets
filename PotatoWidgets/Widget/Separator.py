@@ -1,22 +1,22 @@
 from ..Imports import *
-from .Common import BasicProps
 from ..Variable import Listener, Poll, Variable
+from .Common import BasicProps
 
 
 class Separator(Gtk.Separator, BasicProps):
     def __init__(
         self,
-        orientation="h",
-        attributes=None,
-        halign="fill",
-        valign="fill",
-        hexpand=False,
-        vexpand=False,
-        classname="",
-        css="",
-        size=0,
+        orientation: str = "h",
+        attributes: Callable = lambda self: self,
+        halign: str = "fill",
+        valign: str = "fill",
+        hexpand: bool = False,
+        vexpand: bool = False,
+        classname: str = "",
+        css: str = "",
+        size: Union[int, str, List[Union[int, str]], List[int]] = 0,
     ):
-        Gtk.Separator.__init__(self, orientation=self.__clasif_orientation(orientation))
+        Gtk.Separator.__init__(self)
         BasicProps.__init__(
             self,
             halign=halign,
@@ -30,12 +30,18 @@ class Separator(Gtk.Separator, BasicProps):
             size=size,
         )
         attributes(self) if attributes else None
+        self.set_orientation(orientation)
 
-    def set_orientation(self, param):
-        return super().set_orientation(self.__clasif_orientation(param))
+    def set_orientation(
+        self, orientation: Union[Gtk.Orientation, str] = Gtk.Orientation.HORIZONTAL
+    ) -> None:
+        _orientation = Gtk.Orientation.HORIZONTAL
 
-    def __clasif_orientation(self, orientation):
-        if orientation.lower() in ["vertical", "v", 0, False]:
-            return Gtk.Orientation.VERTICAL
-        elif orientation.lower() in ["horizontal", "h", 1, True]:
-            return Gtk.Orientation.HORIZONTAL
+        if isinstance(orientation, (Gtk.Orientation)):
+            _orientation = orientation
+        elif orientation == "v":
+            _orientation = Gtk.Orientation.VERTICAL
+        else:
+            _orientation = Gtk.Orientation.HORIZONTAL
+
+        super().set_orientation(_orientation)
