@@ -1,7 +1,5 @@
 from ..Imports import *
-from ..Variable import Listener, Poll, Variable
 from .Box import Box
-from .Common import BasicProps
 
 
 class CenterBox(Box):
@@ -44,6 +42,7 @@ class CenterBox(Box):
         self.set_start_widget(start)
         self.set_center_widget(center)
         self.set_end_widget(end)
+        self.show_all()
 
     def get_start_widget(self) -> Gtk.Widget:
         return self._start_widget
