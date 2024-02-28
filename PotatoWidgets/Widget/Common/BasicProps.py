@@ -43,8 +43,8 @@ class BasicProps(Gtk.Widget):
                 "size": self.set_size,
                 "classname": self.set_classname,
             }.get(key)
-
-            self.bind(value, callback) if callback else None
+            if isinstance(value, (Listener, Poll, Variable)):
+                self.bind(value, callback) if callback else None
 
         attributes(self)
 
