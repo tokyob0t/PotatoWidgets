@@ -41,9 +41,9 @@ class CenterBox(Box):
         self._center_widget = center
         self._end_widget = end
 
-        self.start_widget(start)
-        self.center_widget(center)
-        self.end_widget(end)
+        self.set_start_widget(start)
+        self.set_center_widget(center)
+        self.set_end_widget(end)
 
     @property
     def start_widget(self) -> Gtk.Widget:
