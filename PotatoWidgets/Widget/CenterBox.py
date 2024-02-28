@@ -35,17 +35,18 @@ class CenterBox(Box):
             visible=visible,
             classname=classname,
         )
-        self._start_widget = start
-        self._center_widget = center
-        self._end_widget = end
 
-        self.start_widget(start)
-        self.center_widget(center)
-        self.end_widget(end)
+        self._start_widget = None
+        self._center_widget = None
+        self._end_widget = None
+
+        self.start_widget = start
+        self.center_widget = center
+        self.end_widget = end
         # self.show_all()
 
     @property
-    def start_widget(self) -> Gtk.Widget:
+    def start_widget(self) -> Union[Gtk.Widget, None]:
         return self._start_widget
 
     @start_widget.setter
@@ -59,7 +60,7 @@ class CenterBox(Box):
             self.pack_start(start, False, False, 0)
 
     @property
-    def end_widget(self) -> Gtk.Widget:
+    def end_widget(self) -> Union[Gtk.Widget, None]:
         return self._end_widget
 
     @end_widget.setter
@@ -73,7 +74,7 @@ class CenterBox(Box):
             self.pack_end(self._end_widget, False, False, 0)
 
     @property
-    def center_widget(self) -> Gtk.Widget:
+    def center_widget(self) -> Union[Gtk.Widget, None]:
         return self._center_widget
 
     @center_widget.setter
