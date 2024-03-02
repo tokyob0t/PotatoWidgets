@@ -29,10 +29,15 @@ class Window(Gtk.Window):
         else:
             self.set_title(self.namespace)
             self.set_wmclass("potatowindow", "PotatoWindow")
+            self.set_app_paintable(True)
+            self.set_visual(
+                Gdk.Display.get_default().get_default_screen().get_rgba_visual()
+            )
 
             if layer not in ["normal"]:
                 self.set_skip_pager_hint(True)
                 self.set_skip_taskbar_hint(True)
+                self.set_decorated(False)
 
             if layer in [
                 "dock",
@@ -44,14 +49,38 @@ class Window(Gtk.Window):
             ]:
                 self.stick()
 
+            if layer in [
+                "dialog",
+                "tooltip",
+                "notification",
+                "combo",
+                "dnd",
+                "menu",
+                "toolbar",
+                "dock",
+                "splashscreen",
+                "utility",
+                "dropdown",
+                "popup",
+                "top",
+                "overlay",
+            ]:
+                self.set_keep_above(True)
+            elif layer in [
+                "desktop",
+                "background",
+                "bottom",
+            ]:
+                self.set_keep_below(True)
+
         self.add(children) if children else None
         self.set_size(size)
         self.set_layer(layer)
         self.set_position(position)
         self.set_exclusive(exclusive)
         self.set_margin(at)
-        attributes(self)
         self.close()
+        attributes(self)
 
     def set_position(self, position: str) -> None:
         position = position.lower()
@@ -210,8 +239,9 @@ class Window(Gtk.Window):
         width = parse_screen_size(size[0], screen[0])
         height = parse_screen_size(size[0] if len(size) == 1 else size[1], screen[1])
 
-        self.set_size_request(max(width, 10), max(height, 10))
         self._size = [width, height]
+
+        self.set_size_request(max(width, 10), max(height, 10))
 
     def bind(self, var: Union[Listener, Variable, Poll], callback: Callable) -> None:
         var.bind(callback)
