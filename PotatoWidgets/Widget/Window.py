@@ -33,7 +33,8 @@ class Window(Gtk.Window):
             if layer not in ["normal"]:
                 self.set_skip_pager_hint(True)
                 self.set_skip_taskbar_hint(True)
-            elif layer in [
+
+            if layer in [
                 "dock",
                 "top",
                 "bottom",
