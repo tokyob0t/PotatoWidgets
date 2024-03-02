@@ -242,6 +242,7 @@ class Window(Gtk.Window):
         self._size = [width, height]
 
         self.set_size_request(max(width, 10), max(height, 10))
+        self.resize(max(width, 10), max(height, 10))
 
     def bind(self, var: Union[Listener, Variable, Poll], callback: Callable) -> None:
         var.bind(callback)
