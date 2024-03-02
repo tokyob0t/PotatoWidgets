@@ -1,7 +1,6 @@
 from ..Imports import *
 from ..Methods import get_screen_size, parse_interval, parse_screen_size
 from ..Variable import Listener, Poll, Variable
-from .Common import BasicProps
 
 
 class Window(Gtk.Window):
@@ -13,10 +12,9 @@ class Window(Gtk.Window):
         layer: str = "top",
         exclusive: Union[bool, int] = False,
         children: Gtk.Widget = Gtk.Box(),
-        monitor=0,
+        monitor: int = 0,
         namespace: str = "gtk-layer-shell",
         attributes: Callable = lambda self: self,
-        **kwargs,
     ) -> None:
         Gtk.Window.__init__(self)
         self._size = size
@@ -28,6 +26,22 @@ class Window(Gtk.Window):
         if self._wayland_display:
             GtkLayerShell.init_for_window(self)
             GtkLayerShell.set_namespace(self, self.namespace)
+        else:
+            self.set_title(self.namespace)
+            self.set_wmclass("potatowindow", "PotatoWindow")
+
+            if layer not in ["normal"]:
+                self.set_skip_pager_hint(True)
+                self.set_skip_taskbar_hint(True)
+            elif layer in [
+                "dock",
+                "top",
+                "bottom",
+                "background",
+                "notification",
+                "dialog",
+            ]:
+                self.stick()
 
         self.add(children) if children else None
         self.set_size(size)
@@ -37,7 +51,6 @@ class Window(Gtk.Window):
         self.set_margin(at)
         attributes(self)
         self.close()
-        self.connect("size-allocate", lambda *_: self.set_size(self._size))
 
     def set_position(self, position: str) -> None:
         position = position.lower()
@@ -153,14 +166,15 @@ class Window(Gtk.Window):
 
         if self._wayland_display:
             _layer = {
-                "desktop": GtkLayerShell.Layer.BACKGROUND,
                 "background": GtkLayerShell.Layer.BACKGROUND,
                 "bottom": GtkLayerShell.Layer.BOTTOM,
+                "top": GtkLayerShell.Layer.TOP,
+                "overlay": GtkLayerShell.Layer.OVERLAY,
+                #
+                "desktop": GtkLayerShell.Layer.BACKGROUND,
                 "menu": GtkLayerShell.Layer.BOTTOM,
                 "dock": GtkLayerShell.Layer.TOP,
-                "top": GtkLayerShell.Layer.TOP,
                 "popup": GtkLayerShell.Layer.OVERLAY,
-                "overlay": GtkLayerShell.Layer.OVERLAY,
             }.get(layer, GtkLayerShell.Layer.TOP)
 
             GtkLayerShell.set_layer(self, _layer)
@@ -171,20 +185,21 @@ class Window(Gtk.Window):
                 "dialog": Gdk.WindowTypeHint.DIALOG,
                 "tooltip": Gdk.WindowTypeHint.TOOLTIP,
                 "notification": Gdk.WindowTypeHint.NOTIFICATION,
-                "overlay": Gdk.WindowTypeHint.NOTIFICATION,
                 "combo": Gdk.WindowTypeHint.COMBO,
                 "dnd": Gdk.WindowTypeHint.DND,
-                "bottom": Gdk.WindowTypeHint.MENU,
                 "menu": Gdk.WindowTypeHint.MENU,
                 "toolbar": Gdk.WindowTypeHint.TOOLBAR,
+                "dock": Gdk.WindowTypeHint.DOCK,
                 "splashscreen": Gdk.WindowTypeHint.SPLASHSCREEN,
                 "utility": Gdk.WindowTypeHint.UTILITY,
-                "dock": Gdk.WindowTypeHint.DOCK,
-                "top": Gdk.WindowTypeHint.DOCK,
                 "desktop": Gdk.WindowTypeHint.DESKTOP,
-                "background": Gdk.WindowTypeHint.DESKTOP,
                 "dropdown": Gdk.WindowTypeHint.DROPDOWN_MENU,
                 "popup": Gdk.WindowTypeHint.POPUP_MENU,
+                #
+                "background": Gdk.WindowTypeHint.DESKTOP,
+                "bottom": Gdk.WindowTypeHint.DOCK,
+                "top": Gdk.WindowTypeHint.DOCK,
+                "overlay": Gdk.WindowTypeHint.NOTIFICATION,
             }.get(layer, Gdk.WindowTypeHint.DOCK)
 
             self.set_type_hint(_layer)
