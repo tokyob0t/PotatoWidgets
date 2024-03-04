@@ -88,7 +88,7 @@ class App(dict):
         """Returns a JSON representation of the application."""
         return dict(super().items())
 
-    def launch(self) -> bool:
+    def launch(self) -> None:
         """Launches the application."""
         # return self._app.launch()
         _proc = Gio.Subprocess.new(
