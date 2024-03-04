@@ -239,7 +239,7 @@ class Window(Gtk.Window):
         _width = parse_screen_size(width, screen[0])
         _height = parse_screen_size(height, screen[1])
 
-        self._size = [max(width, 10), max(height, 10)]
+        self._size = [max(_width, 10), max(_height, 10)]
 
         self.set_size_request(_width, _height)
         self.resize(_width, _height)
