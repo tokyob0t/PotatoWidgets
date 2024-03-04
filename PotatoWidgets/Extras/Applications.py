@@ -17,6 +17,8 @@ class App(dict):
         super().__init__()
 
         self._app: Gio.DesktopAppInfo = app
+        self._context = Gio.AppLaunchContext().new()
+
         self._keywords: str = " ".join(
             [
                 re_sub(r"[^a-zA-Z0-9 ]", "", i.lower())
@@ -88,7 +90,7 @@ class App(dict):
 
     def launch(self) -> bool:
         """Launches the application."""
-        return self._app.launch()
+        return self._app.launch(context=self._context)
 
 
 class Applications:
