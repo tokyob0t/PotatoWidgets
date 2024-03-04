@@ -13,7 +13,6 @@ class Revealer(Gtk.Revealer, BasicProps):
         transition: str = "crossfade",
         duration: Union[int, str] = 500,
         css: str = "",
-        size: Union[int, str, List[Union[int, str]], List[int]] = 0,
         attributes: Callable = lambda self: self,
         halign: str = "fill",
         valign: str = "fill",
@@ -31,7 +30,6 @@ class Revealer(Gtk.Revealer, BasicProps):
             hexpand=hexpand,
             vexpand=vexpand,
             classname=classname,
-            size=size,
         )
         self.add(children) if children else None
         self.set_duration(duration)

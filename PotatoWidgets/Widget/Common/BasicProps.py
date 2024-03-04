@@ -26,8 +26,8 @@ class BasicProps(Gtk.Widget):
         self.set_valign(valign)
         self.set_visible(visible) if visible else None
         self.set_active(active) if active else None
+        self.set_size(size) if size else None
         self.set_classname(classname)
-        self.set_size(size)
         self._rand_classname = ""
 
         self.set_css(css) if css else None
