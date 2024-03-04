@@ -159,7 +159,7 @@ class Applications:
         Returns:
             Union[List[App], List[None]]: List of matching applications.
         """
-        _matches = [i for i in self.all if keywords in i.keywords]
+        _matches = [i for i in self.all() if keywords in i.keywords]
         if _matches:
             _matches.sort(key=lambda _app: _app.name)
             return _matches
