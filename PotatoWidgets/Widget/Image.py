@@ -41,6 +41,4 @@ class Image(Gtk.Image, BasicProps):
 
         self.set_from_pixbuf(pixbuf)
 
-        super().set_size(size)
-
         self.show()
