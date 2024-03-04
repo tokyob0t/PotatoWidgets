@@ -62,8 +62,6 @@ AppsList = Widget.Scroll(
     ),
 )
 
-test = next(app for app in Applications().query("a"))
-
 AppLauncher = Widget.Window(
     size=[500, 600],
     # Wayland
