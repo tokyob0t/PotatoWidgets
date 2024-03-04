@@ -115,7 +115,6 @@ class Applications:
             and not any(i.get_name().lower() in j.lower() for j in self._blacklist)
         ]
 
-    @property
     def all(self) -> list[App]:
         """Gets all the applications."""
         return self._all
