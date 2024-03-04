@@ -90,7 +90,13 @@ class App(dict):
 
     def launch(self) -> bool:
         """Launches the application."""
-        return self._app.launch(context=self._context)
+        # return self._app.launch()
+        _proc = Gio.Subprocess.new(
+            ["gtk-launch", self._app.get_commandline()],
+            flags=Gio.SubprocessFlags.STDOUT_SILENCE
+            | Gio.SubprocessFlags.STDERR_SILENCE,
+        )
+        _proc.communicate()
 
 
 class Applications:
