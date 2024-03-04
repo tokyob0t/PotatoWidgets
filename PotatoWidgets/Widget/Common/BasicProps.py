@@ -10,11 +10,11 @@ class BasicProps(Gtk.Widget):
         valign: str,
         hexpand: bool,
         vexpand: bool,
-        active: bool,
         classname: str,
         # tooltip,
         css: str,
-        visible: bool = True,
+        visible: Union[bool, None] = None,
+        active: Union[bool, None] = None,
         size: Union[int, str, List[Union[int, str]], List[int]] = 0,
         attributes: Callable = lambda self: self,
     ) -> None:
@@ -24,8 +24,8 @@ class BasicProps(Gtk.Widget):
         self.set_vexpand(vexpand)
         self.set_halign(halign)
         self.set_valign(valign)
-        self.set_visible(visible)
-        self.set_active(active)
+        self.set_visible(visible) if visible else None
+        self.set_active(active) if active else None
         self.set_classname(classname)
         self.set_size(size)
         self._rand_classname = ""
