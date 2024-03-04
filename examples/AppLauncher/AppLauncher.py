@@ -1,4 +1,4 @@
-from PotatoWidgets import Gio, Gtk, PotatoLoop, Variable, Widget, lookup_icon
+from PotatoWidgets import PotatoLoop, Variable, Widget, lookup_icon
 from PotatoWidgets.Extras import Applications
 
 
