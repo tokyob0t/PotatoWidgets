@@ -19,7 +19,6 @@ class Revealer(Gtk.Revealer, BasicProps):
         valign: str = "fill",
         hexpand: bool = False,
         vexpand: bool = False,
-        visible: bool = True,
         classname: str = "",
     ):
         Gtk.Revealer.__init__(self)
@@ -31,8 +30,6 @@ class Revealer(Gtk.Revealer, BasicProps):
             valign=valign,
             hexpand=hexpand,
             vexpand=vexpand,
-            active=True,
-            visible=visible,
             classname=classname,
             size=size,
         )
