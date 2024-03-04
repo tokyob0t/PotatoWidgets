@@ -1,4 +1,4 @@
-from PotatoWidgets import Gtk, PotatoLoop, Variable, Widget, lookup_icon
+from PotatoWidgets import Gio, Gtk, PotatoLoop, Variable, Widget, lookup_icon
 from PotatoWidgets.Extras import Applications
 
 
@@ -61,6 +61,8 @@ AppsList = Widget.Scroll(
         children=[GenerateApp(app) for app in Applications().all()],
     ),
 )
+
+test = next(app for app in Applications().query("a"))
 
 AppLauncher = Widget.Window(
     size=[500, 600],
