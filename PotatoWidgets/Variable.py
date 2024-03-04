@@ -15,7 +15,7 @@ class Variable(GObject.Object):
 
     valuechanged = GObject.Signal()
 
-    def __init__(self, initial_value: Any = ""):
+    def __init__(self, initial_value: Any = "") -> None:
         """
         Initializes a Variable object.
 
@@ -84,6 +84,9 @@ class Variable(GObject.Object):
         Returns:
             str: A string representation of the variable.
         """
+        return str(self._value)
+
+    def __repr__(self) -> str:
         return str(self._value)
 
 

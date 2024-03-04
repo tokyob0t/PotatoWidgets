@@ -38,6 +38,7 @@ class Window(Gtk.Window):
                 self.set_skip_pager_hint(True)
                 self.set_skip_taskbar_hint(True)
                 self.set_decorated(False)
+                self.set_resizable(False)
 
             if layer in [
                 "dock",
@@ -74,7 +75,7 @@ class Window(Gtk.Window):
                 self.set_keep_below(True)
 
         self.add(children) if children else None
-        self.set_size(size)
+        self.set_size(size[0], size[1 if len(size) == 2 else 0])
         self.set_layer(layer)
         self.set_position(position)
         self.set_exclusive(exclusive)
@@ -83,8 +84,6 @@ class Window(Gtk.Window):
         attributes(self)
 
     def set_position(self, position: str) -> None:
-        position = position.lower()
-
         if self._wayland_display:
             if position == "center":
                 for j in [
@@ -234,15 +233,16 @@ class Window(Gtk.Window):
 
             self.set_type_hint(_layer)
 
-    def set_size(self, size: list) -> None:
+    def set_size(self, width: Union[int, str], height: Union[int, str]) -> None:
         screen = get_screen_size(self.monitor)
-        width = parse_screen_size(size[0], screen[0])
-        height = parse_screen_size(size[0] if len(size) == 1 else size[1], screen[1])
 
-        self._size = [width, height]
+        _width = parse_screen_size(width, screen[0])
+        _height = parse_screen_size(height, screen[1])
 
-        self.set_size_request(max(width, 10), max(height, 10))
-        self.resize(max(width, 10), max(height, 10))
+        self._size = [max(width, 10), max(height, 10)]
+
+        self.set_size_request(_width, _height)
+        self.resize(_width, _height)
 
     def bind(self, var: Union[Listener, Variable, Poll], callback: Callable) -> None:
         var.bind(callback)

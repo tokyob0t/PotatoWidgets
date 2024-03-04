@@ -1,6 +1,13 @@
-from . import Widget
+from . import Extras, Widget
+from .Env import *
 from .Imports import Gdk, GdkPixbuf, Gio, GLib, GObject, Gtk, GtkLayerShell, Pango
-from .Methods import wait, lookup_icon, parse_interval, parse_screen_size, get_screen_size
+from .Methods import (
+    get_screen_size,
+    lookup_icon,
+    parse_interval,
+    parse_screen_size,
+    wait,
+)
 from .PotatoLoop import PotatoLoop
 from .Style import Style
 from .Variable import Listener, Poll, Variable

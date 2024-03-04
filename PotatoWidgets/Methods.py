@@ -61,7 +61,7 @@ def get_screen_size(
         return fallback_size
 
 
-def parse_screen_size(value: Union[int, str, bool], total=0) -> int:
+def parse_screen_size(value: Union[int, str], total: int = 0) -> int:
     """Parse the screen size.
 
     Args:

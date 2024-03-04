@@ -6,6 +6,7 @@ import subprocess
 import sys
 import threading
 from random import randint
+from re import sub as re_sub
 from typing import Any, Callable, List, Literal, Optional, Union
 
 import dbus
