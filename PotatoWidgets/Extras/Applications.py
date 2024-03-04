@@ -111,7 +111,7 @@ class Applications:
         self._all = [
             App(i)
             for i in Gio.DesktopAppInfo.get_all()
-            if i.should_know()
+            if i.should_show()
             and not any(i.get_name().lower() in j.lower() for j in self._blacklist)
         ]
 
