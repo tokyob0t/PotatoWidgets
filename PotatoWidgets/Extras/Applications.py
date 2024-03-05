@@ -180,7 +180,7 @@ class Applications:
             dict: Loaded JSON data.
         """
         try:
-            with open(FILE_APPS_CACHE, "r") as file:
+            with open(FILE_CACHE_APPS, "r") as file:
                 return json.load(file)
         except json.decoder.JSONDecodeError:
             return {"preferred": [], "blacklist": []}
@@ -191,7 +191,7 @@ class Applications:
             "preferred": self._json["preferred"],
             "blacklist": self._json["blacklist"],
         }
-        with open(FILE_APPS_CACHE, "w") as file:
+        with open(FILE_CACHE_APPS, "w") as file:
             json.dump(data, file, indent=1)
 
     def reload(self) -> None:
