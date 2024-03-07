@@ -84,16 +84,15 @@ class Box(Gtk.Box, BasicProps):
         if not newChildren:
             return
 
-        if isinstance(newChildren, (list)):
-            for children in self.get_children():
-                if children not in newChildren:
-                    children.destroy()
-                self.remove(children)
+        for children in self.get_children():
+            if children not in newChildren:
+                children.destroy()
+            self.remove(children)
 
+        if isinstance(newChildren, (list)):
             for children in newChildren:
                 if children:
                     self.add(children)
-
         elif isinstance(newChildren, (Gtk.Widget)):
             self.add(newChildren)
 
