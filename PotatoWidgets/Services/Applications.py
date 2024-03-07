@@ -100,17 +100,10 @@ class App(dict):
         _proc.communicate()
 
 
-class Applications:
+class Applications(Service):
     """
     Represents a collection of desktop applications.
     """
-
-    _instance = None
-
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
 
     def __init__(self) -> None:
         """Initializes an instance of Applications."""
