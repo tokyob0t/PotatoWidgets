@@ -348,10 +348,10 @@ class NotificationsDbusService(dbus.service.Object):
             timeout=timeout,
         )
 
-        if timeout > 0:
-            wait(self._instance.timeout, lambda: notif.dismiss())
-
         self._add_notification(notif)
+
+        if timeout > 0:
+            wait(self._instance.timeout, notif.dismiss)
 
         if not self._instance.dnd:
             self._instance.emit("popup", notif.id)
