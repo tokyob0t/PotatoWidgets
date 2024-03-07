@@ -222,9 +222,15 @@ class NotificationsService(Service):
 
     def _add_popup(self, notif: Notification) -> None:
         self._popups.append(notif)
+        if not self.dnd:
+            self.emit("popup", notif.id)
 
     def _add_notif(self, notif: Notification) -> None:
         self._notifications.append(notif)
+        self.emit("notified", notif.id)
+        notif.connect("dismiss", lambda *_: self.emit("dismissed", notif.id))
+        notif.connect("close", lambda *_: self.emit("closed", notif.id))
+        notif.connect("action", lambda *_: self.emit("action", notif.id))
 
     def _close_notif(self, id: int) -> None:
         self._remove_popup(id)
@@ -343,12 +349,12 @@ class NotificationsDbusService(dbus.service.Object):
         if self._instance.timeout > 0:
             wait(
                 self._instance.timeout,
-                lambda: self._instance.dismiss_notification(notif.id),
+                lambda: notif.dismiss,
             )
         elif timeout == -1:
             wait(
                 "3s",
-                lambda: self._instance.dismiss_notification(notif.id),
+                notif.dismiss,
             )
 
         if not self._instance.dnd:
@@ -390,6 +396,7 @@ class NotificationsDbusService(dbus.service.Object):
     def _on_dismiss(self, notif: Notification) -> None:
         self._instance._remove_popup(notif.id)
         self._instance.emit("dismissed", notif.id)
+        self._instance.emit("popup", notif.id)
 
     def _on_close(self, notif: Notification) -> None:
         self._instance._remove_popup(notif.id)
