@@ -101,9 +101,9 @@ class Notification(GObject.Object):
 
 class NotificationsService(Service):
     __gsignals__ = {
+        "notified": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
         "dismissed": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
         "closed": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
-        "notified": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
         "popup": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
         "dnd": (GObject.SignalFlags.RUN_FIRST, None, (bool,)),
         "count": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
@@ -118,7 +118,7 @@ class NotificationsService(Service):
             "notifications"
         ]
         self._dnd: bool = False
-        self._timeout: int = 3500
+        self._timeout: int = 4500
         self._sort_all()
 
     @property
@@ -276,12 +276,15 @@ class NotificationsService(Service):
             array[j + 1] = current
 
     def clear(self) -> None:
-        if self._notifications:
+        if self.notifications:
             for i in range(len(self._notifications)):
                 notif = self._notifications[i]
 
                 if notif:
                     wait(100 * notif.id, notif.close)
+
+        self._notifications = []
+        self._popups = []
 
         self._save_json()
 
@@ -350,8 +353,16 @@ class NotificationsDbusService(dbus.service.Object):
 
         self._add_notification(notif)
 
-        if timeout > 0:
-            wait(self._instance.timeout, notif.dismiss)
+        if self._instance.timeout > 0:
+            wait(
+                self._instance.timeout,
+                lambda: self._instance.dismiss_notification(notif.id),
+            )
+        elif timeout == -1:
+            wait(
+                "3s",
+                lambda: self._instance.dismiss_notification(notif.id),
+            )
 
         if not self._instance.dnd:
             self._instance.emit("popup", notif.id)
