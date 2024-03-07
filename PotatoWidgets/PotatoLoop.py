@@ -1,9 +1,12 @@
+from .Env import *
 from .Imports import *
 from .Style import Style
 
 
-class PotatoService(dbus.service.Object):
+class PotatoDbusService(dbus.service.Object):
+
     def __init__(self, confdir):
+
         bus_name = dbus.service.BusName(
             "com.T0kyoB0y.PotatoWidgets", bus=dbus.SessionBus()
         )
@@ -18,8 +21,9 @@ class PotatoService(dbus.service.Object):
             def DATA():
                 return {"windows": [], "functions": []}
 
-        self.data = DATA()
-        Style(f"{confdir}/style.scss")
+            self.data = DATA()
+
+        Style(f"{confdir[:-1] if confdir.endswith('/') else confdir}/style.scss")
 
     @dbus.service.method(
         "com.T0kyoB0y.PotatoWidgets", in_signature="", out_signature="s"
@@ -73,12 +77,15 @@ class PotatoService(dbus.service.Object):
                     i.close()
 
 
-def PotatoLoop(confdir=""):
+def PotatoLoop(confdir: str = DIR_CONFIG):
+    GlibLoop = GLib.MainLoop()
     try:
-        DBusGMainLoop(set_as_default=True)
-        PotatoService(confdir)
-        Gtk.main()
+        PotatoDbusService(confdir)
+        GlibLoop.run()
 
-    except KeyboardInterrupt:
-        print("Bye")
+    except:
+        GlibLoop.quit()
+
+    finally:
+        print("\nBye")
         exit(0)

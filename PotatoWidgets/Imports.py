@@ -7,7 +7,7 @@ import sys
 import threading
 from random import randint
 from re import sub as re_sub
-from typing import Any, Callable, List, Literal, Optional, Union
+from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, Union
 
 import dbus
 import dbus.service
@@ -23,3 +23,5 @@ gi.require_version("GObject", "2.0")
 
 
 from gi.repository import Gdk, GdkPixbuf, Gio, GLib, GObject, Gtk, GtkLayerShell, Pango
+
+DBusGMainLoop(set_as_default=True)

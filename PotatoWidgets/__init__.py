@@ -9,5 +9,6 @@ from .Methods import (
     wait,
 )
 from .PotatoLoop import PotatoLoop
+from .Services import BatteryService, NotificationsService
 from .Style import Style
 from .Variable import Listener, Poll, Variable
