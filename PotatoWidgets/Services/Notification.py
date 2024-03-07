@@ -229,8 +229,9 @@ class NotificationsService(Service):
 
         if not self.dnd:
             self.emit("popup", notif.id)
-        self.emit("notified", notif.id)
+            self.notify("popups")
 
+        self.emit("notified", notif.id)
         notif.connect("dismiss", lambda instance: self.emit("dismissed", instance.id))
         notif.connect("close", lambda instance: self.emit("closed", instance.id))
         notif.connect(
@@ -299,7 +300,7 @@ class NotificationsDbusService(dbus.service.Object):
         self._instance.connect(
             "action", lambda _, id, action_id: self.InvokeAction(id, action_id)
         )
-        self._instance.connect("closed", lambda _, id: self.NotificationClosed(id, 3))
+        self._instance.connect("closed", lambda _, id: self.NotificationClosed(id, 2))
 
     @dbus.service.method(
         "org.freedesktop.Notifications", in_signature="", out_signature="ssss"
@@ -353,7 +354,6 @@ class NotificationsDbusService(dbus.service.Object):
         )
 
         self._instance._add_notif(notif)
-
         return _id
 
     @dbus.service.signal("org.freedesktop.Notifications", signature="us")
