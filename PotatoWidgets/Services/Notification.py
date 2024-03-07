@@ -179,20 +179,7 @@ class NotificationsService(Service):
             with open(FILE_CACHE_NOTIF, "r") as file:
                 data = json.load(file)
                 if data["popups"]:
-                    data["popups"] = [
-                        Notification(
-                            id=i["id"],
-                            name=i["name"],
-                            image=i["image"],
-                            summary=i["summary"],
-                            body=i["body"],
-                            urgency=i["urgency"],
-                            actions=i["actions"],
-                            hints=i["hints"],
-                            timeout=i["timeout"],
-                        )
-                        for i in data["popups"]
-                    ]
+                    data["popups"] = []
                 if data["notifications"]:
                     data["notifications"] = [
                         Notification(
@@ -297,7 +284,7 @@ class NotificationsDbusService(dbus.service.Object):
         super().__init__(bus_name, "/org/freedesktop/Notifications")
         self._instance = NotificationsService()
         if self._instance.notifications:
-            for notif in self._instance.notifications:
+            for notif in self._instance._notifications:
                 self._conn_notifictaion(notif)
 
     @dbus.service.method(

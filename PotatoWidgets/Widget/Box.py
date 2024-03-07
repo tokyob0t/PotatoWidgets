@@ -81,7 +81,8 @@ class Box(Gtk.Box, BasicProps):
     def set_children(
         self, newChildren: Union[List[Gtk.Widget], Gtk.Widget, list]
     ) -> None:
-        if not newChildren:
+
+        if newChildren is None:
             return
 
         for children in self.get_children():
