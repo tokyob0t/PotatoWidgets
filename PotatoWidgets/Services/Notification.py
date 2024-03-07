@@ -1,5 +1,5 @@
 from ..Imports import *
-from ..Methods import lookup_icon
+from ..Methods import lookup_icon, parse_interval, wait
 from .Service import *
 
 
@@ -117,8 +117,17 @@ class NotificationsService(Service):
         self._notifications: List[Union[Notification, None]] = self._json[
             "notifications"
         ]
-        self._dnd = False
+        self._dnd: bool = False
+        self._timeout: int = 3500
         self._sort_all()
+
+    @property
+    def timeout(self) -> int:
+        return self._timeout
+
+    @timeout.setter
+    def timeout(self, new_timeout: Union[str, int]) -> None:
+        self._timeout = parse_interval(new_timeout)
 
     @property
     def dnd(self) -> bool:
@@ -268,8 +277,11 @@ class NotificationsService(Service):
 
     def clear(self) -> None:
         if self._notifications:
-            for i in self._notifications:
-                i.close()
+            for i in range(len(self._notifications)):
+                notif = self._notifications[i]
+
+                if notif:
+                    wait(100 * notif.id, notif.close)
 
         self._save_json()
 
@@ -336,6 +348,9 @@ class NotificationsDbusService(dbus.service.Object):
             timeout=timeout,
         )
 
+        if timeout > 0:
+            wait(self._instance.timeout, lambda: self._on_dismiss(notif))
+
         self._add_notification(notif)
 
         if not self._instance.dnd:
@@ -375,7 +390,7 @@ class NotificationsDbusService(dbus.service.Object):
         self._instance.emit("action", action_id)
 
     def _on_dismiss(self, notif: Notification) -> None:
-        self._instance._remove_notif(notif.id)
+        self._instance._remove_popup(notif.id)
 
     def _on_close(self, notif: Notification) -> None:
         self._instance._remove_popup(notif.id)
