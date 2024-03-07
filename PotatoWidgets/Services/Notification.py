@@ -267,8 +267,9 @@ class NotificationsService(Service):
             array[j + 1] = current
 
     def clear(self) -> None:
-        for i in self.notifications:
-            i.close()
+        if self._notifications:
+            for i in self._notifications:
+                i.close()
 
         self._save_json()
 
@@ -280,6 +281,9 @@ class NotificationsDbusService(dbus.service.Object):
         )
         super().__init__(bus_name, "/org/freedesktop/Notifications")
         self._instance = NotificationsService()
+        if self._instance.notifications:
+            for notif in self._instance.notifications:
+                self._conn_notifictaion(notif)
 
     @dbus.service.method(
         "org.freedesktop.Notifications", in_signature="", out_signature="ssss"
@@ -356,9 +360,12 @@ class NotificationsDbusService(dbus.service.Object):
         return (id, reason)
 
     def _add_notification(self, notif: Notification) -> None:
+        self._conn_notifictaion(notif)
         self._instance._add_popup(notif)
         self._instance._add_notif(notif)
         self._instance._save_json()
+
+    def _conn_notifictaion(self, notif: Notification) -> None:
         notif.connect("dismiss", self._on_dismiss)
         notif.connect("close", self._on_close)
         notif.connect("action", self._on_action)
