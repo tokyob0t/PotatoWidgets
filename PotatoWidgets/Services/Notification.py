@@ -110,8 +110,8 @@ class NotificationsService(Service):
             None,
             (int, str),
         ),
-        "notifications": (GObject.SignalFlags.RUN_FIRST, None, (List[Notification],)),
-        "popups": (GObject.SignalFlags.RUN_FIRST, None, (List[Notification],)),
+        "notifications": (GObject.SignalFlags.RUN_FIRST, None, (list,)),
+        "popups": (GObject.SignalFlags.RUN_FIRST, None, (list,)),
     }
 
     def __init__(self) -> None:
