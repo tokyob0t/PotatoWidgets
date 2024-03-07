@@ -220,17 +220,28 @@ class NotificationsService(Service):
         if self.popups:
             self._sort(self._popups)
 
-    def _add_popup(self, notif: Notification) -> None:
-        self._popups.append(notif)
-        if not self.dnd:
-            self.emit("popup", notif.id)
-
     def _add_notif(self, notif: Notification) -> None:
         self._notifications.append(notif)
+        self._popups.append(notif)
+
+        if not self.dnd:
+            self.emit("popup", notif.id)
         self.emit("notified", notif.id)
-        notif.connect("dismiss", lambda *_: self.emit("dismissed", notif.id))
-        notif.connect("close", lambda *_: self.emit("closed", notif.id))
-        notif.connect("action", lambda *_: self.emit("action", notif.id))
+
+        notif.connect("dismiss", lambda instance: self.emit("dismissed", instance.id))
+        notif.connect("close", lambda instance: self.emit("closed", instance.id))
+        notif.connect(
+            "action",
+            lambda instance, action_id: self.emit("action", instance.id, action_id),
+        )
+
+        if self.timeout > 0:
+            wait(
+                self.timeout,
+                lambda: notif.dismiss,
+            )
+
+        self._save_json()
 
     def _close_notif(self, id: int) -> None:
         self._remove_popup(id)
@@ -289,9 +300,8 @@ class NotificationsDbusService(dbus.service.Object):
         )
         super().__init__(bus_name, "/org/freedesktop/Notifications")
         self._instance = NotificationsService()
-        if self._instance.notifications:
-            for notif in self._instance._notifications:
-                self._conn_notifictaion(notif)
+        self._instance.connect("action", self._on_action)
+        self._instance.connect("closed", self._on_close)
 
     @dbus.service.method(
         "org.freedesktop.Notifications", in_signature="", out_signature="ssss"
@@ -344,25 +354,9 @@ class NotificationsDbusService(dbus.service.Object):
             timeout=timeout,
         )
 
-        self._add_notification(notif)
+        self._instance._add_notif(notif)
 
-        if self._instance.timeout > 0:
-            wait(
-                self._instance.timeout,
-                lambda: notif.dismiss,
-            )
-        elif timeout == -1:
-            wait(
-                "3s",
-                notif.dismiss,
-            )
-
-        if not self._instance.dnd:
-            self._instance.emit("popup", notif.id)
-
-        self._instance.emit("notified", notif.id)
-
-        return id
+        return _id
 
     @dbus.service.signal("org.freedesktop.Notifications", signature="us")
     def ActionInvoked(self, id: int, action: str) -> Tuple[int, str]:
@@ -378,32 +372,11 @@ class NotificationsDbusService(dbus.service.Object):
     def NotificationClosed(self, id: int, reason: int) -> Tuple[int, int]:
         return (id, reason)
 
-    def _add_notification(self, notif: Notification) -> None:
-        self._conn_notifictaion(notif)
-        self._instance._add_popup(notif)
-        self._instance._add_notif(notif)
-        self._instance._save_json()
+    def _on_action(self, id: int, action_id: str) -> None:
+        self.InvokeAction(id, action_id)
 
-    def _conn_notifictaion(self, notif: Notification) -> None:
-        notif.connect("dismiss", self._on_dismiss)
-        notif.connect("close", self._on_close)
-        notif.connect("action", self._on_action)
-
-    def _on_action(self, notif: Notification, action_id: str) -> None:
-        self.InvokeAction(notif.id, action_id)
-        self._instance.emit("action", action_id)
-
-    def _on_dismiss(self, notif: Notification) -> None:
-        self._instance._remove_popup(notif.id)
-        self._instance.emit("dismissed", notif.id)
-        self._instance.emit("popup", notif.id)
-
-    def _on_close(self, notif: Notification) -> None:
-        self._instance._remove_popup(notif.id)
-        self._instance._remove_notif(notif.id)
-
-        self.NotificationClosed(notif.id, 3)
-        self._instance.emit("closed", notif.id)
+    def _on_close(self, id: int) -> None:
+        self.NotificationClosed(id, 3)
 
     def _decode_image(self, app_image: str, hints: dict, notification_id: int) -> str:
         if app_image.startswith("file://") or GLib.file_test(

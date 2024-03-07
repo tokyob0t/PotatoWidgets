@@ -15,12 +15,6 @@ class Service(GObject.Object):
     def __init__(self) -> None:
         super().__init__()
 
-    def emit(self, signal: str, data: Any = None) -> None:
-        if data is not None:
-            super().emit(signal, data)
-        else:
-            super().emit(signal)
-
     def bind(self, signal: str, initial_value: Any = 0):
         new_var = Variable(initial_value)
 
