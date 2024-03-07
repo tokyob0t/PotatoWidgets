@@ -407,7 +407,7 @@ class NotificationsDbusService(dbus.service.Object):
             new_id
             if new_id != 0
             else (
-                self._instance.notifications[0].id + 1
+                self._instance.notifications[-1].id + 1
                 if self._instance.notifications
                 else 1
             )
