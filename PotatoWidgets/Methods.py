@@ -131,4 +131,4 @@ def lookup_icon(
             if icon_info is not None:
                 return icon_info.get_filename() if path else icon_info
 
-    return lookup_icon(fallback) if path else fallback
+    return lookup_icon(fallback) if path else lookup_icon(fallback, path=False)
