@@ -110,8 +110,6 @@ class NotificationsService(Service):
             None,
             (int, str),
         ),
-        "notifications": (GObject.SignalFlags.RUN_FIRST, None, (List[Notification],)),
-        "popups": (GObject.SignalFlags.RUN_FIRST, None, (List[Notification],)),
     }
 
     def __init__(self) -> None:
@@ -229,10 +227,8 @@ class NotificationsService(Service):
 
         if not self.dnd:
             self.emit("popup", notif.id)
-            self.emit("popups", self.popups)
 
         self.emit("notified", notif.id)
-        self.emit("notifications", self.notifications)
         notif.connect("dismiss", lambda instance: self.emit("dismissed", instance.id))
         notif.connect("close", lambda instance: self.emit("closed", instance.id))
         notif.connect(
