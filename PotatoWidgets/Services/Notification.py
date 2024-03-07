@@ -391,6 +391,7 @@ class NotificationsDbusService(dbus.service.Object):
 
     def _on_dismiss(self, notif: Notification) -> None:
         self._instance._remove_popup(notif.id)
+        self._instance.emit("dismissed", notif.id)
 
     def _on_close(self, notif: Notification) -> None:
         self._instance._remove_popup(notif.id)
