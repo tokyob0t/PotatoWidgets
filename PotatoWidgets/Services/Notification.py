@@ -239,26 +239,18 @@ class NotificationsService(Service):
         )
 
         if self.timeout > 0:
-            wait(
-                self.timeout,
-                lambda: notif.dismiss,
-            )
+            wait(self.timeout, notif.dismiss)
 
         self._save_json()
 
     def _close_notif(self, id: int) -> None:
-        self._remove_popup(id)
-        self._remove_notif(id)
+        _n_pop = self.get_popup(id)
+        _n_notif = self.get_notification(id)
 
-    def _remove_popup(self, id: int) -> None:
-        _n = self.get_popup(id)
-        if _n:
-            self._popups.remove(_n)
-
-    def _remove_notif(self, id: int) -> None:
-        _n = self.get_notification(id)
-        if _n:
-            self._notifications.remove(_n)
+        if _n_pop:
+            wait(100 * id, lambda: self._popups.remove(_n_pop))
+        if _n_notif:
+            wait(100 * id, lambda: self._notifications.remove(_n_notif))
 
     def _search(
         self, array: List[Union[Notification, None]], target_id: int
