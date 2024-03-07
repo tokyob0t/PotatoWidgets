@@ -226,14 +226,11 @@ class NotificationsService(Service):
 
     def _add_popup(self, notif: Notification) -> None:
         self._popups.append(notif)
-        if not self._dnd:
-            self.emit("popup", notif.id)
 
     def _add_notif(self, notif: Notification) -> None:
         self._notifications.append(notif)
-        self.emit("notified", notif.id)
 
-    def _close_popup(self, id: int) -> None:
+    def _close_notif(self, id: int) -> None:
         self._remove_popup(id)
         self._remove_notif(id)
 
@@ -270,7 +267,7 @@ class NotificationsService(Service):
             array[j + 1] = current
 
     def clear(self) -> None:
-        for i in self._notifications:
+        for i in self.notifications:
             i.close()
 
         self._save_json()
@@ -337,6 +334,11 @@ class NotificationsDbusService(dbus.service.Object):
 
         self._add_notification(notif)
 
+        if not self._instance.dnd:
+            self._instance.emit("popup", notif.id)
+
+        self._instance.emit("notified", notif.id)
+
         return id
 
     @dbus.service.signal("org.freedesktop.Notifications", signature="us")
@@ -362,17 +364,18 @@ class NotificationsDbusService(dbus.service.Object):
         notif.connect("action", self._on_action)
 
     def _on_action(self, notif: Notification, action_id: str) -> None:
-        self._instance.emit("action", action_id)
         self.InvokeAction(notif.id, action_id)
+        self._instance.emit("action", action_id)
 
     def _on_dismiss(self, notif: Notification) -> None:
-        self._instance._remove_popup(notif.id)
+        self._instance._remove_notif(notif.id)
 
     def _on_close(self, notif: Notification) -> None:
-        self._instance.emit("closed", notif.id)
         self._instance._remove_popup(notif.id)
         self._instance._remove_notif(notif.id)
+
         self.NotificationClosed(notif.id, 3)
+        self._instance.emit("closed", notif.id)
 
     def _decode_image(self, app_image: str, hints: dict, notification_id: int) -> str:
         image: str = ""
