@@ -270,7 +270,10 @@ class NotificationsService(Service):
             array[j + 1] = current
 
     def clear(self) -> None:
-        pass
+        for i in self._notifications:
+            i.close()
+
+        self._save_json()
 
 
 class NotificationsDbusService(dbus.service.Object):
