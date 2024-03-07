@@ -105,8 +105,11 @@ class NotificationsService(Service):
         "dismissed": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
         "closed": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
         "popup": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
-        "dnd": (GObject.SignalFlags.RUN_FIRST, None, (bool,)),
-        "count": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
+        "action": (
+            GObject.SignalFlags.RUN_FIRST,
+            None,
+            (int, str),
+        ),
     }
 
     def __init__(self) -> None:
@@ -300,8 +303,11 @@ class NotificationsDbusService(dbus.service.Object):
         )
         super().__init__(bus_name, "/org/freedesktop/Notifications")
         self._instance = NotificationsService()
-        self._instance.connect("action", self._on_action)
-        self._instance.connect("closed", self._on_close)
+
+        self._instance.connect(
+            "action", lambda _, id, action_id: self.InvokeAction(id, action_id)
+        )
+        self._instance.connect("closed", lambda _, id: self.NotificationClosed(id, 3))
 
     @dbus.service.method(
         "org.freedesktop.Notifications", in_signature="", out_signature="ssss"
@@ -371,12 +377,6 @@ class NotificationsDbusService(dbus.service.Object):
     @dbus.service.signal("org.freedesktop.Notifications", signature="uu")
     def NotificationClosed(self, id: int, reason: int) -> Tuple[int, int]:
         return (id, reason)
-
-    def _on_action(self, id: int, action_id: str) -> None:
-        self.InvokeAction(id, action_id)
-
-    def _on_close(self, id: int) -> None:
-        self.NotificationClosed(id, 3)
 
     def _decode_image(self, app_image: str, hints: dict, notification_id: int) -> str:
         if app_image.startswith("file://") or GLib.file_test(
