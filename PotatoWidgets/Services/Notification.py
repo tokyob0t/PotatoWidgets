@@ -110,6 +110,8 @@ class NotificationsService(Service):
             None,
             (int, str),
         ),
+        "notifications": (GObject.SignalFlags.RUN_FIRST, None, (List[Notification],)),
+        "popups": (GObject.SignalFlags.RUN_FIRST, None, (List[Notification],)),
     }
 
     def __init__(self) -> None:
@@ -138,9 +140,7 @@ class NotificationsService(Service):
 
     @dnd.setter
     def dnd(self, new_value: bool) -> None:
-        if self.dnd != new_value:
-            self._dnd = new_value
-            self.emit("dnd", self.dnd)
+        self._dnd = new_value
 
     @property
     def notifications(self) -> List[Union[Notification, None]]:
@@ -229,9 +229,10 @@ class NotificationsService(Service):
 
         if not self.dnd:
             self.emit("popup", notif.id)
-            self.notify("popups")
+            self.emit("popups", self.popups)
 
         self.emit("notified", notif.id)
+        self.emit("notifications", self.notifications)
         notif.connect("dismiss", lambda instance: self.emit("dismissed", instance.id))
         notif.connect("close", lambda instance: self.emit("closed", instance.id))
         notif.connect(
