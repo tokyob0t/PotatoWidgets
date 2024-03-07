@@ -1,5 +1,5 @@
 from ..Imports import *
-from .Service import *
+from .Service import Service
 
 
 class BatteryService(Service):

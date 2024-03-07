@@ -1,5 +1,6 @@
 from ..Env import *
 from ..Imports import *
+from .Service import Service
 
 
 class App(dict):

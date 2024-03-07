@@ -378,20 +378,17 @@ class NotificationsDbusService(dbus.service.Object):
         self._instance.emit("closed", notif.id)
 
     def _decode_image(self, app_image: str, hints: dict, notification_id: int) -> str:
-        image: str = ""
+        if app_image.startswith("file://") or GLib.file_test(
+            app_image, GLib.FileTest.EXISTS
+        ):
+            return app_image
 
         if app_image:
-            if GLib.file_test(app_image, GLib.FileTest.EXISTS) or app_image.startswith(
-                "file://"
-            ):
-                image = app_image
-            else:
-                image = lookup_icon(app_image)
+            return app_image
 
         if "image-data" in hints:
-            image_data: list = hints["image-data"]
-            image_path: str = f"{DIR_CACHE_NOTIF_IMAGES}/{notification_id}"
-            image = image_path
+            image_data = hints["image-data"]
+            image_path = f"{DIR_CACHE_NOTIF_IMAGES}/{notification_id}"
 
             GdkPixbuf.Pixbuf.new_from_bytes(
                 width=image_data[0],
@@ -403,7 +400,9 @@ class NotificationsDbusService(dbus.service.Object):
                 bits_per_sample=image_data[4],
             ).savev(image_path, "png")
 
-        return image
+            return image_path
+
+        return ""
 
     def _get_id(self, new_id) -> int:
         id = (

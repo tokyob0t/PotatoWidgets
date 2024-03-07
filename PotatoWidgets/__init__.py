@@ -1,4 +1,4 @@
-from . import Extras, Widget
+from . import Widget
 from .Env import *
 from .Imports import Gdk, GdkPixbuf, Gio, GLib, GObject, Gtk, GtkLayerShell, Pango
 from .Methods import (
