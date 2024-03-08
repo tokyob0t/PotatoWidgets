@@ -117,16 +117,16 @@ class Window(Gtk.Window):
                 x, y = width // 2, height // 2
 
                 for pos in position.split():
+
                     dx, dy = {
                         "top": (0, height // 2),
                         "bottom": (height, height // 2),
                         "left": (0, width // 2),
                         "right": (width, width // 2),
-                    }.get(pos, (None, None))
+                    }.get(pos, (0, 0))
 
-                    if all(d is not None for d in (dx, dy)):
-                        x += dx
-                        y += dy
+                    x += dx
+                    y += dy
 
                 self.move(x, y)
 
