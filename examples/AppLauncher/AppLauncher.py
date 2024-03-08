@@ -2,26 +2,30 @@ from PotatoWidgets import Applications, Variable, Widget, lookup_icon
 
 
 def GenerateApp(entry):
+    _actioned = lambda: (
+        entry.launch(),
+        AppLauncher.close(),
+        AppQuery.set_value(""),
+        AppEntry.set_text(""),
+    )
+
     _app = Widget.Revealer(
         valign="start",
         transition="slideup",
         duration=250,
         reveal=True,
         attributes=lambda self: (
-            setattr(self, "app", entry),
             setattr(self, "keywords", entry.keywords),
+            setattr(self, "launch", _actioned),
             self.bind(
-                AppQuery, lambda query: self.set_revealed(query in self.keywords)
+                AppQuery,
+                lambda query: self.set_revealed(str(query).lower() in self.keywords),
             ),
         ),
         children=Widget.Button(
             classname="app",
             valign="start",
-            onclick=lambda: (
-                entry.launch(),
-                AppLauncher.close(),
-                AppQuery.set_value(""),
-            ),
+            onclick=_actioned,
             children=Widget.Box(
                 spacing=10,
                 children=[
@@ -34,11 +38,14 @@ def GenerateApp(entry):
                                 entry.name.title(),
                                 wrap=True,
                                 halign="start",
+                                valign=("center" if not entry.comment else "start"),
+                                vexpand=(True if not entry.comment else False),
                                 classname="name",
                             ),
                             Widget.Label(
                                 entry.comment or entry.generic_name,
                                 wrap=True,
+                                visible=bool(entry.comment or entry.generic_name),
                                 classname="comment",
                             ),
                         ],
@@ -51,6 +58,7 @@ def GenerateApp(entry):
 
 
 AppQuery = Variable("")
+
 AppsList = Widget.Scroll(
     hexpand=True,
     vexpand=True,
@@ -59,6 +67,16 @@ AppsList = Widget.Scroll(
         children=[GenerateApp(app) for app in Applications().all()],
     ),
 )
+
+AppEntry = Widget.Entry(
+    onchange=AppQuery.set_value,
+    onenter=lambda text: next(
+        app.launch()
+        for app in AppsList.get_children()[0].get_children()[0].get_children()
+        if str(text).lower() in app.keywords
+    ),
+)
+
 
 AppLauncher = Widget.Window(
     size=[500, 600],
@@ -69,16 +87,7 @@ AppLauncher = Widget.Window(
         orientation="v",
         spacing=20,
         children=[
-            Widget.Entry(
-                onchange=AppQuery.set_value,
-                onenter=lambda text: next(
-                    app_revealer.app.launch()
-                    for app_revealer in AppsList.get_children()[0]
-                    .get_children()[0]
-                    .get_children()
-                    if text in app_revealer.keywords
-                ),
-            ),
+            AppEntry,
             AppsList,
         ],
     ),
