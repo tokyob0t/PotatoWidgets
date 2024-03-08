@@ -1,10 +1,8 @@
-from PotatoWidgets import PotatoLoop, Variable, Widget, lookup_icon
-from PotatoWidgets.Extras import Applications
+from PotatoWidgets import Applications, Variable, Widget, lookup_icon
 
 
 def GenerateApp(entry):
     _app = Widget.Revealer(
-        css="padding-bottom: 13px;",
         valign="start",
         transition="slideup",
         duration=250,
@@ -12,9 +10,12 @@ def GenerateApp(entry):
         attributes=lambda self: (
             setattr(self, "app", entry),
             setattr(self, "keywords", entry.keywords),
-            self.bind(AppQuery, lambda out: self.set_revealed(out in self.keywords)),
+            self.bind(
+                AppQuery, lambda query: self.set_revealed(query in self.keywords)
+            ),
         ),
         children=Widget.Button(
+            classname="app",
             valign="start",
             onclick=lambda: (
                 entry.launch(),
@@ -33,15 +34,12 @@ def GenerateApp(entry):
                                 entry.name.title(),
                                 wrap=True,
                                 halign="start",
-                                valign=("center" if not entry.comment else "start"),
-                                vexpand=(True if not entry.comment else False),
-                                css="color: #fff; font-weight: 700;",
+                                classname="name",
                             ),
                             Widget.Label(
                                 entry.comment or entry.generic_name,
                                 wrap=True,
-                                visible=bool(entry.comment or entry.generic_name),
-                                css="color: #aaa; font-weight: normal;",
+                                classname="comment",
                             ),
                         ],
                     ),
@@ -64,13 +62,10 @@ AppsList = Widget.Scroll(
 
 AppLauncher = Widget.Window(
     size=[500, 600],
-    # Wayland
-    # layer="top",
-    #
-    # X11
     layer="dialog",
+    namespace="AppLauncher",
     children=Widget.Box(
-        css="background: #111; padding: 40px",
+        classname="launcher",
         orientation="v",
         spacing=20,
         children=[
@@ -88,9 +83,3 @@ AppLauncher = Widget.Window(
         ],
     ),
 )
-
-AppLauncher.open()
-
-
-if __name__ == "__main__":
-    PotatoLoop()

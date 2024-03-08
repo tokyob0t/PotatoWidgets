@@ -1,0 +1,29 @@
+.notifications-container {
+	padding:10px;
+	.notification {
+		background: #111;
+		padding: 10px;
+		border-radius: 20px;
+		.image {
+			border-radius: 20px;
+		}
+		
+		.header {
+			color: #fff;
+			font-size: 15px;
+			font-weight: 600;
+		}	
+		.content {
+			color: #525252;
+			font-size: 14px;
+			font-weight: 500;
+
+		}
+		
+		.actionbutton {
+			background: #232323;
+			padding: 7.5px;
+			border-radius: 20px;
+		}
+}
+}	

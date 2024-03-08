@@ -1,0 +1,22 @@
+
+.launcher {
+	padding: 40px;
+	border-radius: 20px;
+	background: #111;
+	
+	.app {
+		border-radius: 20px;
+		padding: 10px 20px;
+		&:hover {
+			background: #232323;
+		}
+		.name {
+			color: #fff;
+			font-weight: 700;
+		}
+		.comment {
+                        color: #525252;
+			font-weight: 500,
+		}
+	}
+}

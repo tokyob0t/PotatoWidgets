@@ -1,0 +1,19 @@
+
+.nf-icon {
+    font-family: "Symbols Nerd Font";
+    font-size: 20px;
+    min-width: 1em;
+    min-height: 1em;
+}
+.battery-progress {
+	background: #232323;
+	&,
+	& > trough,
+	& > trough > progress {
+		min-width: 20px;
+		border-radius: 20px;	
+		}
+	trough progress {
+		background-color: #43b365;
+	}
+}
