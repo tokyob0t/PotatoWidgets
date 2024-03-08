@@ -114,20 +114,19 @@ class Window(Gtk.Window):
             if position == "center":
                 self.move(width // 2, height // 2)
             else:
+                x, y = width // 2, height // 2
 
-                if "top" in position:
-                    y = 0
-                elif "bottom" in position:
-                    y = height
-                else:
-                    y = height // 2
+                for pos in position.split():
+                    dx, dy = {
+                        "top": (0, height // 2),
+                        "bottom": (height, height // 2),
+                        "left": (0, width // 2),
+                        "right": (width, width // 2),
+                    }.get(pos, (None, None))
 
-                if "left" in position:
-                    x = 0
-                elif "right" in position:
-                    x = width
-                else:
-                    x = width // 2
+                    if all(d is not None for d in (dx, dy)):
+                        x += dx
+                        y += dy
 
                 self.move(x, y)
 
