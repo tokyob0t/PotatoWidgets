@@ -21,7 +21,7 @@ class PotatoDbusService(dbus.service.Object):
             def DATA():
                 return {"windows": [], "functions": []}
 
-            self.data = DATA()
+        self.data = DATA()
 
         Style(f"{confdir[:-1] if confdir.endswith('/') else confdir}/style.scss")
 
