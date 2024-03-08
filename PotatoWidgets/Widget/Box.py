@@ -6,7 +6,7 @@ from .Common import BasicProps
 class Box(Gtk.Box, BasicProps):
     def __init__(
         self,
-        children: Union[List[Gtk.Widget], Gtk.Widget] = [],
+        children: Union[List[Union[Gtk.Widget, None]], Gtk.Widget] = [],
         orientation: str = "h",
         spacing: int = 0,
         homogeneous: bool = False,
