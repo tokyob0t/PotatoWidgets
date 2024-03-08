@@ -63,12 +63,16 @@ def Notification(instance: NotificationsService, id: int):
                             spacing=5,
                             children=[
                                 Widget.Label(
-                                    notif.summary, justify="left", classname="header"
+                                    notif.summary,
+                                    justify="left",
+                                    classname="header",
+                                    xalign=0,
                                 ),
                                 Widget.Label(
                                     notif.body,
                                     wrap=True,
                                     justify="left",
+                                    xalign=0,
                                     classname="content",
                                 ),
                             ],
