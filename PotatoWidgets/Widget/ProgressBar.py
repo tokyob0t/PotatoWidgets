@@ -33,8 +33,10 @@ class ProgressBar(Gtk.ProgressBar, BasicProps):
             classname=classname,
             size=size,
         )
-
-        self.set_value(value)
+        if isinstance(value, (Variable, Listener, Poll)):
+            self.bind(value, self.set_value)
+        else:
+            self.set_value(value)
         self.set_inverted(inverted)
         self.set_orientation(orientation)
 
