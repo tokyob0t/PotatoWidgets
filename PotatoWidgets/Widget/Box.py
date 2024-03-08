@@ -6,7 +6,7 @@ from .Common import BasicProps
 class Box(Gtk.Box, BasicProps):
     def __init__(
         self,
-        children: Union[List[Union[Gtk.Widget, None]], Gtk.Widget] = [],
+        children: Union[List[Union[Gtk.Widget, None]], Gtk.Widget, Any] = [],
         orientation: str = "h",
         spacing: int = 0,
         homogeneous: bool = False,
@@ -92,8 +92,11 @@ class Box(Gtk.Box, BasicProps):
 
         if isinstance(newChildren, (list)):
             for children in newChildren:
-                if children:
+                try:
                     self.add(children)
+                except:
+                    continue
+
         elif isinstance(newChildren, (Gtk.Widget)):
             self.add(newChildren)
 
