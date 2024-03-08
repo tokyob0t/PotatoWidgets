@@ -92,10 +92,8 @@ class Box(Gtk.Box, BasicProps):
 
         if isinstance(newChildren, (list)):
             for children in newChildren:
-                try:
-                    self.add(children)
-                except:
-                    continue
+                if isinstance(newChildren, (Gtk.Widget)):
+                    self.add(newChildren)
 
         elif isinstance(newChildren, (Gtk.Widget)):
             self.add(newChildren)
