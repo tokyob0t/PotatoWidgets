@@ -114,15 +114,22 @@ class Window(Gtk.Window):
             if position == "center":
                 self.move(width // 2, height // 2)
             else:
-                for j in position.split():
-                    _position = {
-                        "top": [width // 2, 0],
-                        "bottom": [width // 2, height],
-                        "left": [0, height // 2],
-                        "right": [width, height // 2],
-                    }.get(j)
-                    if _position:
-                        self.move_relative(_position[0], _position[1])
+
+                if "top" in position:
+                    y = 0
+                elif "bottom" in position:
+                    y = height
+                else:
+                    y = height // 2
+
+                if "left" in position:
+                    x = 0
+                elif "right" in position:
+                    x = width
+                else:
+                    x = width // 2
+
+                self.move(x, y)
 
     def set_margin(self, margins: dict) -> None:
         if self._wayland_display:
