@@ -7,6 +7,7 @@ class ProgressBar(Gtk.ProgressBar, BasicProps):
     def __init__(
         self,
         value: Union[int, float] = 50,
+        show_text: bool = False,
         inverted: bool = False,
         orientation: str = "h",
         attributes: Callable = lambda self: self,
@@ -37,6 +38,8 @@ class ProgressBar(Gtk.ProgressBar, BasicProps):
             self.bind(value, self.set_value)
         else:
             self.set_value(value)
+
+        self.set_show_text(show_text)
         self.set_inverted(inverted)
         self.set_orientation(orientation)
 
@@ -44,6 +47,7 @@ class ProgressBar(Gtk.ProgressBar, BasicProps):
 
     def set_value(self, value: Union[int, float]) -> None:
         self.set_fraction(value / 100)
+        self.set_text(str(value))
 
     def set_orientation(
         self, orientation: Union[Gtk.Orientation, str] = Gtk.Orientation.HORIZONTAL
