@@ -79,7 +79,8 @@ class Box(Gtk.Box, BasicProps):
         super().set_orientation(_orientation)
 
     def set_children(
-        self, newChildren: Union[List[Gtk.Widget], Gtk.Widget, list]
+        self,
+        newChildren: Union[List[Union[Gtk.Widget, None]], Gtk.Widget, Any],
     ) -> None:
 
         if newChildren is None:
@@ -92,8 +93,8 @@ class Box(Gtk.Box, BasicProps):
 
         if isinstance(newChildren, (list)):
             for children in newChildren:
-                if isinstance(newChildren, (Gtk.Widget)):
-                    self.add(newChildren)
+                if isinstance(children, (Gtk.Widget)):
+                    self.add(children)
 
         elif isinstance(newChildren, (Gtk.Widget)):
             self.add(newChildren)
