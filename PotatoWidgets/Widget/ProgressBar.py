@@ -6,7 +6,7 @@ from .Common import BasicProps
 class ProgressBar(Gtk.ProgressBar, BasicProps):
     def __init__(
         self,
-        value: Union[int, float] = 50,
+        value: Union[int, float, Poll, Listener, Variable] = 50,
         show_text: bool = False,
         inverted: bool = False,
         orientation: str = "h",
