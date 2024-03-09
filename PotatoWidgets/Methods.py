@@ -81,7 +81,7 @@ def parse_screen_size(value: Union[int, str], total: int = 0) -> int:
         return 10
 
 
-def wait(time_ms: Union[str, int], callback: Callable) -> None:
+def wait(time_ms: Union[str, int], callback: Callable) -> int:
     """Wait for a specified amount of time and then execute a callback function.
 
     Args:
@@ -93,7 +93,7 @@ def wait(time_ms: Union[str, int], callback: Callable) -> None:
         callback()
         return False
 
-    GLib.timeout_add(parse_interval(time_ms), on_timeout)
+    return GLib.timeout_add(parse_interval(time_ms), on_timeout)
 
 
 def lookup_icon(

@@ -37,7 +37,9 @@ class Image(Gtk.Image, BasicProps):
     def set_image(self, path: str, size: Union[int, List[int]]) -> None:
         size = [size, size] if isinstance(size, (int)) else size
 
-        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(path, size[0], size[1], True)
+        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
+            filename=path, width=size[0], height=size[1], preserve_aspect_ratio=True
+        )
 
         self.set_from_pixbuf(pixbuf)
 

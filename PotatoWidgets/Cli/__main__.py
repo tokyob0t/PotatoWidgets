@@ -1,13 +1,13 @@
-from .Imports import *
+from ..Imports import *
 
 
 def connect_to_dbus():
     try:
         session_bus = dbus.SessionBus()
-        obj = session_bus.get_object(
+        proxy = session_bus.get_object(
             "com.T0kyoB0y.PotatoWidgets", "/com/T0kyoB0y/PotatoWidgets"
         )
-        iface = dbus.Interface(obj, "com.T0kyoB0y.PotatoWidgets")
+        iface = dbus.Interface(proxy, "com.T0kyoB0y.PotatoWidgets")
         return iface
     except dbus.exceptions.DBusException:
         print("PotatoWidgets service is not running.")
