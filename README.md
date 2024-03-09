@@ -103,10 +103,11 @@ pip install git+https://github.com/T0kyoB0y/PotatoWidgets.git
 
 #### My Current Setup
 
+##### BSPWM
+![img](./img/setup4.png)  
+
 ##### Hyprland
 ![img](./img/setup.png)
 ![img](./img/setup2.png)
 ![img](./img/setup3.png)
 
-##### bspwm
-![img](./img/setup4.png)
