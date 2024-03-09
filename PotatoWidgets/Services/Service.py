@@ -20,3 +20,6 @@ class Service(GObject.Object):
 
         self.connect(signal, lambda _, value: new_var.set_value(value))
         return new_var
+
+    def emit(self, **kwargs):
+        return super().emit(**kwargs)
