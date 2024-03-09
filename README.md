@@ -10,47 +10,39 @@
 #!/usr/bin/python
 
 import subprocess
-
 from datetime import datetime
-
 from PotatoWidgets import PotatoLoop, Variable, Widget
 
+time = Poll(interval="1s", callback=datetime.now)
 
+MyFirstWindow = Widget.Window(
+    at={"top": "20px", "left": "20", "right": 20},  # You can use any
+    size=[0, "5%"],  # even %
+    position="left top right",
+    children=Widget.Box(
+        classname="TESTBOX",
+        children=[
+            Widget.Label("Start"),
+            Widget.Label(
+                time,
+                # Horizontal align
+                halign="center",
+                # Horizontal expand
+                hexpand=True,
+            ),
+            Widget.Box(
+                orientation="v",
+                # Vertical align
+                valign="center",
+                children=[Widget.Label("Top"), Widget.Label("Bottom")],
+            ),
+        ],
+    ),
+)
+
+MyFirstWindow.open()
 
 if __name__ == "__main__":
-
-    time = Variable.Poll(interval=1000, callback=datetime.now)
-
-    MyFirstWindow = Widget.Window(
-        at={"top": "20px",
-            "left": "20",
-            "right": 20},       # You can use any
-        size=[0, "5%"],      # even %
-        position="left top right",
-        children=Widget.Box(
-            classname="TESTBOX",
-            children=[
-                Widget.Label("Start"),
-                Widget.Label(
-                    time,
-                    # Horizontal align
-                    halign="center",
-                    # Horizontal expand
-                    hexpand=True),
-                Widget.Box(
-                    orientation="v",
-                    # Vertical align
-                    valign="center",
-                    children=[
-                        Widget.Label("Top"),
-                        Widget.Label("Bottom")
-                    ]
-                ),
-            ],
-        ),
-    )
-
-    MyFirstWindow.open()
     PotatoLoop()
 ```
 
@@ -102,6 +94,7 @@ pip install git+https://github.com/T0kyoB0y/PotatoWidgets.git
 * [ ] Help x.x
 
 #### My Current Setup
+
 
 ##### BSPWM
 ![img](./img/setup4.png)  
