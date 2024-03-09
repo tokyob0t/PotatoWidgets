@@ -65,6 +65,18 @@ pip install git+https://github.com/T0kyoB0y/PotatoWidgets.git
 
 ##### ToDo
 
+* Add More Services
+  * [X] Applications
+  * [X] Battery
+  * [X] Notifications
+  * [ ] Network
+  * [ ] Bluetooth
+  * [ ] Media
+  * [ ] Brightness
+  * [ ] Volume
+  * [ ] Tray
+  * [ ] What more?
+  
 * Add Dynamic variables
   * [X] Poll      - Timeout + Callback
   * [X] Variable - GObject Variable that notifies when it's value changes
@@ -75,25 +87,26 @@ pip install git+https://github.com/T0kyoB0y/PotatoWidgets.git
   * [X] Button
   * [X] ToggleButton
   * [X] Box
-  * [ ] SwitchButton
   * [X] CheckBox
   * [X] EventBox
   * [X] Revealer
   * [X] ToggleButton
   * [X] CenterBox
-  * [ ] ComboBox
   * [X] Image
   * [X] Icon
   * [X] Scroll
   * [ ] Potato
-  * [ ] Stack
 
 * [X] Use GObject to detect dynamic variables in Widgets Props to update Widgets
 * [X] Add a CLI utility(?
 * [ ] Help x.x
 
-##### My Current Setup
+#### My Current Setup
 
+##### Hyprland
 ![img](./img/setup.png)
 ![img](./img/setup2.png)
 ![img](./img/setup3.png)
+
+##### bspwm
+![img](./img/setup4.png)
