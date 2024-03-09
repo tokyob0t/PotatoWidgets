@@ -9,9 +9,8 @@
 ```py
 #!/usr/bin/python
 
-import subprocess
 from datetime import datetime
-from PotatoWidgets import PotatoLoop, Variable, Widget
+from PotatoWidgets import PotatoLoop, Poll, Widget
 
 time = Poll(interval="1s", callback=datetime.now)
 
