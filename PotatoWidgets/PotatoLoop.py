@@ -1,5 +1,6 @@
 from .Env import *
 from .Imports import *
+from .Services import NotificationsDbusService, NotificationsService
 from .Style import Style
 
 
@@ -80,6 +81,8 @@ class PotatoDbusService(dbus.service.Object):
 def PotatoLoop(confdir: str = DIR_CONFIG):
     GlibLoop = GLib.MainLoop()
     try:
+        NotificationsService()
+        NotificationsDbusService()
         PotatoDbusService(confdir)
         GlibLoop.run()
 

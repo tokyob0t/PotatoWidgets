@@ -395,7 +395,7 @@ class NotificationsDbusService(dbus.service.Object):
         return ""
 
     def _get_id(self, new_id) -> int:
-        id = (
+        return (
             new_id
             if new_id != 0
             else (
@@ -404,7 +404,6 @@ class NotificationsDbusService(dbus.service.Object):
                 else 1
             )
         )
-        return id
 
     def _get_urgency(self, hints: dict) -> str:
         _hint: int = hints.get("urgency", 0)
@@ -415,7 +414,3 @@ class NotificationsDbusService(dbus.service.Object):
             {"id": str(actions[i]), "label": str(actions[i + 1])}
             for i in range(0, len(actions), 2)
         ]
-
-
-NotificationsService()
-NotificationsDbusService()
