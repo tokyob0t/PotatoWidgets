@@ -50,3 +50,6 @@ class Entry(Gtk.Entry, BasicProps):
 
     def set_placeholder_text(self, text: Any = "") -> None:
         super().set_placeholder_text(str(text))
+
+    def set_text(self, text: Any = "") -> None:
+        super().set_text(str(text))

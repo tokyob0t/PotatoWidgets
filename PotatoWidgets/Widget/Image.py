@@ -31,14 +31,26 @@ class Image(Gtk.Image, BasicProps):
             size=0,
         )
 
-        self.set_image(path, size)
+        self.__size = [0, 0]
+        self.__path = ""
+        self.set_size(size)
+        self.set_image(path)
+
         attributes(self) if attributes else None
 
-    def set_image(self, path: str, size: Union[int, List[int]]) -> None:
-        size = [size, size] if isinstance(size, (int)) else size
+    def set_size(self, size: Union[int, List[int]]) -> None:
+
+        self.__size = [size, size] if isinstance(size, (int)) else size
+
+        self.set_image(self.__path)
+
+    def set_image(self, path: str) -> None:
 
         pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
-            filename=path, width=size[0], height=size[1], preserve_aspect_ratio=True
+            filename=path,
+            width=self.__size[0],
+            height=self.__size[1],
+            preserve_aspect_ratio=True,
         )
 
         self.set_from_pixbuf(pixbuf)

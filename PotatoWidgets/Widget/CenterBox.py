@@ -9,8 +9,6 @@ class CenterBox(Box):
         center: Gtk.Widget,
         end: Gtk.Widget,
         orientation: str = "h",
-        spacing: int = 0,
-        homogeneous: bool = False,
         size: Union[int, str, List[Union[int, str]]] = [5, 5],
         attributes: Callable = lambda self: self,
         css: str = "",
@@ -23,8 +21,6 @@ class CenterBox(Box):
     ) -> None:
         super().__init__(
             orientation=orientation,
-            spacing=spacing,
-            homogeneous=homogeneous,
             size=size,
             attributes=attributes,
             css=css,
@@ -43,7 +39,6 @@ class CenterBox(Box):
         self.start_widget = start
         self.center_widget = center
         self.end_widget = end
-        # self.show_all()
 
     @property
     def start_widget(self) -> Union[Gtk.Widget, None]:
