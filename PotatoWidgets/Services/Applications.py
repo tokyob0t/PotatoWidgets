@@ -18,7 +18,7 @@ class App(dict):
         super().__init__()
 
         self._app: Gio.DesktopAppInfo = app
-        self._context = Gio.AppLaunchContext().new()
+        # self._context = Gio.AppLaunchContext().new()
 
         self._keywords: str = " ".join(
             [
@@ -93,7 +93,7 @@ class App(dict):
         """Launches the application."""
         # return self._app.launch()
 
-        _proc = Gio.Subprocess.new(
+        _proc: Gio.Subprocess = Gio.Subprocess.new(
             ["gtk-launch", self.desktop],
             flags=Gio.SubprocessFlags.STDOUT_SILENCE
             | Gio.SubprocessFlags.STDERR_SILENCE,
@@ -108,10 +108,11 @@ class Applications(Service):
 
     def __init__(self) -> None:
         """Initializes an instance of Applications."""
-        self._json = self._load_json()
-        self._preferred = self._json.get("preferred", [])
-        self._blacklist = self._json.get("blacklist", [])
-        self._whitelist = self._json.get("whitelist", [])
+
+        self._json: Dict[str, List[Union[str, None]]] = self._load_json()
+        self._preferred: List[Union[str, None]] = self._json.get("preferred", [])
+        self._blacklist: List[Union[str, None]] = self._json.get("blacklist", [])
+        self._whitelist: List[Union[str, None]] = self._json.get("whitelist", [])
 
         self._all = [
             App(i)
@@ -119,17 +120,13 @@ class Applications(Service):
             if (
                 i.should_show()
                 and not any(
-                    j.name.lower() in i.get_name().lower()
-                    for j in self.get_blacklist()
-                    if j
+                    j.lower() in i.get_name().lower() for j in self.get_blacklist() if j
                 )
             )
-            or any(
-                j.name.lower() in i.get_name().lower()
-                for j in self.get_whitelist()
-                if j
-            )
+            or any(j.lower() in i.get_name().lower() for j in self.get_whitelist() if j)
         ]
+
+        self._all.sort(key=lambda app: app.name)
 
     def get_all(self) -> list[App]:
         """Gets all the applications."""
@@ -142,11 +139,11 @@ class Applications(Service):
         Args:
             name (str): The name of the application to add.
         """
-        if name not in self._json["preferred"]:
-            self._json["preferred"].append(name)
+        if name not in self._preferred:
+            self._preferred.append(name)
             self.reload()
 
-    def get_preferred(self) -> List[Union[None, App]]:
+    def get_preferred(self) -> List[Union[None, str]]:
         """Gets the preferred applications list."""
         return self._preferred
 
@@ -157,11 +154,11 @@ class Applications(Service):
         Args:
             name (str): The name of the application to add.
         """
-        if name not in self._json["blacklist"]:
-            self._json["blacklist"].append(name)
+        if name not in self._blacklist:
+            self._blacklist.append(name)
             self.reload()
 
-    def get_blacklist(self) -> List[Union[None, App]]:
+    def get_blacklist(self) -> List[Union[str, None]]:
         """Gets the blacklist of applications."""
         return self._blacklist
 
@@ -172,11 +169,11 @@ class Applications(Service):
         Args:
             name (str): The name of the application to add.
         """
-        if name not in self._json["whitelist"]:
-            self._json["whitelist"].append(name)
+        if name not in self._whitelist:
+            self._whitelist.append(name)
             self.reload()
 
-    def get_whitelist(self) -> List[Union[None, App]]:
+    def get_whitelist(self) -> List[Union[None, str]]:
         """Gets the whitelist of applications."""
         return self._whitelist
 
@@ -191,13 +188,14 @@ class Applications(Service):
             Union[List[App], List[None]]: List of matching applications.
         """
         _matches = [i for i in self.get_all() if keywords in i.keywords]
+
         if _matches:
             _matches.sort(key=lambda _app: _app.name)
             return _matches
         else:
             return []
 
-    def _load_json(self) -> dict:
+    def _load_json(self) -> Dict[str, List[Union[str, None]]]:
         """
         Loads JSON data from a file.
 
@@ -214,9 +212,9 @@ class Applications(Service):
     def _save_json(self) -> None:
         """Saves JSON data to a file."""
         data = {
-            "preferred": self._json.get("preferred", []),
-            "blacklist": self._json.get("blacklist", []),
-            "whitelist": self._json.get("whitelist", []),
+            "preferred": self._preferred,
+            "blacklist": self._blacklist,
+            "whitelist": self._whitelist,
         }
         with open(FILE_CACHE_APPS, "w") as file:
             json.dump(data, file, indent=1)
@@ -224,10 +222,10 @@ class Applications(Service):
     def reload(self) -> None:
         """Reloads the JSON data."""
         self._save_json()
-        self._json = self._load_json()
-        self._preferred = self._json["preferred"]
-        self._blacklist = self._json["blacklist"]
-        self._whitelist = self._json["whitelist"]
+        self._json: Dict[str, List[Union[str, None]]] = self._load_json()
+        self._preferred: List[Union[str, None]] = self._json["preferred"]
+        self._blacklist: List[Union[str, None]] = self._json["blacklist"]
+        self._whitelist: List[Union[str, None]] = self._json["whitelist"]
 
     def __str__(self) -> str:
         """Returns a string representation of the JSON data."""
