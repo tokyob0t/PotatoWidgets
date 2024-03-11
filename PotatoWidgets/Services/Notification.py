@@ -105,11 +105,7 @@ class NotificationsService(Service):
         "dismissed": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
         "closed": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
         "popup": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
-        "action": (
-            GObject.SignalFlags.RUN_FIRST,
-            None,
-            (int, str),
-        ),
+        "action": (GObject.SignalFlags.RUN_FIRST, None, (int, str)),
     }
 
     def __init__(self) -> None:
@@ -123,6 +119,39 @@ class NotificationsService(Service):
         self._dnd: bool = False
         self._timeout: int = 4500
         self._sort_all()
+
+    def _add_notif(self, notif: Notification) -> None:
+        self._notifications.append(notif)
+        self._popups.append(notif)
+
+        if not self.dnd:
+            self.emit("popup", notif.id)
+
+        self.emit("notified", notif.id)
+
+        notif.connect("dismiss", self._on_dismiss)
+        notif.connect("close", self._on_close)
+        notif.connect("action", self._on_action)
+
+        if self.timeout > 0:
+            wait(self.timeout, notif.dismiss)
+
+        self._save_json()
+
+    def _on_close(self, notif: Notification) -> None:
+        if notif in self.popups:
+            self._popups.remove(notif)
+        if notif in self.notifications:
+            self._notifications.remove(notif)
+
+        self.emit("closed", notif.id)
+
+    def _on_action(self, notif: Notification, action: str) -> None:
+        self.emit("action", notif.id, action)
+
+    def _on_dismiss(self, notif: Notification) -> None:
+        wait(50, lambda: self._popups.remove(notif))
+        self.emit("dismissed", notif.id)
 
     @property
     def timeout(self) -> int:
@@ -180,50 +209,6 @@ class NotificationsService(Service):
             self._sort(self._notifications)
         if self.popups:
             self._sort(self._popups)
-
-    def _add_notif(self, notif: Notification) -> None:
-        self._notifications.append(notif)
-        self._popups.append(notif)
-
-        if not self.dnd:
-            self.emit("popup", notif.id)
-
-        self.emit("notified", notif.id)
-
-        notif.connect(
-            "dismiss",
-            lambda n: (
-                self.emit("dismissed", n.id),
-                wait(50, lambda: self._popups.remove(n)),
-            ),
-        )
-
-        notif.connect(
-            "close",
-            lambda n: (
-                self.emit("closed", n.id),
-                wait(50, lambda: self._notifications.remove(n)),
-                wait(50, lambda: self._popups.remove(n)),
-            ),
-        )
-        notif.connect(
-            "action",
-            lambda n, action_id: self.emit("action", n.id, action_id),
-        )
-
-        if self.timeout > 0:
-            wait(self.timeout, notif.dismiss)
-
-        self._save_json()
-
-    def _close_notif(self, id: int) -> None:
-        _n_pop = self.get_popup(id)
-        _n_notif = self.get_notification(id)
-
-        if _n_pop:
-            wait(100 * id, lambda: self._popups.remove(_n_pop))
-        if _n_notif:
-            wait(100 * id, lambda: self._notifications.remove(_n_notif))
 
     def _search(
         self, array: List[Union[Notification, None]], target_id: int
@@ -308,11 +293,10 @@ class NotificationsDbusService(dbus.service.Object):
         super().__init__(bus_name, "/org/freedesktop/Notifications")
         self._instance: NotificationsService = NotificationsService()
 
+        self._instance.connect("closed", lambda _, id: self.NotificationClosed(id, 2))
         self._instance.connect(
             "action", lambda _, id, action_id: self.InvokeAction(id, action_id)
         )
-        self._instance.connect("closed", lambda _, id: self.NotificationClosed(id, 2))
-        self._instance.connect("action", self.ActionInvoked)
 
     #
     # Methods
@@ -380,12 +364,13 @@ class NotificationsDbusService(dbus.service.Object):
     #
     # Signals
     #
+
     @dbus.service.signal("org.freedesktop.Notifications", signature="us")
     def ActionInvoked(self, id: int, action: str) -> Tuple[int, str]:
         return (id, action)
 
     @dbus.service.signal("org.freedesktop.Notifications", signature="uu")
-    def NotificationClosed(self, id: int, reason: int) -> Tuple[int, int]:
+    def NotificationClosed(self, id: int, reason: int = 2) -> Tuple[int, int]:
         return (id, reason)
 
     # Other Methods
