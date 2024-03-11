@@ -110,7 +110,6 @@ class NotificationsService(Service):
             None,
             (int, str),
         ),
-        "notifications": (GObject.SignalFlags.RUN_FIRST, None, (list,)),
     }
 
     def __init__(self) -> None:
@@ -175,46 +174,6 @@ class NotificationsService(Service):
 
     def get_popups(self) -> List[Union[Notification, None]]:
         return self._popups
-
-    def _load_json(self) -> Dict[str, Union[bool, List[Union[Notification, None]]]]:
-        try:
-            with open(FILE_CACHE_NOTIF, "r") as file:
-                data = json.load(file)
-                if data["popups"]:
-                    data["popups"] = []
-                if data["notifications"]:
-                    data["notifications"] = [
-                        Notification(
-                            id=i["id"],
-                            name=i["name"],
-                            image=i["image"],
-                            summary=i["summary"],
-                            body=i["body"],
-                            urgency=i["urgency"],
-                            actions=i["actions"],
-                            hints=i["hints"],
-                            timeout=i["timeout"],
-                        )
-                        for i in data["notifications"]
-                    ]
-                return data
-
-        except json.decoder.JSONDecodeError:
-            return {
-                "dnd": False,
-                "popups": [],
-                "notifications": [],
-            }
-
-    def _save_json(self) -> None:
-        data = {
-            "dnd": self.dnd,
-            "popups": [i.json() for i in self.popups if i],
-            "notifications": [i.json() for i in self.notifications if i],
-        }
-
-        with open(FILE_CACHE_NOTIF, "w") as file:
-            json.dump(data, file, indent=1)
 
     def _sort_all(self) -> None:
         if self.notifications:
@@ -291,7 +250,7 @@ class NotificationsService(Service):
 
     def clear(self) -> None:
         if self.notifications:
-            for i in range(len(self._notifications)):
+            for i in range(len(self.notifications)):
                 notif = self._notifications[i]
 
                 if notif:
@@ -300,6 +259,46 @@ class NotificationsService(Service):
         self._notifications = []
         self._popups = []
         self._save_json()
+
+    def _load_json(self) -> Dict[str, Union[bool, List[Union[Notification, None]]]]:
+        try:
+            with open(FILE_CACHE_NOTIF, "r") as file:
+                data = json.load(file)
+                if data["popups"]:
+                    data["popups"] = []
+                if data["notifications"]:
+                    data["notifications"] = [
+                        Notification(
+                            id=i["id"],
+                            name=i["name"],
+                            image=i["image"],
+                            summary=i["summary"],
+                            body=i["body"],
+                            urgency=i["urgency"],
+                            actions=i["actions"],
+                            hints=i["hints"],
+                            timeout=i["timeout"],
+                        )
+                        for i in data["notifications"]
+                    ]
+                return data
+
+        except json.decoder.JSONDecodeError:
+            return {
+                "dnd": False,
+                "popups": [],
+                "notifications": [],
+            }
+
+    def _save_json(self) -> None:
+        data = {
+            "dnd": self.dnd,
+            "popups": [i.json() for i in self.popups if i],
+            "notifications": [i.json() for i in self.notifications if i],
+        }
+
+        with open(FILE_CACHE_NOTIF, "w") as file:
+            json.dump(data, file)
 
 
 class NotificationsDbusService(dbus.service.Object):
