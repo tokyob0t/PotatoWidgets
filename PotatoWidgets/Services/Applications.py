@@ -142,8 +142,11 @@ class Applications(Service):
 
     def get_preferred(self) -> List[Union[None, App]]:
         """Gets the preferred applications list."""
-        return self._json.get("preferred", [])
-        #return [App(i) for i in self._json.get("preferred", [])]
+        return [
+            i
+            for i in self.get_all()
+            if any(j in i.keywords for j in self._json.get("preferred", []))
+        ]
 
     def add_blacklist(self, name: str) -> None:
         """
@@ -173,8 +176,11 @@ class Applications(Service):
 
     def get_whitelist(self) -> List[Union[None, App]]:
         """Gets the whitelist of applications."""
-        return self._json.get("whitelist", [])
-        #return [App(i) for i in self._json.get("whitelist", [])]
+        return [
+            i
+            for i in self.get_all()
+            if any(j.lower() in i.keywords for j in self._json.get("whitelist", []))
+        ]
 
     def query(self, keywords: str) -> Union[List[App], List[None]]:
         """
