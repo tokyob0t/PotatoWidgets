@@ -109,21 +109,23 @@ class Applications(Service):
     def __init__(self) -> None:
         """Initializes an instance of Applications."""
         self._json = self._load_json()
-        self._preferred = self._json["preferred"]
-        self._blacklist = self._json["blacklist"]
-        self._whitelist = self._json["whitelist"]
+        self._preferred = self._json.get("preferred", [])
+        self._blacklist = self._json.get("blacklist", [])
+        self._whitelist = self._json.get("whitelist", [])
 
         self._all = [
             App(i)
             for i in Gio.DesktopAppInfo.get_all()
             if (
                 i.should_show()
-                and not any(j.lower() in i.get_name().lower() for j in self._blacklist)
+                and not any(
+                    j.lower() in i.get_name().lower() for j in self.get_blacklist()
+                )
             )
-            or any(j.lower() in i.get_name().lower() for j in self._whitelist)
+            or any(j.lower() in i.get_name().lower() for j in self.get_whitelist())
         ]
 
-    def all(self) -> list[App]:
+    def get_all(self) -> list[App]:
         """Gets all the applications."""
         return self._all
 
@@ -137,9 +139,9 @@ class Applications(Service):
         self._json["preferred"].append(name)
         self.reload()
 
-    def get_preferred(self) -> list:
+    def get_preferred(self) -> List[Union[None, App]]:
         """Gets the preferred applications list."""
-        return self._json["preferred"]
+        return self._json.get("preferred", [])
 
     def add_blacklist(self, name: str) -> None:
         """
@@ -148,12 +150,28 @@ class Applications(Service):
         Args:
             name (str): The name of the application to add.
         """
+
         self._json["blacklist"].append(name)
         self.reload()
 
-    def get_blacklist(self) -> list:
+    def get_blacklist(self) -> List[Union[None, App]]:
         """Gets the blacklist of applications."""
-        return self._json["preferred"]
+        return self._json.get("blacklist", [])
+
+    def add_whitelist(self, name: str) -> None:
+        """
+        Adds an application to the whitelist.
+
+        Args:
+            name (str): The name of the application to add.
+        """
+
+        self._json["whitelist"].append(name)
+        self.reload()
+
+    def get_whitelist(self) -> List[Union[None, App]]:
+        """Gets the whitelist of applications."""
+        return self._json.get("whitelist", [])
 
     def query(self, keywords: str) -> Union[List[App], List[None]]:
         """
@@ -165,7 +183,7 @@ class Applications(Service):
         Returns:
             Union[List[App], List[None]]: List of matching applications.
         """
-        _matches = [i for i in self.all() if keywords in i.keywords]
+        _matches = [i for i in self.get_all() if keywords in i.keywords]
         if _matches:
             _matches.sort(key=lambda _app: _app.name)
             return _matches
@@ -188,9 +206,9 @@ class Applications(Service):
     def _save_json(self) -> None:
         """Saves JSON data to a file."""
         data = {
-            "preferred": self._json["preferred"],
-            "blacklist": self._json["blacklist"],
-            "whitelist": self._json["whitelist"],
+            "preferred": self._json.get("preferred", []),
+            "blacklist": self._json.get("blacklist", []),
+            "whitelist": self._json.get("whitelist", []),
         }
         with open(FILE_CACHE_APPS, "w") as file:
             json.dump(data, file, indent=1)
