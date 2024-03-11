@@ -250,10 +250,10 @@ class Window(Gtk.Window):
         _width = parse_screen_size(width, screen[0])
         _height = parse_screen_size(height, screen[1])
 
-        self._size = [max(_width, 10), max(_height, 10)]
+        self._size = [max(_width, 1), max(_height, 1)]
 
-        self.set_size_request(_width, _height)
-        self.resize(_width, _height)
+        self.set_size_request(self._size[0], self._size[1])
+        self.resize(self._size[0], self._size[1])
 
     def bind(self, var: Union[Listener, Variable, Poll], callback: Callable) -> None:
         var.bind(callback)
