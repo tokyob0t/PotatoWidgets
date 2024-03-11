@@ -59,12 +59,16 @@ def GenerateApp(entry):
 
 AppQuery = Variable("")
 
+SortedAppsByName = Applications().get_all()
+SortedAppsByName.sort(key=lambda app: app.name)
+
+
 AppsList = Widget.Scroll(
     hexpand=True,
     vexpand=True,
     children=Widget.Box(
         orientation="v",
-        children=[GenerateApp(app) for app in Applications().get_all()],
+        children=[GenerateApp(app) for app in SortedAppsByName],
     ),
 )
 
