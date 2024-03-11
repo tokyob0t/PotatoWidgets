@@ -128,7 +128,7 @@ class Applications(Service):
 
         self._all.sort(key=lambda app: app.name)
 
-    def get_all(self) -> list[App]:
+    def get_all(self) -> Union[List[App], List[None]]:
         """Gets all the applications."""
         return self._all
 
@@ -177,7 +177,7 @@ class Applications(Service):
         """Gets the whitelist of applications."""
         return self._whitelist
 
-    def query(self, keywords: str) -> Union[List[App], List[None]]:
+    def query(self, keywords: str) -> List[Union[App, None]]:
         """
         Queries applications based on keywords.
 
@@ -187,13 +187,8 @@ class Applications(Service):
         Returns:
             Union[List[App], List[None]]: List of matching applications.
         """
-        _matches = [i for i in self.get_all() if keywords in i.keywords]
 
-        if _matches:
-            _matches.sort(key=lambda _app: _app.name)
-            return _matches
-        else:
-            return []
+        return [i for i in self.get_all() if i and keywords in i.keywords]
 
     def _load_json(self) -> Dict[str, List[Union[str, None]]]:
         """

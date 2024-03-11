@@ -110,6 +110,7 @@ class NotificationsService(Service):
             None,
             (int, str),
         ),
+        "notifications": (GObject.SignalFlags.RUN_FIRST, None, (list,)),
     }
 
     def __init__(self) -> None:
@@ -229,11 +230,27 @@ class NotificationsService(Service):
             self.emit("popup", notif.id)
 
         self.emit("notified", notif.id)
-        notif.connect("dismiss", lambda instance: self.emit("dismissed", instance.id))
-        notif.connect("close", lambda instance: self.emit("closed", instance.id))
+        self.emit("notifications", self.notifications)
+
+        notif.connect(
+            "dismiss",
+            lambda n: (
+                self.emit("dismissed", n.id),
+                wait(50, lambda: self._popups.remove(n)),
+            ),
+        )
+
+        notif.connect(
+            "close",
+            lambda n: (
+                self.emit("closed", n.id),
+                wait(50, lambda: self._notifications.remove(n)),
+                wait(50, lambda: self._popups.remove(n)),
+            ),
+        )
         notif.connect(
             "action",
-            lambda instance, action_id: self.emit("action", instance.id, action_id),
+            lambda n, action_id: self.emit("action", n.id, action_id),
         )
 
         if self.timeout > 0:
@@ -282,7 +299,6 @@ class NotificationsService(Service):
 
         self._notifications = []
         self._popups = []
-
         self._save_json()
 
 
@@ -292,13 +308,17 @@ class NotificationsDbusService(dbus.service.Object):
             "org.freedesktop.Notifications", bus=dbus.SessionBus()
         )
         super().__init__(bus_name, "/org/freedesktop/Notifications")
-        self._instance = NotificationsService()
+        self._instance: NotificationsService = NotificationsService()
 
         self._instance.connect(
             "action", lambda _, id, action_id: self.InvokeAction(id, action_id)
         )
         self._instance.connect("closed", lambda _, id: self.NotificationClosed(id, 2))
+        self._instance.connect("action", self.ActionInvoked)
 
+    #
+    # Methods
+    #
     @dbus.service.method(
         "org.freedesktop.Notifications", in_signature="", out_signature="ssss"
     )
@@ -353,20 +373,24 @@ class NotificationsDbusService(dbus.service.Object):
         self._instance._add_notif(notif)
         return _id
 
-    @dbus.service.signal("org.freedesktop.Notifications", signature="us")
-    def ActionInvoked(self, id: int, action: str) -> Tuple[int, str]:
-        return (id, action)
-
     @dbus.service.method(
         "org.freedesktop.Notifications", in_signature="us", out_signature=""
     )
     def InvokeAction(self, id: int, action: str) -> None:
         self.ActionInvoked(id, action)
 
+    #
+    # Signals
+    #
+    @dbus.service.signal("org.freedesktop.Notifications", signature="us")
+    def ActionInvoked(self, id: int, action: str) -> Tuple[int, str]:
+        return (id, action)
+
     @dbus.service.signal("org.freedesktop.Notifications", signature="uu")
     def NotificationClosed(self, id: int, reason: int) -> Tuple[int, int]:
         return (id, reason)
 
+    # Other Methods
     def _decode_image(self, app_image: str, hints: dict, notification_id: int) -> str:
         if app_image.startswith("file://") or GLib.file_test(
             app_image, GLib.FileTest.EXISTS
