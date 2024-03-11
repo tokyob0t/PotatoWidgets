@@ -64,7 +64,7 @@ AppsList = Widget.Scroll(
     vexpand=True,
     children=Widget.Box(
         orientation="v",
-        children=[GenerateApp(app) for app in Applications().all()],
+        children=[GenerateApp(app) for app in Applications().get_all()],
     ),
 )
 
