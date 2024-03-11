@@ -136,8 +136,9 @@ class Applications(Service):
         Args:
             name (str): The name of the application to add.
         """
-        self._json["preferred"].append(name)
-        self.reload()
+        if name not in self._json["preferred"]:
+            self._json["preferred"].append(name)
+            self.reload()
 
     def get_preferred(self) -> List[Union[None, App]]:
         """Gets the preferred applications list."""
@@ -150,9 +151,9 @@ class Applications(Service):
         Args:
             name (str): The name of the application to add.
         """
-
-        self._json["blacklist"].append(name)
-        self.reload()
+        if name not in self._json["blacklist"]:
+            self._json["blacklist"].append(name)
+            self.reload()
 
     def get_blacklist(self) -> List[Union[None, App]]:
         """Gets the blacklist of applications."""
@@ -165,9 +166,9 @@ class Applications(Service):
         Args:
             name (str): The name of the application to add.
         """
-
-        self._json["whitelist"].append(name)
-        self.reload()
+        if name not in self._json["whitelist"]:
+            self._json["whitelist"].append(name)
+            self.reload()
 
     def get_whitelist(self) -> List[Union[None, App]]:
         """Gets the whitelist of applications."""
