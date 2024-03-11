@@ -86,7 +86,8 @@ def PotatoLoop(confdir: str = DIR_CONFIG):
         PotatoDbusService(confdir)
         GlibLoop.run()
 
-    except:
+    except Exception as r:
+        print(r)
         GlibLoop.quit()
 
     finally:
