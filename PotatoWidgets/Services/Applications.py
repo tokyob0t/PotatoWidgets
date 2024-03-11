@@ -111,11 +111,16 @@ class Applications(Service):
         self._json = self._load_json()
         self._preferred = self._json["preferred"]
         self._blacklist = self._json["blacklist"]
+        self._whitelist = self._json["whitelist"]
+
         self._all = [
             App(i)
             for i in Gio.DesktopAppInfo.get_all()
-            if i.should_show()
-            and not any(i.get_name().lower() in j.lower() for j in self._blacklist)
+            if (
+                i.should_show()
+                and not any(j.lower() in i.get_name().lower() for j in self._blacklist)
+            )
+            or any(j.lower() in i.get_name().lower() for j in self._whitelist)
         ]
 
     def all(self) -> list[App]:
@@ -178,13 +183,14 @@ class Applications(Service):
             with open(FILE_CACHE_APPS, "r") as file:
                 return json.load(file)
         except json.decoder.JSONDecodeError:
-            return {"preferred": [], "blacklist": []}
+            return {"preferred": [], "blacklist": [], "whitelist": []}
 
     def _save_json(self) -> None:
         """Saves JSON data to a file."""
         data = {
             "preferred": self._json["preferred"],
             "blacklist": self._json["blacklist"],
+            "whitelist": self._json["whitelist"],
         }
         with open(FILE_CACHE_APPS, "w") as file:
             json.dump(data, file, indent=1)
@@ -195,6 +201,7 @@ class Applications(Service):
         self._json = self._load_json()
         self._preferred = self._json["preferred"]
         self._blacklist = self._json["blacklist"]
+        self._whitelist = self._json["whitelist"]
 
     def __str__(self) -> str:
         """Returns a string representation of the JSON data."""
