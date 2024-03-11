@@ -6,7 +6,7 @@ from ..Variable import Listener, Poll, Variable
 class Window(Gtk.Window):
     def __init__(
         self,
-        size: Union[int, str, List[Union[int, str]], List[int]] = 0,
+        size: List[Union[str, int]] = [0, 0],
         at: dict = {},
         position: str = "center",
         layer: str = "top",
