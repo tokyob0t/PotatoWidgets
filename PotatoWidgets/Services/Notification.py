@@ -189,7 +189,6 @@ class NotificationsService(Service):
             self.emit("popup", notif.id)
 
         self.emit("notified", notif.id)
-        self.emit("notifications", self.notifications)
 
         notif.connect(
             "dismiss",
