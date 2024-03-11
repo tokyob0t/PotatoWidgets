@@ -119,10 +119,16 @@ class Applications(Service):
             if (
                 i.should_show()
                 and not any(
-                    j.lower() in i.get_name().lower() for j in self.get_blacklist()
+                    j.name.lower() in i.get_name().lower()
+                    for j in self.get_blacklist()
+                    if j
                 )
             )
-            or any(j.lower() in i.get_name().lower() for j in self.get_whitelist())
+            or any(
+                j.name.lower() in i.get_name().lower()
+                for j in self.get_whitelist()
+                if j
+            )
         ]
 
     def get_all(self) -> list[App]:
@@ -142,11 +148,7 @@ class Applications(Service):
 
     def get_preferred(self) -> List[Union[None, App]]:
         """Gets the preferred applications list."""
-        return [
-            i
-            for i in self.get_all()
-            if any(j in i.keywords for j in self._json.get("preferred", []))
-        ]
+        return self._preferred
 
     def add_blacklist(self, name: str) -> None:
         """
@@ -161,7 +163,7 @@ class Applications(Service):
 
     def get_blacklist(self) -> List[Union[None, App]]:
         """Gets the blacklist of applications."""
-        return self._json.get("blacklist", [])
+        return self._blacklist
 
     def add_whitelist(self, name: str) -> None:
         """
@@ -176,11 +178,7 @@ class Applications(Service):
 
     def get_whitelist(self) -> List[Union[None, App]]:
         """Gets the whitelist of applications."""
-        return [
-            i
-            for i in self.get_all()
-            if any(j.lower() in i.keywords for j in self._json.get("whitelist", []))
-        ]
+        return self._whitelist
 
     def query(self, keywords: str) -> Union[List[App], List[None]]:
         """
@@ -209,6 +207,7 @@ class Applications(Service):
         try:
             with open(FILE_CACHE_APPS, "r") as file:
                 return json.load(file)
+
         except json.decoder.JSONDecodeError:
             return {"preferred": [], "blacklist": [], "whitelist": []}
 
