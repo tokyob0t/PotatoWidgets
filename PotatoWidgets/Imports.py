@@ -16,11 +16,10 @@ from dbus import SessionBus
 from dbus.mainloop.glib import DBusGMainLoop
 
 for n, v in {
-    # "Adw": "1",
     "Gdk": "3.0",
     "GdkPixbuf": "2.0",
     "Gio": "2.0",
-    "Glib": "2.0",
+    "GLib": "2.0",
     "GObject": "2.0",
     "Gtk": "3.0",
     "GtkLayerShell": "0.1",
@@ -31,9 +30,7 @@ for n, v in {
     except Exception as r:
         print(r)
 
-
-from gi.repository import Gtk  # Adw,
-from gi.repository import (Gdk, GdkPixbuf, Gio, GLib, GObject, GtkLayerShell,
-                           Pango)
+from gi.repository import (Gdk, GdkPixbuf, Gio, GLib, GObject, Gtk,
+                           GtkLayerShell, Pango)
 
 DBusGMainLoop(set_as_default=True)
