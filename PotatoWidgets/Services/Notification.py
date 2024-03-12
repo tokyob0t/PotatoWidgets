@@ -122,15 +122,14 @@ class NotificationsService(Service):
         self._sort_all()
 
     def _add_notif(self, notif: Notification) -> None:
+        self._count += 1
         self._notifications.append(notif)
         self._popups.append(notif)
 
-        self._count += 1
-
         if not self.dnd:
             self.emit("popup", notif.id)
-
         self.emit("notified", notif.id)
+        self.emit("count", self.count)
 
         notif.connect("dismiss", self._on_dismiss)
         notif.connect("close", self._on_close)
