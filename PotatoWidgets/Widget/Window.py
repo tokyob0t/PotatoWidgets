@@ -6,7 +6,7 @@ from ..Variable import Listener, Poll, Variable
 class Window(Gtk.Window):
     def __init__(
         self,
-        size: List[Union[str, int]] = [0, 0],
+        size: List[Union[str, int]] = [-1, -1],
         at: dict = {},
         position: str = "center",
         layer: str = "top",
@@ -250,8 +250,9 @@ class Window(Gtk.Window):
         _width = parse_screen_size(width, screen[0])
         _height = parse_screen_size(height, screen[1])
 
-        self._size = [max(_width, 1), max(_height, 1)]
+        self._size = [_width, _height]
 
+        self.set_default_size(self._size[0], self._size[1])
         self.set_size_request(self._size[0], self._size[1])
         self.resize(self._size[0], self._size[1])
 
