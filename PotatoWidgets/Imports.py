@@ -15,13 +15,23 @@ import gi
 from dbus import SessionBus
 from dbus.mainloop.glib import DBusGMainLoop
 
-gi.require_version("Gtk", "3.0")
-gi.require_version("Gdk", "3.0")
-gi.require_version("GtkLayerShell", "0.1")
-gi.require_version("GdkPixbuf", "2.0")
-gi.require_version("GObject", "2.0")
+for n, v in {
+    "Adw": "1",
+    "Gdk": "4.0",
+    "GdkPixbuf": "2.0",
+    "Gio": "2.0",
+    "Glib": "2.0",
+    "GObject": "2.0",
+    "Gtk": "4.0",
+    # "GtkLayerShell": "0.1",
+    "Pango": "1.0",
+}.items():
+    try:
+        gi.require_version(n, v)
+    except Exception as r:
+        print(r)
 
 
-from gi.repository import Gdk, GdkPixbuf, Gio, GLib, GObject, Gtk, GtkLayerShell, Pango
+from gi.repository import Adw, Gdk, GdkPixbuf, Gio, GLib, GObject, Gtk, Pango
 
 DBusGMainLoop(set_as_default=True)

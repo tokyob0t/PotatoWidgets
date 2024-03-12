@@ -3,7 +3,7 @@ from ..Variable import Listener, Poll, Variable
 from .Common import BasicProps, Events
 
 
-class EventBox(Gtk.EventBox, Events, BasicProps):
+class EventBox(Gtk.EventController, Events, BasicProps):
     def __init__(
         self,
         children: Union[Gtk.Widget, None] = None,
@@ -27,7 +27,7 @@ class EventBox(Gtk.EventBox, Events, BasicProps):
         vexpand: bool = False,
         visible: bool = True,
     ):
-        Gtk.EventBox.__init__(self)
+        Gtk.EventController.__init__(self)
 
         BasicProps.__init__(
             self,
