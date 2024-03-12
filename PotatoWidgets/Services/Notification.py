@@ -88,7 +88,7 @@ class Notification(GObject.Object):
             "body": self.body,
             "urgency": self.urgency,
             "actions": self.actions,
-            "hints": {},
+            "hints": self.hints,
             "timeout": self.timeout,
         }
 
@@ -106,12 +106,13 @@ class NotificationsService(Service):
         "closed": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
         "popup": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
         "action": (GObject.SignalFlags.RUN_FIRST, None, (int, str)),
+        "count": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
     }
 
     def __init__(self) -> None:
         super().__init__()
         self._json: Dict[str, Any] = self._load_json()
-        self._count: int = 0
+        self._count: int = self._json["count"]
         self._popups: List[Union[Notification, None]] = self._json["popups"]
         self._notifications: List[Union[Notification, None]] = self._json[
             "notifications"
@@ -123,6 +124,8 @@ class NotificationsService(Service):
     def _add_notif(self, notif: Notification) -> None:
         self._notifications.append(notif)
         self._popups.append(notif)
+
+        self._count += 1
 
         if not self.dnd:
             self.emit("popup", notif.id)
@@ -142,16 +145,22 @@ class NotificationsService(Service):
         if notif in self.popups:
             self._popups.remove(notif)
         if notif in self.notifications:
+            self._count -= 1
             self._notifications.remove(notif)
-
-        self.emit("closed", notif.id)
+            self.emit("closed", notif.id)
+            self.emit("count", self.count)
 
     def _on_action(self, notif: Notification, action: str) -> None:
         self.emit("action", notif.id, action)
 
     def _on_dismiss(self, notif: Notification) -> None:
-        wait(50, lambda: self._popups.remove(notif))
-        self.emit("dismissed", notif.id)
+        if notif in self.popups:
+            self._popups.remove(notif)
+            self.emit("dismissed", notif.id)
+
+    @property
+    def count(self) -> int:
+        return self._count
 
     @property
     def timeout(self) -> int:
@@ -161,6 +170,12 @@ class NotificationsService(Service):
     def timeout(self, new_timeout: Union[str, int]) -> None:
         self._timeout = parse_interval(new_timeout)
 
+    def set_timeout(self, new_timeout: Union[str, int]) -> None:
+        self.timeout = new_timeout
+
+    def get_timeout(self) -> int:
+        return self.timeout
+
     @property
     def dnd(self) -> bool:
         return self._dnd
@@ -168,6 +183,12 @@ class NotificationsService(Service):
     @dnd.setter
     def dnd(self, new_value: bool) -> None:
         self._dnd = new_value
+
+    def get_dnd(self) -> bool:
+        return self.dnd
+
+    def set_dnd(self, new_value: bool) -> None:
+        self.dnd = new_value
 
     @property
     def notifications(self) -> List[Union[Notification, None]]:
@@ -244,7 +265,9 @@ class NotificationsService(Service):
         self._popups = []
         self._save_json()
 
-    def _load_json(self) -> Dict[str, Union[bool, List[Union[Notification, None]]]]:
+    def _load_json(
+        self,
+    ) -> Dict[str, Union[bool, int, List[None], List[Notification]]]:
         try:
             with open(FILE_CACHE_NOTIF, "r") as file:
                 data = json.load(file)
@@ -270,6 +293,7 @@ class NotificationsService(Service):
         except json.decoder.JSONDecodeError:
             return {
                 "dnd": False,
+                "count": 0,
                 "popups": [],
                 "notifications": [],
             }
@@ -277,7 +301,8 @@ class NotificationsService(Service):
     def _save_json(self) -> None:
         data = {
             "dnd": self.dnd,
-            "popups": [i.json() for i in self.popups if i],
+            "count": self.count,
+            "popups": [],
             "notifications": [i.json() for i in self.notifications if i],
         }
 
