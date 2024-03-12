@@ -16,14 +16,14 @@ from dbus import SessionBus
 from dbus.mainloop.glib import DBusGMainLoop
 
 for n, v in {
-    "Adw": "1",
-    "Gdk": "4.0",
+    # "Adw": "1",
+    "Gdk": "3.0",
     "GdkPixbuf": "2.0",
     "Gio": "2.0",
     "Glib": "2.0",
     "GObject": "2.0",
-    "Gtk": "4.0",
-    # "GtkLayerShell": "0.1",
+    "Gtk": "3.0",
+    "GtkLayerShell": "0.1",
     "Pango": "1.0",
 }.items():
     try:
@@ -32,6 +32,8 @@ for n, v in {
         print(r)
 
 
-from gi.repository import Adw, Gdk, GdkPixbuf, Gio, GLib, GObject, Gtk, Pango
+from gi.repository import Gtk  # Adw,
+from gi.repository import (Gdk, GdkPixbuf, Gio, GLib, GObject, GtkLayerShell,
+                           Pango)
 
 DBusGMainLoop(set_as_default=True)
