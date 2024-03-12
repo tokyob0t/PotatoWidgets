@@ -88,7 +88,7 @@ class Notification(GObject.Object):
             "body": self.body,
             "urgency": self.urgency,
             "actions": self.actions,
-            "hints": self.hints,
+            "hints": {},
             "timeout": self.timeout,
         }
 
