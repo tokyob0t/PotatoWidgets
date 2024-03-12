@@ -259,9 +259,10 @@ class NotificationsService(Service):
 
                 if notif:
                     wait(100 * notif.id, notif.close)
-
+        self._count = 0
         self._notifications = []
         self._popups = []
+        self.emit("count", self.count)
         self._save_json()
 
     def _load_json(
