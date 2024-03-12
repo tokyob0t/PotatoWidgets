@@ -31,8 +31,12 @@ class Notification(GObject.Object):
         self._body: str = str(body)
         self._actions: list = list(actions)
         self._urgency: str = str(urgency)
-        self._hints: Dict[str, Any] = dict(hints)
         self._timeout: int = int(timeout)
+
+        if "image-data" in dict(hints):
+            del hints["image-data"]
+
+        self._hints: Dict[str, Any] = dict(hints)
 
     def dismiss(self) -> None:
         self.emit("dismiss")
