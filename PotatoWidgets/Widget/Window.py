@@ -22,12 +22,12 @@ class Window(Gtk.Window):
         self._wayland_display = bool(GLib.getenv("WAYLAND_DISPLAY"))
         self.monitor = monitor
         self.namespace = namespace
+        self.set_title(self.namespace)
 
         if self._wayland_display:
             GtkLayerShell.init_for_window(self)
             GtkLayerShell.set_namespace(self, self.namespace)
         else:
-            self.set_title(self.namespace)
             self.set_wmclass("potatowindow", "PotatoWindow")
             self.set_app_paintable(True)
             self.set_visual(
