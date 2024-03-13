@@ -2,6 +2,7 @@ from ..Imports import *
 
 DIR_HOME: str = GLib.getenv("HOME")
 DIR_CONFIG: str = DIR_HOME + "/.config"
+DIR_CONFIG_POTATO: str = DIR_CONFIG + "/potato"
 DIR_CURRENT: str = GLib.get_current_dir() or (DIR_CONFIG + "/potato")
 
 

@@ -1,16 +1,17 @@
+from PotatoWidgets.Env.Env import DIR_CONFIG_POTATO
 from PotatoWidgets.Services.Service import Service
 
-from .. import Widget
 from ..Env import *
 from ..Imports import *
 from ..Services import (Applications, NotificationsDbusService,
                         NotificationsService)
 from ..Style import Style
-from ..Variable import Variable
+from ..Variable import *
+from ..Widget import *
 
 
 class PotatoDbusService(dbus.service.Object):
-    def __init__(self, confdir):
+    def __init__(self, confdir: str):
 
         bus_name = dbus.service.BusName(
             "com.T0kyoB0y.PotatoWidgets", bus=dbus.SessionBus()
@@ -25,6 +26,14 @@ class PotatoDbusService(dbus.service.Object):
             DATA = {"windows": [], "functions": [], "variables": []}
 
         self.data = {
+            """
+                Dict[
+                    str,
+                    List[
+                        Dict[str, Union[str, Union[Window, Callable, Variable, Listener, Poll]]]
+                    ],
+                ]
+            """
             "windows": [
                 {
                     "name": win.__name__,
@@ -112,7 +121,7 @@ class PotatoDbusService(dbus.service.Object):
         "com.T0kyoB0y.PotatoWidgets", in_signature="ss", out_signature=""
     )
     def WindowAction(self, action: str, window_name: str) -> None:
-        window: Union[Widget.Window, None] = next(
+        window: Union[Window, None] = next(
             (i["win"] for i in self.data["windows"] if i["name"] == window_name), None
         )
         if window is not None:
@@ -137,7 +146,7 @@ class PotatoDbusService(dbus.service.Object):
                 variable.set_value(_type(value))
 
 
-def PotatoLoop(confdir: str = DIR_CONFIG) -> NoReturn:
+def PotatoLoop(confdir: str = DIR_CONFIG_POTATO) -> NoReturn:
 
     GLibLoop: GLib.MainLoop = GLib.MainLoop()
 
