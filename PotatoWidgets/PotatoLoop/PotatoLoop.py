@@ -18,8 +18,24 @@ class PotatoDbusService(dbus.service.Object):
         super().__init__(bus_name, "/com/T0kyoB0y/PotatoWidgets")
 
         try:
-            sys.path.append(confdir)
-            from . import DATA
+            module_name = GLib.path_get_basename(confdir)
+
+            if dir not in sys.path:
+                sys.path.append(confdir)
+
+            init_file = GLib.build_filenamev([dir, "__init__.py"])
+            spec = importlib.util.spec_from_file_location(module_name, init_file)
+
+            modulo = importlib.util.module_from_spec(spec)
+
+            try:
+                spec.loader.exec_module(modulo)
+            except Exception as r:
+                print(r)
+                return
+
+            if hasattr(modulo, "DATA"):
+                DATA = modulo.DATA
 
         except ModuleNotFoundError as r:
             print("Import Error: ")
