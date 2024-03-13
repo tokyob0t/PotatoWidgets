@@ -18,13 +18,23 @@ class Style(Service):
             except Exception as e:
                 print(f"Error transpiling SCSS:")
                 print(e)
-        try:
-            css_provider = Gtk.CssProvider()
-            css_provider.load_from_path(css_path)
+        else:
+            pass
 
+        try:
+            # Load Provider
+            css_provider = Gtk.CssProvider()
+            # Load File
+            css_provider.load_from_path(FILE_CACHE_CSS)
+
+            # Get Default Screen
             screen: Gdk.Screen = Gdk.Screen.get_default()
+            # Get StyleConext
             style_context: Gtk.StyleContext = Gtk.StyleContext()
-            style_context.add_provider_for_screen(screen, css_provider, 600)
+            # Load Provider
+            style_context.add_provider_for_screen(
+                screen=screen, provider=css_provider, priority=600
+            )
         except Exception as e:
             print(f"Error loading CSS file:")
             print(e)
