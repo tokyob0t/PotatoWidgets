@@ -21,8 +21,15 @@ class PotatoDbusService(dbus.service.Object):
             sys.path.append(confdir)
             from . import DATA
 
-        except:
+        except ModuleNotFoundError as r:
+            print("Import Error: ")
+            print(r)
             DATA = {"windows": [], "functions": [], "variables": []}
+
+        except Exception as r:
+
+            print("Error: ")
+            print(r)
 
         self.data = {
             """
