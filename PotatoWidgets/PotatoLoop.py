@@ -1,4 +1,3 @@
-from PotatoWidgets.Env.Env import DIR_CONFIG_POTATO
 from PotatoWidgets.Services.Service import Service
 
 from . import Widget
