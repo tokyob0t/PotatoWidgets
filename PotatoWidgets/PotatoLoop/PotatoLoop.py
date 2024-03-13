@@ -30,6 +30,7 @@ class PotatoDbusService(dbus.service.Object):
 
             print("Error: ")
             print(r)
+            exit(0)
 
         self.data = {
             """
