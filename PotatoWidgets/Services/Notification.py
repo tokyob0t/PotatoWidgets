@@ -132,6 +132,7 @@ class NotificationsService(Service):
 
         if not self.dnd:
             self.emit("popup", notif.id)
+
         self.emit("notified", notif.id)
         self.emit("count", self.count)
 

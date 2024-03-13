@@ -93,7 +93,8 @@ def wait(time_ms: Union[str, int], callback: Callable) -> int:
         callback()
         return False
 
-    return GLib.timeout_add(parse_interval(time_ms), on_timeout)
+    return GLib.timeout_add_once(parse_interval(time_ms), on_timeout)
+    # return GLib.timeout_add(parse_interval(time_ms), on_timeout)
 
 
 def lookup_icon(
