@@ -27,10 +27,7 @@ class PotatoDbusService(dbus.service.Object):
             DATA = {"windows": [], "functions": [], "variables": []}
 
         except Exception as r:
-
-            print("Error: ")
             print(r)
-            exit(0)
 
         self.data = {
             """
