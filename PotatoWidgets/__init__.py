@@ -1,6 +1,6 @@
+from . import Services, Widget
 from .Env import *
-from .Methods import *
+from .Methods import (get_screen_size, lookup_icon, parse_interval,
+                      parse_screen_size, wait)
 from .PotatoLoop import PotatoLoop
-from .Services import *
-from .Variable import *
-from .Widget import *
+from .Variable import Listener, Poll, Variable

@@ -1,5 +1,3 @@
-from PotatoWidgets.Services.Service import Service
-
 from . import Widget
 from .Env import *
 from .Imports import *
@@ -146,9 +144,10 @@ class PotatoDbusService(dbus.service.Object):
         "com.T0kyoB0y.PotatoWidgets", in_signature="ss", out_signature=""
     )
     def WindowAction(self, action: str, window_name: str) -> None:
-        window: Union[Window, None] = next(
+        window: Union[Widget.Window, None] = next(
             (i["win"] for i in self.data["windows"] if i["name"] == window_name), None
         )
+
         if window is not None:
             if action == "toggle":
                 window.toggle()

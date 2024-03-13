@@ -16,6 +16,4 @@ from .Revealer import Revealer
 from .Scale import Scale
 from .Scroll import Scroll
 from .Separator import Separator
-
-# from .ToggleButton import ToggleButton
 from .Window import Window
