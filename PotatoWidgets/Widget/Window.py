@@ -17,16 +17,32 @@ class Window(Gtk.Window):
         attributes: Callable = lambda self: self,
     ) -> None:
         Gtk.Window.__init__(self)
-        self._size = size
+        screen: tuple = get_screen_size(self.monitor)
 
-        self._wayland_display = bool(GLib.getenv("WAYLAND_DISPLAY"))
-        self.monitor = monitor
-        self.namespace = namespace
-        self.set_title(self.namespace)
+        _width: int = parse_screen_size(size[0], screen[0])
+        _height: int = parse_screen_size(
+            size[1] if len(size) >= 2 else size[0], screen[1]
+        )
+
+        self._size: List[int] = [max(_width, 1), max(_height, 1)]
+        self._wayland_display: bool = bool(GLib.getenv("WAYLAND_DISPLAY"))
+        self._monitor: int = monitor
+
+        if namespace != "gtk-layer-shell":
+            self._name: str = namespace
+        else:
+            # Hacky Stuff Again
+            _, _, _, text = traceback_extract_stack()[-2]
+            index = text.find("=")
+
+            if index != -1:
+                self._name: str = text[:index].strip()
+            else:
+                self._name: str = namespace
 
         if self._wayland_display:
             GtkLayerShell.init_for_window(self)
-            GtkLayerShell.set_namespace(self, self.namespace)
+            GtkLayerShell.set_namespace(self, self.__name__)
         else:
             self.set_wmclass("potatowindow", "PotatoWindow")
             self.set_app_paintable(True)
@@ -75,6 +91,7 @@ class Window(Gtk.Window):
                 self.set_keep_below(True)
 
         self.add(children) if children else None
+        self.set_title(self.__name__)
         self.set_size(size[0], size[1 if len(size) == 2 else 0])
         self.set_layer(layer)
         self.set_position(position)
@@ -274,8 +291,16 @@ class Window(Gtk.Window):
         else:
             self.open()
 
+    @property
+    def monitor(self) -> int:
+        return self._monitor
+
+    @property
+    def __name__(self) -> str:
+        return self._name
+
     def __str__(self) -> str:
-        return str(self.namespace)
+        return self.__name__
 
     def __repr__(self) -> str:
-        return str(self.namespace)
+        return self.__str__()

@@ -67,9 +67,7 @@ def main():
 
     parser.add_argument("--open", metavar="<WINDOW>", help="Open a window")
     parser.add_argument("--close", metavar="<WINDOW>", help="Close a window ")
-    parser.add_argument(
-        "--toggle", metavar="<WINDOW>", help="Toggle window with the given name"
-    )
+    parser.add_argument("--toggle", metavar="<WINDOW>", help="Toggle window")
 
     args = parser.parse_args()
 

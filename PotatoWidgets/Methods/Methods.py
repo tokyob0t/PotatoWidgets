@@ -1,4 +1,4 @@
-from .Imports import *
+from ..Imports import *
 
 
 def parse_interval(
@@ -89,7 +89,7 @@ def wait(time_ms: Union[str, int], callback: Callable) -> int:
         callback (Callable): The function to call after the specified time has elapsed.
     """
 
-    def on_timeout():
+    def on_timeout() -> bool:
         callback()
         return False
 

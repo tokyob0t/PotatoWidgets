@@ -1,16 +1,9 @@
-from .Imports import *
+from ..Env import FILE_CACHE_CSS
+from ..Imports import *
 
 
 class Style:
     def __init__(self, css_path):
-        self.cache_dir = GLib.build_filenamev(
-            [GLib.get_user_cache_dir(), "potatowidgets"]
-        )
-        GLib.mkdir_with_parents(self.cache_dir, 0o755)
-
-        css_filename = css_path.split("/")[-1].replace(".scss", ".css")
-        self.css_path = GLib.build_filenamev([self.cache_dir, css_filename])
-
         self.css_provider = Gtk.CssProvider()
         self.__transpile_scss(css_path)
         self.__load_css(self.css_provider, self.css_path)
@@ -27,17 +20,17 @@ class Style:
                     current_dir = out.decode("utf-8").replace("\n", "")
                     css_path = GLib.build_filenamev([current_dir, css_path[2:]])
 
-                # print(f"Transpiling SCSS: {css_path}")
                 GLib.spawn_command_line_sync(f"sassc {css_path} {self.css_path} ")
             except Exception as e:
-                print(f"Error transpiling SCSS:\n {e}")
+                print(f"Error transpiling SCSS:")
+                print(e)
 
     def __load_css(self, css_provider, css_path):
         try:
-            # print(f"Loading CSS file: {css_path}")
             css_provider.load_from_path(css_path)
         except Exception as e:
-            print(f"Error loading CSS file:\n {e}")
+            print(f"Error loading CSS file:")
+            print(e)
 
     def __apply_style(self, css_provider):
         screen = Gdk.Screen.get_default()

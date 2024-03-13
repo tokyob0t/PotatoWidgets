@@ -18,7 +18,17 @@ class Service(GObject.Object):
     def bind(self, signal: str, initial_value: Any = 0):
         new_var = Variable(initial_value)
 
+        # Hacky Stuff Again
+        _, _, _, text = traceback_extract_stack()[-2]
+        index = text.find("=")
+
+        if index != -1:
+            setattr(new_var, "_name", text[:index].strip())
+        else:
+            setattr(new_var, "_name", "")
+
         self.connect(signal, lambda _, value: new_var.set_value(value))
+
         return new_var
 
     def emit(self, *args, **kwargs):

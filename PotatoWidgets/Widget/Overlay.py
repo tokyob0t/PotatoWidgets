@@ -6,7 +6,7 @@ from .Common import BasicProps
 class Overlay(Gtk.Overlay, BasicProps):
     def __init__(
         self,
-        children: List[Gtk.Widget],
+        children: Union[List[Union[Gtk.Widget, None]], Any] = [],
         attributes=lambda self: self,
         css: str = "",
         halign: str = "fill",
@@ -30,11 +30,21 @@ class Overlay(Gtk.Overlay, BasicProps):
             classname=classname,
         )
 
-        self.add(children[0]) if children else None
+        if not children:
+            return
 
-        if children[1:]:
-            for i in children[1:]:
-                if i:
-                    self.add_overlay(i)
+        BaseWidget: Union[Gtk.Widget, None] = children.pop(
+            children.index(next(i for i in children if isinstance(i, Gtk.Widget)))
+        )
+        OverlayWidgets: Union[List[None], List[Gtk.Widget]] = [
+            i for i in children if isinstance(i, (Gtk.Widget))
+        ]
+
+        if BaseWidget:
+            self.add(BaseWidget)
+
+        if OverlayWidgets:
+            for i in OverlayWidgets:
+                self.add_overlay(i)
 
         attributes(self) if attributes else None

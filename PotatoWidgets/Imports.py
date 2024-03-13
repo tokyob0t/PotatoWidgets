@@ -7,7 +7,9 @@ import sys
 import threading
 from random import randint
 from re import sub as re_sub
-from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, Union
+from traceback import extract_stack as traceback_extract_stack
+from typing import (Any, Callable, Dict, List, Literal, NoReturn, Optional,
+                    Tuple, Union)
 
 import dbus
 import dbus.service

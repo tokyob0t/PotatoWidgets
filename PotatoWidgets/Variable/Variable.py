@@ -1,5 +1,5 @@
-from .Imports import *
-from .Methods import parse_interval
+from ..Imports import *
+from ..Methods import parse_interval
 
 
 class Variable(GObject.Object):
@@ -23,7 +23,16 @@ class Variable(GObject.Object):
             initial_value (Any): The initial value for the variable. Defaults to an empty string.
         """
         super().__init__()
-        self._value = initial_value
+        self._value: Any = initial_value
+
+        # Hacky Stuff
+        _, _, _, text = traceback_extract_stack()[-2]
+        index: int = text.find("=")
+
+        if index != -1:
+            self._name: str = text[:index].strip()
+        else:
+            self._name: str = ""
 
     def get_value(self) -> Any:
         """
@@ -76,6 +85,13 @@ class Variable(GObject.Object):
             "valuechanged",
             lambda out: GLib.idle_add(lambda: callback(out.get_value())),
         )
+
+    def emit(self, *args, **kwargs) -> None:
+        super().emit(*args, **kwargs)
+
+    @property
+    def __name__(self) -> str:
+        return self._name
 
     def __str__(self) -> str:
         """

@@ -320,10 +320,10 @@ class NotificationsDbusService(dbus.service.Object):
             "org.freedesktop.Notifications", bus=dbus.SessionBus()
         )
         super().__init__(bus_name, "/org/freedesktop/Notifications")
-        self._instance: NotificationsService = NotificationsService()
-
-        self._instance.connect("closed", lambda _, id: self.NotificationClosed(id, 2))
-        self._instance.connect(
+        NotificationsService().connect(
+            "closed", lambda _, id: self.NotificationClosed(id, 2)
+        )
+        NotificationsService().connect(
             "action", lambda _, id, action_id: self.InvokeAction(id, action_id)
         )
 
@@ -367,7 +367,7 @@ class NotificationsDbusService(dbus.service.Object):
         _id: int = self._get_id(id)
         _urgency: str = self._get_urgency(hints)
         _actions: list = self._get_actions(actions)
-        _image: str = self._decode_image(image, hints, id)
+        _image: str = image or self._get_image(hints, id)
 
         notif = Notification(
             name=name,
@@ -381,7 +381,7 @@ class NotificationsDbusService(dbus.service.Object):
             timeout=timeout,
         )
 
-        self._instance._add_notif(notif)
+        NotificationsService()._add_notif(notif)
         return _id
 
     @dbus.service.method(
@@ -402,51 +402,46 @@ class NotificationsDbusService(dbus.service.Object):
     def NotificationClosed(self, id: int, reason: int = 2) -> Tuple[int, int]:
         return (id, reason)
 
+    def _get_id(self, new_id) -> int:
+        if new_id != 0:
+            return new_id
+        else:
+            notifs = NotificationsService().notifications
+            if notifs and notifs[-1]:
+                return notifs[-1].id + 1
+            else:
+                return 1
+
+    def _get_urgency(self, hints: Dict[str, Any]) -> str:
+        _hint: int = hints.get("urgency", 0)
+        return {0: "low", 1: "normal", 2: "critical"}.get(_hint, "low")
+
+    def _get_actions(self, actions: List[str]) -> List[Union[Dict[str, str], None]]:
+        return [
+            {
+                "id": actions[i],
+                "label": actions[i + 1],
+            }
+            for i in range(0, len(actions), 2)
+        ]
+
     # Other Methods
-    def _decode_image(self, app_image: str, hints: dict, notification_id: int) -> str:
-        if app_image.startswith("file://") or GLib.file_test(
-            app_image, GLib.FileTest.EXISTS
-        ):
-            return app_image
+    def _get_image(self, hints: Dict[str, Any], id: int) -> str:
+        _hint: Union[list, None] = hints.get("image-data")
 
-        if app_image:
-            return app_image
-
-        if "image-data" in hints:
-            image_data = hints["image-data"]
-            image_path = f"{DIR_CACHE_NOTIF_IMAGES}/{notification_id}"
+        if _hint is not None:
+            image_path: str = f"{DIR_CACHE_NOTIF_IMAGES}/{id}.png"
 
             GdkPixbuf.Pixbuf.new_from_bytes(
-                width=image_data[0],
-                height=image_data[1],
-                has_alpha=image_data[3],
-                data=GLib.Bytes(image_data[6]),
+                width=_hint[0],
+                height=_hint[1],
+                rowstride=_hint[2],
+                has_alpha=_hint[3],
+                bits_per_sample=_hint[4],
+                data=GLib.Bytes(_hint[6]),
                 colorspace=GdkPixbuf.Colorspace.RGB,
-                rowstride=image_data[2],
-                bits_per_sample=image_data[4],
             ).savev(image_path, "png")
 
             return image_path
 
         return ""
-
-    def _get_id(self, new_id) -> int:
-        return (
-            new_id
-            if new_id != 0
-            else (
-                self._instance.notifications[-1].id + 1
-                if self._instance.notifications
-                else 1
-            )
-        )
-
-    def _get_urgency(self, hints: dict) -> str:
-        _hint: int = hints.get("urgency", 0)
-        return {0: "low", 1: "normal", 2: "critical"}.get(_hint, "low")
-
-    def _get_actions(self, actions: List[str]) -> List[Union[dict, None]]:
-        return [
-            {"id": str(actions[i]), "label": str(actions[i + 1])}
-            for i in range(0, len(actions), 2)
-        ]

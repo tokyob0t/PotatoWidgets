@@ -39,7 +39,6 @@ class Box(Gtk.Box, BasicProps):
         self.set_visible(visible)
         self.set_homogeneous(homogeneous) if homogeneous else None
         self.set_children(children)
-
         attributes(self) if attributes else None
 
         for key, value in locals().items():
