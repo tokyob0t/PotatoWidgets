@@ -141,7 +141,7 @@ class NotificationsService(Service):
         notif.connect("action", self._on_action)
 
         if self.timeout > 0:
-            GLib.timeout_add_once(self.timeout, notif.dismiss)
+            wait(self.timeout, notif.dismiss)
 
         self._save_json()
 
