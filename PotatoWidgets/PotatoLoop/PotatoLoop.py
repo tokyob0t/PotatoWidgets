@@ -6,8 +6,8 @@ from ..Imports import *
 from ..Services import (Applications, NotificationsDbusService,
                         NotificationsService)
 from ..Style import Style
-from ..Variable import *
-from ..Widget import *
+from ..Variable import Listener, Poll, Variable
+from ..Widget import Window
 
 
 class PotatoDbusService(dbus.service.Object):
@@ -40,7 +40,7 @@ class PotatoDbusService(dbus.service.Object):
                     "win": win,
                 }
                 for win in DATA["windows"]
-                if win.__name__
+                if isinstance(win, (Window)) and win.__name__
             ],
             "functions": [
                 {
@@ -48,7 +48,7 @@ class PotatoDbusService(dbus.service.Object):
                     "func": func,
                 }
                 for func in DATA["functions"]
-                if func.__name__
+                if isinstance(func, (Callable)) and func.__name__ != "<lambda>"
             ],
             "variables": [
                 {
@@ -56,7 +56,7 @@ class PotatoDbusService(dbus.service.Object):
                     "var": var,
                 }
                 for var in DATA["variables"]
-                if var.__name__
+                if isinstance(var, (Variable, Listener, Poll)) and var.__name__
             ],
         }
 
@@ -67,6 +67,7 @@ class PotatoDbusService(dbus.service.Object):
     #   RETURN SOMETHING
     #
     #
+
     @dbus.service.method(
         "com.T0kyoB0y.PotatoWidgets", in_signature="", out_signature="s"
     )
@@ -103,6 +104,7 @@ class PotatoDbusService(dbus.service.Object):
     #   NO RETURN
     #
     #
+
     @dbus.service.method(
         "com.T0kyoB0y.PotatoWidgets", in_signature="s", out_signature=""
     )
@@ -137,7 +139,7 @@ class PotatoDbusService(dbus.service.Object):
         "com.T0kyoB0y.PotatoWidgets", in_signature="sss", out_signature=""
     )
     def UpdateVar(self, var: str, value: str, value_type: str) -> None:
-        variable: Union[Variable, None] = next(
+        variable: Union[Variable, Listener, Poll, None] = next(
             (i["var"] for i in self.data["variables"] if i["name"] == var), None
         )
         if variable is not None:
