@@ -64,7 +64,7 @@ class PotatoDbusService(dbus.service.Object):
                     "name": win.__name__,
                     "win": win,
                 }
-                for win in DATA["windows"]
+                for win in DATA.get("windows", [])
                 if isinstance(win, (Widget.Window)) and win.__name__
             ],
             "functions": [
@@ -72,7 +72,7 @@ class PotatoDbusService(dbus.service.Object):
                     "name": func.__name__,
                     "func": func,
                 }
-                for func in DATA["functions"]
+                for func in DATA.get("functions", [])
                 if isinstance(func, (Callable)) and func.__name__ != "<lambda>"
             ],
             "variables": [
@@ -80,7 +80,7 @@ class PotatoDbusService(dbus.service.Object):
                     "name": var.__name__,
                     "var": var,
                 }
-                for var in DATA["variables"]
+                for var in DATA.get("variables", [])
                 if isinstance(var, (Variable, Listener, Poll)) and var.__name__
             ],
         }
