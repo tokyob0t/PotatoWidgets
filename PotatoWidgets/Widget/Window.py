@@ -17,16 +17,17 @@ class Window(Gtk.Window):
         attributes: Callable = lambda self: self,
     ) -> None:
         Gtk.Window.__init__(self)
+
+        self._wayland_display: bool = bool(GLib.getenv("WAYLAND_DISPLAY"))
+        self._monitor: int = monitor
+
         screen: tuple = get_screen_size(self.monitor)
 
         _width: int = parse_screen_size(size[0], screen[0])
         _height: int = parse_screen_size(
             size[1] if len(size) >= 2 else size[0], screen[1]
         )
-
         self._size: List[int] = [max(_width, 1), max(_height, 1)]
-        self._wayland_display: bool = bool(GLib.getenv("WAYLAND_DISPLAY"))
-        self._monitor: int = monitor
 
         if namespace != "gtk-layer-shell":
             self._name: str = namespace
