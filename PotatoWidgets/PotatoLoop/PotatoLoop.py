@@ -4,8 +4,7 @@ from PotatoWidgets.Services.Service import Service
 from ..Env import *
 from ..Imports import *
 from ..Services import (Applications, NotificationsDbusService,
-                        NotificationsService)
-from ..Style import Style
+                        NotificationsService, Style)
 from ..Variable import Listener, Poll, Variable
 from ..Widget import Window
 
@@ -60,7 +59,9 @@ class PotatoDbusService(dbus.service.Object):
             ],
         }
 
-        Style(f"{confdir[:-1] if confdir.endswith('/') else confdir}/style.scss")
+        Style.load_css(
+            f"{confdir[:-1] if confdir.endswith('/') else confdir}/style.scss"
+        )
 
     #
     #
