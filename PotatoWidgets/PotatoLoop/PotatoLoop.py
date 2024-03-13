@@ -151,6 +151,8 @@ class PotatoDbusService(dbus.service.Object):
 
 
 def PotatoLoop(confdir: str = DIR_CONFIG_POTATO) -> NoReturn:
+    if confdir.endswith("/"):
+        confdir = confdir[:-1]
 
     GLibLoop: GLib.MainLoop = GLib.MainLoop()
 
@@ -161,9 +163,7 @@ def PotatoLoop(confdir: str = DIR_CONFIG_POTATO) -> NoReturn:
         NotificationsDbusService()
         PotatoDbusService(confdir)
 
-        Style.load_css(
-            f"{confdir[:-1] if confdir.endswith('/') else confdir}/style.scss"
-        )
+        Style.load_css(f"{confdir}/style.scss")
         # Then run the MainLoop
         GLibLoop.run()
     except KeyboardInterrupt:
