@@ -1,12 +1,12 @@
 from PotatoWidgets.Env.Env import DIR_CONFIG_POTATO
 from PotatoWidgets.Services.Service import Service
 
-from ..Env import *
-from ..Imports import *
-from ..Services import (Applications, NotificationsDbusService,
-                        NotificationsService, Style)
-from ..Variable import Listener, Poll, Variable
-from ..Widget import Window
+from . import Widget
+from .Env import *
+from .Imports import *
+from .Services import (Applications, NotificationsDbusService,
+                       NotificationsService, Style)
+from .Variable import Listener, Poll, Variable
 
 
 class PotatoDbusService(dbus.service.Object):
@@ -66,7 +66,7 @@ class PotatoDbusService(dbus.service.Object):
                     "win": win,
                 }
                 for win in DATA["windows"]
-                if isinstance(win, (Window)) and win.__name__
+                if isinstance(win, (Widget.Window)) and win.__name__
             ],
             "functions": [
                 {

@@ -1,4 +1,4 @@
-from ..Imports import *
+from .Imports import *
 
 
 def parse_interval(

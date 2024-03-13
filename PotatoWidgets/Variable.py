@@ -1,5 +1,5 @@
-from ..Imports import *
-from ..Methods import parse_interval
+from .Imports import *
+from .Methods import parse_interval
 
 
 class Variable(GObject.Object):

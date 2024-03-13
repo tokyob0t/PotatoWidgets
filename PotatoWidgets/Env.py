@@ -1,4 +1,4 @@
-from ..Imports import *
+from .Imports import *
 
 DIR_HOME: str = GLib.getenv("HOME")
 DIR_CONFIG: str = DIR_HOME + "/.config"
