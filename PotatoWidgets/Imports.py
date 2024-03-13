@@ -5,9 +5,12 @@ import json
 import subprocess
 import sys
 import threading
+from importlib.machinery import ModuleSpec
+from importlib.util import module_from_spec, spec_from_file_location
 from random import randint
 from re import sub as re_sub
 from traceback import extract_stack as traceback_extract_stack
+from types import ModuleType
 from typing import (Any, Callable, Dict, List, Literal, NoReturn, Optional,
                     Tuple, Union)
 

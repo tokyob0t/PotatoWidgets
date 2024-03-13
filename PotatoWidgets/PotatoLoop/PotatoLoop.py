@@ -18,32 +18,38 @@ class PotatoDbusService(dbus.service.Object):
         super().__init__(bus_name, "/com/T0kyoB0y/PotatoWidgets")
 
         try:
-            module_name = GLib.path_get_basename(confdir)
+            module_name: str = confdir.split("/").pop(-1)
+            init_file: str = confdir + "/" + "__init__.py"
 
             if dir not in sys.path:
                 sys.path.append(confdir)
 
-            init_file = GLib.build_filenamev([dir, "__init__.py"])
-            spec = importlib.util.spec_from_file_location(module_name, init_file)
+            spec: Union[ModuleSpec, None] = spec_from_file_location(
+                module_name, init_file
+            )
 
-            modulo = importlib.util.module_from_spec(spec)
-
-            try:
-                spec.loader.exec_module(modulo)
-            except Exception as r:
-                print(r)
+            if not spec:
                 return
+
+            modulo: ModuleType = module_from_spec(spec)
+            spec.loader.exec_module(modulo)
 
             if hasattr(modulo, "DATA"):
                 DATA = modulo.DATA
+            else:
+                raise AttributeError
 
-        except ModuleNotFoundError as r:
-            print("Import Error: ")
-            print(r)
+        except FileNotFoundError:
+            print(f"File __init__.py not found in {confdir}")
             DATA = {"windows": [], "functions": [], "variables": []}
 
-        except Exception as r:
-            print(r)
+        except AttributeError:
+            print(f"Error accessing DATA attribute in {confdir}")
+            DATA = {"windows": [], "functions": [], "variables": []}
+
+        except Exception as e:
+            print(f"Unexpected error in {confdir}: {e}")
+            DATA = {"windows": [], "functions": [], "variables": []}
 
         self.data = {
             """
