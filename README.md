@@ -4,49 +4,6 @@
 
 #### PotatoWidgets is a Python library or framework designed to simplify interaction with Python and GTK. It focuses on being simple yet powerful, drawing inspiration from AGS and EWW. The syntax is designed to be declarative, providing an intuitive way to define GTK widgets
 
-### Syntax
-
-```py
-#!/usr/bin/python
-
-from datetime import datetime
-from PotatoWidgets import PotatoLoop, Poll, Widget
-
-time = Poll(interval="1s", callback=datetime.now)
-
-MyFirstWindow = Widget.Window(
-    at={"top": "20px", "left": "20", "right": 20},  # You can use any
-    size=[0, "5%"],  # even %
-    position="left top right",
-    children=Widget.Box(
-        classname="TESTBOX",
-        children=[
-            Widget.Label("Start"),
-            Widget.Label(
-                time,
-                # Horizontal align
-                halign="center",
-                # Horizontal expand
-                hexpand=True,
-            ),
-            Widget.Box(
-                orientation="v",
-                # Vertical align
-                valign="center",
-                children=[Widget.Label("Top"), Widget.Label("Bottom")],
-            ),
-        ],
-    ),
-)
-
-MyFirstWindow.open()
-
-if __name__ == "__main__":
-    PotatoLoop()
-```
-
-![img](./img/Preview.png)
-
 #### Installation
 
 ```bash
