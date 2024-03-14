@@ -132,3 +132,23 @@ def lookup_icon(
                 return icon_info.get_filename() if path else icon_info
 
     return lookup_icon(fallback) if path else lookup_icon(fallback, path=False)
+
+
+def getoutput(cmd: str) -> str:
+    """Execute a command and return its output or error message.
+
+    Args:
+        cmd (str): The command to execute.
+
+    Returns:
+        str: The output of the command if successful, otherwise an empty string.
+    """
+    stdout: bytes
+    stderr: bytes
+    state: int
+
+    try:
+        _, stdout, stderr, state = GLib.spawn_command_line_sync(cmd)
+        return stdout.decode() if state == 0 else stderr.decode()
+    except GLib.Error:
+        return ""

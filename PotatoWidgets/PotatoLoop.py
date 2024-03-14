@@ -169,10 +169,10 @@ def PotatoLoop(confdir: str = DIR_CONFIG_POTATO) -> NoReturn:
 
     try:
         # Init classes
+        PotatoDbusService(confdir)
         Applications()
         NotificationsService()
         NotificationsDbusService()
-        PotatoDbusService(confdir)
 
         Style.load_css(f"{confdir}/style.scss")
         # Then run the MainLoop
