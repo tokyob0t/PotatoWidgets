@@ -36,8 +36,8 @@ class Service(GObject.Object):
 
 
 class ServiceChildren(Service):
-    def __new__(cls):
-        pass
+    def __new__(cls, *args, **kwargs):
+        return super().__new__(cls)
 
     def __init__(self) -> None:
         super().__init__()
