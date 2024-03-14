@@ -1,62 +1,56 @@
-## PotatoWidgets
+### Welcome to PotatoWidgets :potato::sparkles:
 
-#### Wiki Under construction
+PotatoWidgets simplifies Python's interaction with GTK, offering a straightforward framework for creating graphical user interfaces effortlessly.
 
-#### PotatoWidgets is a Python library or framework designed to simplify interaction with Python and GTK. It focuses on being simple yet powerful, drawing inspiration from AGS and EWW. The syntax is designed to be declarative, providing an intuitive way to define GTK widgets
 
-#### Installation
+### Why PotatoWidgets?
+
+- **Pythonic Configuration**: Entirely configured in Python (and SCSS for added beauty), PotatoWidgets leverages Python's extensive library ecosystem, empowering you with all the tools you need for seamless development.
+  
+- **Built-in Functions and Services**: PotatoWidgets makes development easier by providing built-in functions and services to interact with your system, eliminating the need for external scripting.
+- **Various Examples**: Find illustrative examples for various functionalities on the project's wiki. If not available, you're welcome to contribute and help expand the library of examples. Check out the contributing guide to get started!
+
+### Installation
 
 ```bash
 pip install git+https://github.com/T0kyoB0y/PotatoWidgets.git
-
 ```
 
-##### ToDo
+### Peek into My Setup
 
-* Add More Services
-  * [X] Applications
-  * [X] Battery
-  * [X] Notifications
-  * [ ] Network
-  * [ ] Bluetooth
-  * [ ] Media
-  * [ ] Brightness
-  * [ ] Volume
-  * [ ] Tray
-  * [ ] What more?
+#### BSPWM
+![BSPWM Setup](./img/setup4.png)  
+
+#### Hyprland
+![Hyprland Setup 1](./img/setup.png)
+![Hyprland Setup 2](./img/setup2.png)
+![Hyprland Setup 3](./img/setup3.png)
+
+
+### Ready to Contribute?
+
+Thank you for considering contributing to PotatoWidgets! Here's how you can get started:
+
+#### Contributing to the Code
+
+1. **Fork the repository**: Click on the 'Fork' button on the top-right corner of this page.
+2. **Code**: Make your desired changes to the codebase.
+3. **Push your changes**: Push your changes to your forked repository.
+4. **Submit a pull request**: Go to the [original repository](https://github.com/T0kyoB0y/PotatoWidgets) and click on the 'New pull request' button. Describe your changes and submit the pull request.
+
+#### Contributing to the Wiki
+
+Wanna contribute to the wiki? Here are some ways you can help:
+
+- **Document new features**: Add documentation for new features.
+- **Update existing documentation**: Ensure that existing documentation is accurate and up-to-date.
+- **Write tutorials**: Create tutorials or guides to help users understand how to use PotatoWidgets effectively.
+- **Provide examples**: Add code snippets or full examples to illustrate usage.
+
+Feel free to add any examples or detailed explanations you think would be helpful!
+
+Thank you for your contributions! 🥔🚀
   
-* Add Dynamic variables
-  * [X] Poll      - Timeout + Callback
-  * [X] Variable - GObject Variable that notifies when it's value changes
-  * [X] Listener  - Callback then await for changes - *Beta*
 
-* Add more widgets
-  * [X] Label
-  * [X] Button
-  * [X] ToggleButton
-  * [X] Box
-  * [X] CheckBox
-  * [X] EventBox
-  * [X] Revealer
-  * [X] ToggleButton
-  * [X] CenterBox
-  * [X] Image
-  * [X] Icon
-  * [X] Scroll
-  * [ ] Potato
-
-* [X] Use GObject to detect dynamic variables in Widgets Props to update Widgets
-* [X] Add a CLI utility(?
-* [ ] Help x.x
-
-#### My Current Setup
-
-
-##### BSPWM
-![img](./img/setup4.png)  
-
-##### Hyprland
-![img](./img/setup.png)
-![img](./img/setup2.png)
-![img](./img/setup3.png)
-
+> "potato widgets can be resumed as 'the joke went to far, cannot stop now'"  
+> -- λ.midnight
