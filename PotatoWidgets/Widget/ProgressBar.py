@@ -46,7 +46,7 @@ class ProgressBar(Gtk.ProgressBar, BasicProps):
         attributes(self) if attributes else None
 
     def set_value(self, value: Union[int, float]) -> None:
-        if 0 < value > 100:
+        if 0 <= value <= 100:
             self.set_fraction(value / 100)
             self.set_text(str(value))
 
