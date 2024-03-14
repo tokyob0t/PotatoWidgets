@@ -35,7 +35,7 @@ class Service(GObject.Object):
         return super().emit(*args, **kwargs)
 
 
-class ServiceChildre(Service):
+class ServiceChildren(Service):
     def __new__(cls):
         pass
 

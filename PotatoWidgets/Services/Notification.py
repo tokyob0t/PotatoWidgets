@@ -3,7 +3,7 @@ from ..Methods import lookup_icon, parse_interval, wait
 from .Service import *
 
 
-class Notification(GObject.Object):
+class Notification(ServiceChildren):
     __gsignals__ = {
         "dismiss": (GObject.SignalFlags.RUN_FIRST, None, ()),
         "close": (GObject.SignalFlags.RUN_FIRST, None, ()),
@@ -202,21 +202,6 @@ class NotificationsService(Service):
     def popups(self) -> List[Union[Notification, None]]:
         return self._popups
 
-    def close_notification(self, id: int) -> None:
-        _n = self.get_notification(id)
-        if _n:
-            _n.close()
-
-    def dismiss_notification(self, id: int) -> None:
-        _n = self.get_notification(id)
-        if _n:
-            _n.dismiss()
-
-    def action_notification(self, id: int, action_id: str) -> None:
-        _n = self.get_notification(id)
-        if _n:
-            _n.action(action_id)
-
     def get_popup(self, id: int) -> Union[Notification, None]:
         return self._search(self._popups, id)
 
@@ -264,6 +249,7 @@ class NotificationsService(Service):
 
                 if notif:
                     wait(100 * notif.id, notif.close)
+
         self._count = 0
         self._notifications = []
         self._popups = []
