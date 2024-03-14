@@ -141,3 +141,6 @@ class BasicProps(Gtk.Widget):
         self, variable: Union[Listener, Poll, Variable], callback: Callable
     ) -> None:
         variable.bind(callback)
+
+    def attributes(self, callback: Callable) -> None:
+        callback(self)

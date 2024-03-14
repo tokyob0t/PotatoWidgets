@@ -46,8 +46,9 @@ class ProgressBar(Gtk.ProgressBar, BasicProps):
         attributes(self) if attributes else None
 
     def set_value(self, value: Union[int, float]) -> None:
-        self.set_fraction(value / 100)
-        self.set_text(str(value))
+        if 0 < value > 100:
+            self.set_fraction(value / 100)
+            self.set_text(str(value))
 
     def set_orientation(
         self, orientation: Union[Gtk.Orientation, str] = Gtk.Orientation.HORIZONTAL
