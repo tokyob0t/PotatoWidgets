@@ -33,3 +33,11 @@ class Service(GObject.Object):
 
     def emit(self, *args, **kwargs):
         return super().emit(*args, **kwargs)
+
+
+class ServiceChildre(Service):
+    def __new__(cls):
+        pass
+
+    def __init__(self) -> None:
+        super().__init__()
