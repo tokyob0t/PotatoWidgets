@@ -218,10 +218,8 @@ class Window(Gtk.Window):
             self.move(_x, _y + y)
 
     def set_exclusive(self, exclusivity: Union[int, bool]) -> None:
-        if self._disable_layer:
-            return
 
-        if self._wayland_display:
+        if self._wayland_display and not self._disable_layer:
             if exclusivity == True:
                 GtkLayerShell.auto_exclusive_zone_enable(self)
             elif isinstance(exclusivity, int):
@@ -232,10 +230,7 @@ class Window(Gtk.Window):
             pass
 
     def set_layer(self, layer: str) -> None:
-        if self._disable_layer:
-            return
-
-        if self._wayland_display:
+        if self._wayland_display and not self._disable_layer:
             _layer = {
                 "background": GtkLayerShell.Layer.BACKGROUND,
                 "bottom": GtkLayerShell.Layer.BOTTOM,
@@ -276,9 +271,6 @@ class Window(Gtk.Window):
             self.set_type_hint(_layer)
 
     def set_size(self, width: Union[int, str], height: Union[int, str]) -> None:
-        if self._disable_layer:
-            return
-
         screen = get_screen_size(self.monitor)
 
         _width = parse_screen_size(width, screen[0])
