@@ -2,7 +2,7 @@ from .Box import Box
 from .Button import Button
 from .CenterBox import CenterBox
 from .CheckBox import CheckBox
-# from .ComboBox import ComboBox
+from .ComboBox import ComboBox
 from .Entry import Entry
 from .EventBox import EventBox
 from .Fixed import Fixed

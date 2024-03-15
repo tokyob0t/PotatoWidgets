@@ -1,12 +1,11 @@
 from ..Imports import *
-from ..Variable import Listener, Poll, Variable
 from .Common import BasicProps
 
 
 class ComboBox(Gtk.ComboBoxText, BasicProps):
     def __init__(
         self,
-        children: list = [],
+        children: List[Any] = [],
         css: str = "",
         halign: str = "fill",
         valign: str = "fill",
@@ -29,6 +28,8 @@ class ComboBox(Gtk.ComboBoxText, BasicProps):
             visible=visible,
             classname=classname,
         )
-
-        [self.add(i) for i in children if isinstance(i, Gtk.Widget)]
-        [self.append_text(i) for i in children if isinstance(i, str)]
+        for i in children:
+            try:
+                self.append_text(str(i))
+            except:
+                continue
