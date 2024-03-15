@@ -53,7 +53,7 @@ class Window(Gtk.Window):
                 Gdk.Display.get_default().get_default_screen().get_rgba_visual()
             )
 
-            if layer not in ["normal"]:
+            if layer not in ["normal"] and not self._disable_layer:
                 self.set_skip_pager_hint(True)
                 self.set_skip_taskbar_hint(True)
                 self.set_decorated(False)
@@ -96,7 +96,10 @@ class Window(Gtk.Window):
         self.add(children) if children else None
         self.set_title(self.__name__)
         self.set_size(size[0], size[1 if len(size) == 2 else 0])
-        self.set_layer(layer)
+        if self._disable_layer:
+            self.set_layer("normal")
+        else:
+            self.set_layer(layer)
         self.set_position(position)
         self.set_exclusive(exclusive)
         self.set_margin(at)
