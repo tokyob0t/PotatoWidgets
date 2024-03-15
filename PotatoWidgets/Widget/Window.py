@@ -15,10 +15,12 @@ class Window(Gtk.Window):
         monitor: int = 0,
         namespace: str = "gtk-layer-shell",
         attributes: Callable = lambda self: self,
+        disable_layer: bool = False,
     ) -> None:
         Gtk.Window.__init__(self)
 
         self._wayland_display: bool = bool(GLib.getenv("WAYLAND_DISPLAY"))
+        self._disable_layer: bool = disable_layer
         self._monitor: int = monitor
 
         screen: tuple = get_screen_size(self.monitor)
@@ -41,7 +43,7 @@ class Window(Gtk.Window):
             else:
                 self._name: str = namespace
 
-        if self._wayland_display:
+        if self._wayland_display and not self._disable_layer:
             GtkLayerShell.init_for_window(self)
             GtkLayerShell.set_namespace(self, self.__name__)
         else:
@@ -102,6 +104,8 @@ class Window(Gtk.Window):
         attributes(self)
 
     def set_position(self, position: str) -> None:
+        if self._disable_layer:
+            return
         if self._wayland_display:
             if position == "center":
                 for j in [
@@ -154,6 +158,9 @@ class Window(Gtk.Window):
                 self.move(x, y)
 
     def set_margin(self, margins: dict) -> None:
+        if self._disable_layer:
+            return
+
         if self._wayland_display:
             width, height = get_screen_size(self.monitor)
 
@@ -201,6 +208,8 @@ class Window(Gtk.Window):
                         self.move_relative(x=value)
 
     def move_relative(self, x: int = 0, y: int = 0) -> None:
+        if self._disable_layer:
+            return
         if x != 0:
             _x, _y = self.get_position()
             self.move(_x + x, _y)
@@ -209,6 +218,9 @@ class Window(Gtk.Window):
             self.move(_x, _y + y)
 
     def set_exclusive(self, exclusivity: Union[int, bool]) -> None:
+        if self._disable_layer:
+            return
+
         if self._wayland_display:
             if exclusivity == True:
                 GtkLayerShell.auto_exclusive_zone_enable(self)
@@ -220,7 +232,8 @@ class Window(Gtk.Window):
             pass
 
     def set_layer(self, layer: str) -> None:
-        layer = layer.lower()
+        if self._disable_layer:
+            return
 
         if self._wayland_display:
             _layer = {
@@ -263,6 +276,9 @@ class Window(Gtk.Window):
             self.set_type_hint(_layer)
 
     def set_size(self, width: Union[int, str], height: Union[int, str]) -> None:
+        if self._disable_layer:
+            return
+
         screen = get_screen_size(self.monitor)
 
         _width = parse_screen_size(width, screen[0])
