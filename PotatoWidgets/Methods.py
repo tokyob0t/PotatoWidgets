@@ -14,6 +14,8 @@ def parse_interval(
     Returns:
         int: The parsed interval in milliseconds.
     """
+    unit: str
+    value: int
     try:
         if isinstance(interval, str):
             unit = interval[-1].lower()
@@ -49,7 +51,12 @@ def get_screen_size(
         tuple: A tuple containing the width and height of the specified monitor,
             or the fallback size if the display is not available or the index is out of range.
     """
+    display: Gdk.Display
+    monitor: Gdk.Monitor
+    geometry: Gdk.Rectangle
+
     display = Gdk.Display.get_default()
+
     if display and 0 <= monitor_index < display.get_n_monitors():
         monitor = display.get_monitor(monitor_index)
         geometry = monitor.get_geometry()
@@ -101,7 +108,7 @@ def lookup_icon(
     size: Literal[8, 16, 32, 64, 128] = 128,
     path: bool = True,
     fallback: str = "application-x-addon-symbolic",
-) -> str:
+) -> Union[str, Gtk.IconInfo]:
     """Look up an icon by name and return its file path or icon info.
 
     Args:
@@ -114,7 +121,12 @@ def lookup_icon(
     Returns:
         str: The file path of the icon if path=True, otherwise the icon info.
     """
-    if icon_name is not None:
+    icon_info: Gtk.IconInfo
+    theme: Gtk.IconTheme
+    filename: str
+    name: str
+
+    if icon_name:
         theme = Gtk.IconTheme.get_default()
 
         for name in [
@@ -128,10 +140,19 @@ def lookup_icon(
                 size,
                 Gtk.IconLookupFlags.USE_BUILTIN,
             )
-            if icon_info is not None:
-                return icon_info.get_filename() if path else icon_info
 
-    return lookup_icon(fallback) if path else lookup_icon(fallback, path=False)
+            if not icon_info:
+                continue
+
+            filename = icon_info.get_filename()
+
+            if path and filename:
+                return filename
+            else:
+                return icon_info
+    return (
+        lookup_icon(fallback, path=True) if path else lookup_icon(fallback, path=False)
+    )
 
 
 def getoutput(cmd: str) -> str:
@@ -146,178 +167,25 @@ def getoutput(cmd: str) -> str:
     stdout: bytes
     stderr: bytes
     state: int
+    line: str = ""
+    file: str = ""
+    _line: int = -1
+
+    try:
+        file, _line, _, line = traceback_extract_stack()[-2]
+    except:
+        pass
 
     try:
         _, stdout, stderr, state = GLib.spawn_command_line_sync(cmd)
-        print(
-            f"getoutput Method is deprecated, use Bash.get_output() instead, out= {stdout.decode()}"
-        )
+
+        if line:
+            print(
+                f"getoutput Method is deprecated, use Bash.get_output() instead, called on line {_line}, in file {file}"
+            )
+        else:
+
+            print(f"getoutput Method is deprecated, use Bash.get_output() instead")
         return stdout.decode() if state == 0 else stderr.decode()
-    except GLib.Error:
+    except:
         return ""
-
-
-class Bash:
-    @staticmethod
-    def expandvars(path: str) -> str:
-        """
-        Expand environment variables and user home directory in a given path.
-
-        Args:
-            path (str): The path containing environment variables and user home directory.
-
-        Returns:
-            str: The path with expanded variables and user home directory.
-
-        """
-        return os_expanduser(os_expandvars(path))
-
-    @staticmethod
-    def get_env(var: str) -> str:
-        """
-        Get the value of an environment variable.
-
-        Args:
-            var (str): The name of the environment variable.
-
-        Returns:
-            str: The value of the environment variable.
-
-        """
-        return GLib.getenv(variable=var)
-
-    @staticmethod
-    def run(cmd: Union[List[str], str]) -> int:
-        """
-        Run a command in the shell.
-
-        Args:
-            cmd (Union[List[str], str]): The command to run.
-
-        Returns:
-            int: The exit status of the command.
-
-        """
-        state: int
-        if isinstance(cmd, (list)):
-            cmd = [Bash.expandvars(i) for i in cmd]
-        elif isinstance(cmd, (str)):
-            cmd = Bash.expandvars(cmd)
-
-        try:
-            _, _, _, state = GLib.spawn_command_line_sync(cmd)
-            return state
-        except:
-            return -1
-
-    @staticmethod
-    def get_output(cmd: str) -> str:
-        """
-        Get the output of a command run in the shell.
-
-        Args:
-            cmd (str): The command to run.
-
-        Returns:
-            str: The output of the command.
-
-        """
-        stdout: bytes
-        stderr: bytes
-        state: int
-
-        cmd = Bash.expandvars(cmd)
-
-        try:
-            _, stdout, stderr, state = GLib.spawn_command_line_sync(cmd)
-            return stdout.decode() if state == 0 else stderr.decode()
-        except:
-            return ""
-
-    @staticmethod
-    def monitor_file(path: str, flags):
-        """
-        Monitor changes to a file.
-
-        Args:
-            path (str): The path to the file to monitor.
-            flags: Flags to specify monitoring behavior.
-
-        Returns:
-            Gio.FileMonitor: The file monitor object.
-
-        """
-        file: Gio.File
-        monitor: Gio.FileMonitor
-        file = Gio.File.new_for_path(path)
-        monitor = file.monitor(flags=Gio.FileMonitorFlags.NONE)
-        return monitor
-
-    @staticmethod
-    def popen(
-        cmd: Union[List[str], str],
-        stdout: Union[Callable, None] = None,
-        stderr: Union[Callable, None] = None,
-    ) -> Union[Gio.Subprocess, None]:
-        """
-        Open a subprocess to run a command.
-
-        Args:
-            cmd (Union[List[str], str]): The command to run.
-            stdout (Union[Callable, None], optional): Callback function for stdout. Defaults to None.
-            stderr (Union[Callable, None], optional): Callback function for stderr. Defaults to None.
-
-        Returns:
-            Union[Gio.Subprocess, None]: The subprocess object.
-
-        """
-        output: str
-        success: bool
-        argv: List[str]
-        proc: Gio.Subprocess
-        stdout_pipe: Gio.InputStream
-        stderr_pipe: Gio.InputStream
-        stdout_stream: Gio.DataInputStream
-        stderr_stream: Gio.DataInputStream
-
-        def read_stream(out: Gio.DataInputStream, callback: Callable):
-            def internal_callback(stdout: Gio.DataInputStream, res: Gio.Task):
-                nonlocal output
-                try:
-                    output = stdout.read_line_finish_utf8(res)[0]
-                    return (
-                        callback(output),
-                        stdout.read_line_async(
-                            io_priority=GLib.PRIORITY_LOW, callback=internal_callback
-                        ),
-                    )
-                except Exception as e:
-                    print(e)
-
-            out.read_line_async(
-                io_priority=GLib.PRIORITY_LOW, callback=internal_callback
-            )
-
-        if isinstance(cmd, str):
-            success, argv = GLib.shell_parse_argv(cmd)
-            if success and argv:
-                cmd = argv
-
-        if cmd:
-
-            proc = Gio.Subprocess.new(
-                argv=cmd,
-                flags=Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE,
-            )
-
-            if stdout is not None:
-                stdout_pipe = proc.get_stdout_pipe()
-                stdout_stream = Gio.DataInputStream.new(base_stream=stdout_pipe)
-                read_stream(stdout_stream, stdout)
-
-            if stderr is not None:
-                stderr_pipe = proc.get_stderr_pipe()
-                stderr_stream = Gio.DataInputStream.new(base_stream=stderr_pipe)
-                read_stream(stderr_stream, stderr)
-
-            return proc

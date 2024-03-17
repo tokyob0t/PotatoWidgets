@@ -36,6 +36,22 @@ class BatteryService(Service):
         self._interface = dbus.Interface(self._proxy, self._DBUS_PROPERTIES)
         self._interface.connect_to_signal("PropertiesChanged", self._get_all)
 
+    def bind(
+        self,
+        signal: Literal[
+            "available",
+            "percentage",
+            "state",
+            "icon-name",
+            "time-remaining",
+            "energy",
+            "energy-full",
+            "energy-rate",
+        ],
+        initial_value: Any = 0,
+    ):
+        return super().bind(signal, initial_value)
+
     def _get_all(self, *_) -> None:
 
         if not self._interface_prop("IsPresent"):

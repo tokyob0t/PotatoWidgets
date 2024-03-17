@@ -26,11 +26,13 @@ class Variable(GObject.Object):
         self._value: Any = initial_value
 
         # Hacky Stuff
-        _, _, _, text = traceback_extract_stack()[-2]
-        index: int = text.find("=")
+        line: str
+        index: int
+        _, _, _, line = traceback_extract_stack()[-2]
+        index = line.find("=")
 
         if index != -1:
-            self._name: str = text[:index].strip()
+            self._name: str = line[:index].strip()
         else:
             self._name: str = ""
 

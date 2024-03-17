@@ -1,10 +1,23 @@
 from setuptools import find_packages, setup
+from setuptools.command.install import install
+
+from PotatoWidgets import DIR_CONFIG_POTATO, GLib
+
+
+class InitConfigFiles(install):
+    def run(self):
+
+        install.run(self)
+
 
 setup(
     name="PotatoWidgets",
     version="1.2.8",
     packages=find_packages(),
     install_requires=["PyGObject"],
+    cmdclass={
+        "install": InitConfigFiles,
+    },
     entry_points={
         "console_scripts": [
             "potatocli = PotatoWidgets.Cli.__main__:main",

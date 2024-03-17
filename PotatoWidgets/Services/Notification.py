@@ -38,6 +38,13 @@ class Notification(ServiceChildren):
 
         self._hints: Dict[str, Any] = dict(hints)
 
+    def bind(
+        self,
+        signal: Literal["dismiss", "close", "action"],
+        initial_value: Any = 0,
+    ):
+        return super().bind(signal, initial_value)
+
     def dismiss(self) -> None:
         self.emit("dismiss")
 
@@ -124,6 +131,20 @@ class NotificationsService(Service):
         self._dnd: bool = False
         self._timeout: int = 4500
         self._sort_all()
+
+    def bind(
+        self,
+        signal: Literal[
+            "notified",
+            "dismissed",
+            "closed",
+            "popup",
+            "action",
+            "count",
+        ],
+        initial_value: Any = 0,
+    ):
+        return super().bind(signal, initial_value)
 
     def _add_notif(self, notif: Notification) -> None:
         self._count += 1

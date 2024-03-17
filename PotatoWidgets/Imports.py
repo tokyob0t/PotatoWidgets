@@ -19,6 +19,7 @@ import dbus.service
 import gi
 from dbus import SessionBus
 from dbus.mainloop.glib import DBusGMainLoop
+from gi._propertyhelper import Property
 
 for n, v in {
     "Gdk": "3.0",

@@ -35,11 +35,14 @@ class Window(Gtk.Window):
             self._name: str = namespace
         else:
             # Hacky Stuff Again
-            _, _, _, text = traceback_extract_stack()[-2]
-            index = text.find("=")
+            line: str
+            index: int
+
+            _, _, _, line = traceback_extract_stack()[-2]
+            index = line.find("=")
 
             if index != -1:
-                self._name: str = text[:index].strip()
+                self._name: str = line[:index].strip()
             else:
                 self._name: str = namespace
 
@@ -100,6 +103,7 @@ class Window(Gtk.Window):
             self.set_layer("normal")
         else:
             self.set_layer(layer)
+
         self.set_position(position)
         self.set_exclusive(exclusive)
         self.set_margin(at)

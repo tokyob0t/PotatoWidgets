@@ -9,10 +9,10 @@ class Scale(Gtk.Scale, BasicProps):
         min: int = 0,
         max: int = 100,
         value: int = 50,
-        onchange: Union[Callable, None] = None,
         inverted: bool = False,
         draw_value: bool = False,
         decimals: int = 0,
+        onchange: Union[Callable, None] = lambda value: value,
         attributes: Callable = lambda self: self,
         orientation: str = "h",
         css: str = "",
@@ -49,7 +49,8 @@ class Scale(Gtk.Scale, BasicProps):
         (
             self.connect(
                 "value-changed",
-                lambda x: onchange(round(x.get_value(), self._decimals)),
+                # lambda x: onchange(round(x.get_value(), self._decimals)),
+                lambda x: onchange(x.get_value()),
             )
             if onchange
             else None
