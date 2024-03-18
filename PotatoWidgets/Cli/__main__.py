@@ -92,7 +92,7 @@ def main():
     elif args.functions:
         iface = get_iface()
         list_functions(iface)
-    if args.variables:
+    elif args.variables:
         iface = get_iface()
         list_variables(iface)
     elif args.exec:
@@ -108,7 +108,7 @@ def main():
         iface = get_iface()
         window_action(iface, "toggle", args.toggle)
     else:
-        print("Usage: potatocli --help")
+        parser.print_help()
 
 
 if __name__ == "__main__":
