@@ -66,12 +66,6 @@ class PotatoDbusService(dbus.service.Object):
             ],
         }
 
-    #
-    #
-    #   RETURN SOMETHING
-    #
-    #
-
     @dbus.service.method(
         "com.T0kyoB0y.PotatoWidgets", in_signature="", out_signature="as"
     )
@@ -92,12 +86,6 @@ class PotatoDbusService(dbus.service.Object):
     )
     def ListVariables(self) -> List[str]:
         return [i["name"] for i in self.data["variables"]]
-
-    #
-    #
-    #   NO RETURN
-    #
-    #
 
     @dbus.service.method(
         "com.T0kyoB0y.PotatoWidgets", in_signature="s", out_signature="s"
@@ -159,6 +147,19 @@ class PotatoDbusService(dbus.service.Object):
 
 
 def PotatoLoop(confdir: str = DIR_CONFIG_POTATO) -> NoReturn:
+    """Starts the Potato application loop and initializes necessary services.
+
+    Args:
+        confdir (str): The directory path for configuration. Defaults to DIR_CONFIG_POTATO.
+
+    Returns:
+        NoReturn: This function does not return anything.
+
+    Raises:
+        KeyboardInterrupt: If the loop is interrupted by a keyboard event.
+        Exception: If any other exception occurs during the loop execution.
+    """
+
     if confdir.endswith("/"):
         confdir = confdir[:-1]
 

@@ -162,7 +162,7 @@ class NotificationsService(Service):
         notif.connect("action", self._on_action)
 
         if self.timeout > 0:
-            wait(self.timeout, notif.dismiss)
+            _ = wait(self.timeout, notif.dismiss)
 
         self._save_json()
 

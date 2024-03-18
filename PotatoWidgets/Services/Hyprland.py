@@ -50,25 +50,19 @@ class HyprlandService(Service):
         print(f"data: {data}")
         print()
 
-    def _read_stream(self, stream: Gio.DataInputStream, _) -> None:
+    def _read_stream(self, stream: Gio.DataInputStream, res: Gio.Task) -> None:
         signal: str
         data: str
         output: str
 
-        def internal_callback(stream: Gio.DataInputStream, res: Gio.Task):
-            nonlocal signal, data, output
+        try:
+            output = stream.read_line_finish_utf8(res)[0]
+            signal, data = output.split(">>")
+            self._handle_data_stream(signal, data)
 
-            try:
-                output = stream.read_line_finish_utf8(res)[0]
-                signal, data = output.split(">>")
-                self._handle_data_stream(signal, data)
-
-                return stream.read_line_async(
-                    io_priority=GLib.PRIORITY_LOW, callback=internal_callback
-                )
-            except Exception as e:
-                print(e)
+        except Exception as r:
+            print(r)
 
         return stream.read_line_async(
-            io_priority=GLib.PRIORITY_LOW, callback=internal_callback
+            io_priority=GLib.PRIORITY_LOW, callback=self._read_stream
         )
