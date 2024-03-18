@@ -1,18 +1,12 @@
 from modules import *
 
-from PotatoWidgets import GLib, PotatoLoop
-from PotatoWidgets.Services import (Applications, BatteryService,
-                                    HyprlandService, NotificationsDbusService,
-                                    NotificationsService)
+from PotatoWidgets import PotatoLoop
 
 
 def main() -> None:
-    def SpawnServices() -> None:
-
-    # PotatoLoop()
 
     MyTopbar.open()
-    GLib.MainLoop().run()
+    PotatoLoop()
 
 
 if __name__ == "__main__":
