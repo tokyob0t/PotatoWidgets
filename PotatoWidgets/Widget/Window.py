@@ -12,6 +12,7 @@ class Window(Gtk.Window):
         layer: str = "top",
         exclusive: Union[bool, int] = False,
         children: Gtk.Widget = Gtk.Box(),
+        focusable: Literal[True, False, "none", "on-demand", "exclusive"] = True,
         monitor: int = 0,
         namespace: str = "gtk-layer-shell",
         attributes: Callable = lambda self: self,
@@ -107,8 +108,24 @@ class Window(Gtk.Window):
         self.set_position(position)
         self.set_exclusive(exclusive)
         self.set_margin(at)
+        self.set_focusable(focusable)
         self.close()
         attributes(self)
+
+    def set_focusable(self, focusable: Union[str, bool]) -> None:
+        if self._disable_layer:
+            return
+        if self._wayland_display:
+            _mode = {
+                True: GtkLayerShell.KeyboardMode.EXCLUSIVE,
+                False: GtkLayerShell.KeyboardMode.NONE,
+                "none": GtkLayerShell.KeyboardMode.NONE,
+                "on-demand": GtkLayerShell.KeyboardMode.ON_DEMAND,
+                "exclusive": GtkLayerShell.KeyboardMode.EXCLUSIVE,
+            }.get(focusable, GtkLayerShell.KeyboardMode.NONE)
+            GtkLayerShell.set_keyboard_mode(self, _mode)
+        else:
+            self.set_can_focus(bool(focusable))
 
     def set_position(self, position: str) -> None:
         if self._disable_layer:

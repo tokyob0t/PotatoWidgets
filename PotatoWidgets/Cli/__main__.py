@@ -1,7 +1,10 @@
 from ..Imports import *
 
+iface: dbus.Interface
+
 
 def get_iface():
+    global iface
     try:
         session_bus = dbus.SessionBus()
         proxy = session_bus.get_object(
@@ -62,7 +65,7 @@ def window_action(iface, action, window_name):
 
 
 def main():
-
+    global iface
     parser = argparse.ArgumentParser(description="PotatoWidgets CLI")
 
     args_withoutmetavar: List[List[str]] = [
