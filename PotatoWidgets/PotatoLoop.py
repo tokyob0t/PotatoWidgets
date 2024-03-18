@@ -167,14 +167,18 @@ def PotatoLoop(confdir: str = DIR_CONFIG_POTATO) -> NoReturn:
 
     GLibLoop: GLib.MainLoop = GLib.MainLoop()
 
-    try:
+    def SpawnServices() -> None:
         # Init classes
-        PotatoDbusService(confdir)
         Applications()
         NotificationsService()
         NotificationsDbusService()
-
+        PotatoDbusService(confdir)
         Style.load_css(f"{confdir}/style.scss")
+
+    try:
+
+        GLib.Thread.new(SpawnServices.__name__, SpawnServices)
+
         # Then run the MainLoop
         GLibLoop.run()
     except KeyboardInterrupt:

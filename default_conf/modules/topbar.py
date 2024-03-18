@@ -51,6 +51,7 @@ def Volume():
         valign="center",
         vexpand=True,
         css="min-width: 100px;",
+        onchange=lambda v: Bash.run(f"pactl set-sink-volume @DEFAULT_SINK@ {v}%"),
     )
 
     return [icon, scale]

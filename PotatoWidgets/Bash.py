@@ -200,7 +200,6 @@ class Bash:
                 argv=cmd,
                 flags=Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE,
             )
-
             if stdout is not None:
                 stdout_pipe = proc.get_stdout_pipe()
                 stdout_stream = Gio.DataInputStream.new(base_stream=stdout_pipe)
@@ -210,5 +209,8 @@ class Bash:
                 stderr_pipe = proc.get_stderr_pipe()
                 stderr_stream = Gio.DataInputStream.new(base_stream=stderr_pipe)
                 read_stream(stderr_stream, stderr)
-
-            return proc
+            if stderr is None and stdout is None:
+                proc.communicate()
+                proc.unref()
+            else:
+                return proc
