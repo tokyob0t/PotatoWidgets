@@ -46,7 +46,7 @@ def list_variables(iface):
 
 def exec_function(iface, func_name):
     try:
-        response: str = iface.ExecFunction(func_name)
+        response: str = iface.CallFunction(func_name)
         print(response)
 
     except dbus.exceptions.DBusException as e:
