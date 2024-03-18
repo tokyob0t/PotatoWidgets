@@ -166,6 +166,7 @@ def PotatoLoop(confdir: str = DIR_CONFIG_POTATO) -> NoReturn:
         confdir = confdir[:-1]
 
     GLibLoop: GLib.MainLoop = GLib.MainLoop()
+    ServicesThread: Union[GLib.Thread, None] = None
 
     def SpawnServices() -> None:
         # Init classes
@@ -176,9 +177,7 @@ def PotatoLoop(confdir: str = DIR_CONFIG_POTATO) -> NoReturn:
         Style.load_css(f"{confdir}/style.scss")
 
     try:
-
-        GLib.Thread.new(SpawnServices.__name__, SpawnServices)
-
+        ServicesThread = GLib.Thread.new(SpawnServices.__name__, SpawnServices)
         # Then run the MainLoop
         GLibLoop.run()
     except KeyboardInterrupt:
@@ -190,4 +189,7 @@ def PotatoLoop(confdir: str = DIR_CONFIG_POTATO) -> NoReturn:
         GLibLoop.quit()
 
     finally:
+        if ServicesThread is not None:
+            ServicesThread.unref()
+
         exit(0)
