@@ -12,7 +12,7 @@ class Window(Gtk.Window):
         layer: str = "top",
         exclusive: Union[bool, int] = False,
         children: Gtk.Widget = Gtk.Box(),
-        focusable: Literal[True, False, "none", "on-demand", "exclusive"] = True,
+        focusable: Literal[True, False, "none", "on-demand", "exclusive"] = "none",
         monitor: int = 0,
         namespace: str = "gtk-layer-shell",
         attributes: Callable = lambda self: self,
