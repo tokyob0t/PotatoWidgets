@@ -187,7 +187,7 @@ class Applications(Service):
         Returns:
             Union[List[App], List[None]]: List of matching applications.
         """
-
+        keywords = keywords.lower()
         return [i for i in self.get_all() if i and keywords in i.keywords]
 
     def _load_json(self) -> Dict[str, List[Union[str, None]]]:

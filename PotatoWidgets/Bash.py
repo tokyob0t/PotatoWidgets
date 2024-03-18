@@ -211,6 +211,5 @@ class Bash:
                 read_stream(stderr_stream, stderr)
             if stderr is None and stdout is None:
                 proc.communicate()
-                proc.unref()
             else:
                 return proc
