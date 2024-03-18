@@ -1,7 +1,7 @@
 from ..Imports import *
 
 
-def connect_to_dbus():
+def get_iface():
     try:
         session_bus = dbus.SessionBus()
         proxy = session_bus.get_object(
@@ -16,36 +16,37 @@ def connect_to_dbus():
 
 def list_windows(iface):
     try:
-        windows = json.loads(iface.ListWindows())
+        windows: List[str] = iface.ListWindows()
         if windows:
-            for window in windows:
-                if window["opened"]:
-                    print("*", end=" ")
-                print(window["name"])
+            for w in windows:
+                print(w)
     except dbus.exceptions.DBusException as e:
         print(f"Error listing windows: {e}")
 
 
 def list_functions(iface):
     try:
-        functions = json.loads(iface.ListFunctions())
+        functions: List[str] = iface.ListFunctions()
         if functions:
-            for func in functions:
-                print(func)
+            for f in functions:
+                print(f)
     except dbus.exceptions.DBusException as e:
         print(f"Error listing functions: {e}")
 
 
 def exec_function(iface, func_name):
     try:
-        iface.ExecFunction(func_name)
+        out: str = iface.ExecFunction(func_name)
+        print(out)
+
     except dbus.exceptions.DBusException as e:
         print(f"Error while executing the callback: {e}")
 
 
 def window_action(iface, action, window_name):
     try:
-        iface.WindowAction(action, window_name)
+        out: str = iface.WindowAction(action, window_name)
+        print(out)
     except dbus.exceptions.DBusException as e:
         print(f"Error toggling window: {e}")
 
@@ -72,22 +73,22 @@ def main():
     args = parser.parse_args()
 
     if args.windows:
-        iface = connect_to_dbus()
+        iface = get_iface()
         list_windows(iface)
     elif args.functions:
-        iface = connect_to_dbus()
+        iface = get_iface()
         list_functions(iface)
     elif args.exec:
-        iface = connect_to_dbus()
+        iface = get_iface()
         exec_function(iface, args.exec)
     elif args.open:
-        iface = connect_to_dbus()
+        iface = get_iface()
         window_action(iface, "open", args.open)
     elif args.close:
-        iface = connect_to_dbus()
+        iface = get_iface()
         window_action(iface, "close", args.close)
     elif args.toggle:
-        iface = connect_to_dbus()
+        iface = get_iface()
         window_action(iface, "toggle", args.toggle)
     else:
         print("Usage: potatocli --help")

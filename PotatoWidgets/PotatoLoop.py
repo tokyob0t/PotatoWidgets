@@ -25,16 +25,16 @@ class PotatoDbusService(dbus.service.Object):
                 module_name, init_file
             )
 
-            if not spec:
-                return
+            if spec:
+                modulo: ModuleType = module_from_spec(spec)
+                spec.loader.exec_module(modulo)
 
-            modulo: ModuleType = module_from_spec(spec)
-            spec.loader.exec_module(modulo)
-
-            if hasattr(modulo, "DATA"):
-                DATA = modulo.DATA
+                if hasattr(modulo, "DATA"):
+                    DATA = modulo.DATA
+                else:
+                    raise AttributeError
             else:
-                raise AttributeError
+                raise FileNotFoundError
 
         except FileNotFoundError:
             print(f"File __init__.py not found in {confdir}")
@@ -49,26 +49,18 @@ class PotatoDbusService(dbus.service.Object):
             DATA = {"windows": [], "functions": [], "variables": []}
 
         self.data = {
-            """
-                Dict[
-                    str,
-                    List[
-                        Dict[str, Union[str, Union[Window, Callable, Variable, Listener, Poll]]]
-                    ],
-                ]
-            """
             "windows": [
-                {"name": w.__name__, "win": w}
+                {"name": w.__name__, "window": w}
                 for w in DATA.get("windows", [])
                 if isinstance(w, (Widget.Window)) and w.__name__
             ],
             "functions": [
-                {"name": f.__name__, "func": f}
+                {"name": f.__name__, "function": f}
                 for f in DATA.get("functions", [])
                 if isinstance(f, (Callable)) and f.__name__ != "<lambda>"
             ],
             "variables": [
-                {"name": v.__name__, "var": v}
+                {"name": v.__name__, "variable": v}
                 for v in DATA.get("variables", [])
                 if isinstance(v, (Variable, Listener, Poll)) and v.__name__
             ],
@@ -81,35 +73,25 @@ class PotatoDbusService(dbus.service.Object):
     #
 
     @dbus.service.method(
-        "com.T0kyoB0y.PotatoWidgets", in_signature="", out_signature="s"
+        "com.T0kyoB0y.PotatoWidgets", in_signature="", out_signature="as"
     )
-    def ListWindows(self) -> str:
-        return str(
-            json.dumps(
-                [
-                    {"name": i["name"], "opened": i["win"].get_visible()}
-                    for i in self.data["windows"]
-                ]
-            )
-        )
+    def ListWindows(self) -> List[str]:
+        return [
+            ("*" if i["window"].get_visible() else "") + i["name"]
+            for i in self.data["windows"]
+        ]
 
     @dbus.service.method(
-        "com.T0kyoB0y.PotatoWidgets", in_signature="", out_signature="s"
+        "com.T0kyoB0y.PotatoWidgets", in_signature="", out_signature="as"
     )
-    def ListFunctions(self) -> str:
-        return str(json.dumps([i["name"] for i in self.data["functions"]]))
+    def ListFunctions(self) -> List[str]:
+        return [i["name"] for i in self.data["functions"]]
 
     @dbus.service.method(
-        "com.T0kyoB0y.PotatoWidgets", in_signature="", out_signature="s"
+        "com.T0kyoB0y.PotatoWidgets", in_signature="", out_signature="as"
     )
-    def ListVariables(self) -> str:
-        return str(json.dumps([i["name"] for i in self.data["variables"]]))
-
-    @dbus.service.method(
-        "com.T0kyoB0y.PotatoWidgets", in_signature="", out_signature="s"
-    )
-    def ListData(self) -> str:
-        return str(json.dumps(self.data))
+    def ListVariables(self) -> List[str]:
+        return [i["name"] for i in self.data["variables"]]
 
     #
     #
@@ -118,36 +100,50 @@ class PotatoDbusService(dbus.service.Object):
     #
 
     @dbus.service.method(
-        "com.T0kyoB0y.PotatoWidgets", in_signature="s", out_signature=""
+        "com.T0kyoB0y.PotatoWidgets", in_signature="s", out_signature="s"
     )
-    def ExecFunction(self, callback_name: str) -> None:
+    def CallFunction(self, callback_name: str) -> str:
         callback: Union[Callable, None] = next(
-            (i["func"] for i in self.data["functions"] if i["name"] == callback_name),
+            (
+                i["function"]
+                for i in self.data["functions"]
+                if i["name"] == callback_name
+            ),
             None,
         )
         if callback is not None:
             try:
                 callback()
-            except:
-                pass
+                return "ok"
+            except Exception as r:
+                return str(r)
+        else:
+            return "notfound"
 
     @dbus.service.method(
-        "com.T0kyoB0y.PotatoWidgets", in_signature="ss", out_signature=""
+        "com.T0kyoB0y.PotatoWidgets", in_signature="ss", out_signature="s"
     )
-    def WindowAction(self, action: str, window_name: str) -> None:
+    def WindowAction(self, action: str, window_name: str) -> str:
         window: Union[Widget.Window, None] = next(
             (i["win"] for i in self.data["windows"] if i["name"] == window_name), None
         )
 
         if window is not None:
-            if action == "toggle":
-                window.toggle()
-            elif action == "open":
-                window.open()
-            elif action == "close":
-                window.close()
-            return
+            try:
+                if action == "toggle":
+                    window.toggle()
+                elif action == "open":
+                    window.open()
+                elif action == "close":
+                    window.close()
+                return "ok"
 
+            except Exception as r:
+                return str(r)
+        else:
+            return "notfound"
+
+    """
     @dbus.service.method(
         "com.T0kyoB0y.PotatoWidgets", in_signature="sss", out_signature=""
     )
@@ -159,6 +155,7 @@ class PotatoDbusService(dbus.service.Object):
             _type = eval(value_type)
             if _type:
                 variable.set_value(_type(value))
+    """
 
 
 def PotatoLoop(confdir: str = DIR_CONFIG_POTATO) -> NoReturn:
@@ -170,18 +167,18 @@ def PotatoLoop(confdir: str = DIR_CONFIG_POTATO) -> NoReturn:
 
     def SpawnServices() -> None:
         # Init classes
+        Style.load_css(f"{confdir}/style.scss")
         Applications()
         NotificationsService()
         NotificationsDbusService()
         PotatoDbusService(confdir)
-        Style.load_css(f"{confdir}/style.scss")
 
     try:
-        ServicesThread = GLib.Thread.new(SpawnServices.__name__, SpawnServices)
         # Then run the MainLoop
+        ServicesThread = GLib.Thread.new(SpawnServices.__name__, SpawnServices)
         GLibLoop.run()
     except KeyboardInterrupt:
-        print("Bye :)")
+        print("\033[92mBye :)\033[0m")
         GLibLoop.quit()
 
     except Exception as r:

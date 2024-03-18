@@ -1,12 +1,10 @@
 from setuptools import find_packages, setup
 from setuptools.command.install import install
 
-from PotatoWidgets import DIR_CONFIG_POTATO, GLib
-
 
 class InitConfigFiles(install):
     def run(self):
-
+        print("Helo")
         install.run(self)
 
 
