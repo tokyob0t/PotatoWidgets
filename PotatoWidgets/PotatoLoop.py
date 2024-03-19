@@ -176,8 +176,8 @@ def PotatoLoop(confdir: str = DIR_CONFIG_POTATO) -> NoReturn:
 
     try:
         # Then run the MainLoop
-        # ServicesThread = GLib.Thread.new(SpawnServices.__name__, SpawnServices)
-        SpawnServices()
+        ServicesThread = GLib.Thread.new(SpawnServices.__name__, SpawnServices)
+        # SpawnServices()
         GLibLoop.run()
     except KeyboardInterrupt:
         print("\033[92mBye :)\033[0m")
