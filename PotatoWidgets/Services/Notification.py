@@ -37,6 +37,7 @@ class Notification(ServiceChildren):
             del hints["image-data"]
 
         self._hints: Dict[str, Any] = dict(hints)
+        NotificationsService()._add_notif(self)
 
     def bind(
         self,
@@ -377,7 +378,6 @@ class NotificationsDbusService(dbus.service.Object):
             timeout=timeout,
         )
 
-        NotificationsService()._add_notif(notif)
         return notif.id
 
     @dbus.service.method(
