@@ -37,7 +37,6 @@ class Notification(ServiceChildren):
             del hints["image-data"]
 
         self._hints: Dict[str, Any] = dict(hints)
-        NotificationsService()._add_notif(self)
 
     def bind(
         self,
@@ -167,6 +166,14 @@ class NotificationsService(Service):
 
         self._save_json()
 
+    def _on_action(self, notif: Notification, action: str) -> None:
+        self.emit("action", notif.id, action)
+
+    def _on_dismiss(self, notif: Notification) -> None:
+        if notif in self.popups:
+            self._popups.remove(notif)
+            self.emit("dismissed", notif.id)
+
     def _on_close(self, notif: Notification) -> None:
         if notif in self.popups:
             self._popups.remove(notif)
@@ -175,14 +182,6 @@ class NotificationsService(Service):
             self._notifications.remove(notif)
             self.emit("closed", notif.id)
             self.emit("count", self.count)
-
-    def _on_action(self, notif: Notification, action: str) -> None:
-        self.emit("action", notif.id, action)
-
-    def _on_dismiss(self, notif: Notification) -> None:
-        if notif in self.popups:
-            self._popups.remove(notif)
-            self.emit("dismissed", notif.id)
 
     @property
     def count(self) -> int:
@@ -317,10 +316,9 @@ class NotificationsDbusService(dbus.service.Object):
             "org.freedesktop.Notifications", bus=dbus.SessionBus()
         )
         super().__init__(bus_name, "/org/freedesktop/Notifications")
-        NotificationsService().connect(
-            "closed", lambda _, id: self.NotificationClosed(id, 2)
-        )
-        NotificationsService().connect(
+        self._instance = NotificationsService()
+        self._instance.connect("closed", lambda _, id: self.NotificationClosed(id, 2))
+        self._instance.connect(
             "action", lambda _, id, action_id: self.InvokeAction(id, action_id)
         )
 
@@ -377,6 +375,7 @@ class NotificationsDbusService(dbus.service.Object):
             hints=hints,
             timeout=timeout,
         )
+        self._instance._add_notif(notif)
 
         return notif.id
 
