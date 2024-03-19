@@ -1,2 +1,0 @@
-[console_scripts]
-potatocli = PotatoWidgets.Cli.__main__:main
