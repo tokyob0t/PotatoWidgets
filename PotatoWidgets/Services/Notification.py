@@ -195,12 +195,6 @@ class NotificationsService(Service):
     def timeout(self, new_timeout: Union[str, int]) -> None:
         self._timeout = parse_interval(new_timeout)
 
-    def set_timeout(self, new_timeout: Union[str, int]) -> None:
-        self.timeout = new_timeout
-
-    def get_timeout(self) -> int:
-        return self.timeout
-
     @property
     def dnd(self) -> bool:
         return self._dnd
@@ -208,12 +202,6 @@ class NotificationsService(Service):
     @dnd.setter
     def dnd(self, new_value: bool) -> None:
         self._dnd = new_value
-
-    def get_dnd(self) -> bool:
-        return self.dnd
-
-    def set_dnd(self, new_value: bool) -> None:
-        self.dnd = new_value
 
     @property
     def notifications(self) -> List[Union[Notification, None]]:
@@ -390,7 +378,7 @@ class NotificationsDbusService(dbus.service.Object):
         )
 
         NotificationsService()._add_notif(notif)
-        return _id
+        return notif.id
 
     @dbus.service.method(
         "org.freedesktop.Notifications", in_signature="us", out_signature=""
