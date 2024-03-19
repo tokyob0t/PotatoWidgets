@@ -73,7 +73,7 @@ class Bash:
             cmd = Bash.expandvars(cmd)
 
         try:
-            _, _, _, state = GLib.spawn_command_line_sync(cmd)
+            _, _, _, state = GLib.spawn_command_line_async(cmd)
             return state
         except:
             return -1
@@ -171,12 +171,12 @@ class Bash:
                 nonlocal output
                 try:
                     output = stdout.read_line_finish_utf8(res)[0]
-                    return (
-                        callback(output),
-                        stdout.read_line_async(
-                            io_priority=GLib.PRIORITY_LOW, callback=internal_callback
-                        ),
+
+                    callback(output)
+                    stdout.read_line_async(
+                        io_priority=GLib.PRIORITY_LOW, callback=internal_callback
                     )
+
                 except Exception as e:
                     print(e)
 
@@ -200,6 +200,7 @@ class Bash:
                 argv=cmd,
                 flags=Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE,
             )
+
             if stdout is not None:
                 stdout_pipe = proc.get_stdout_pipe()
                 stdout_stream = Gio.DataInputStream.new(base_stream=stdout_pipe)
@@ -209,7 +210,9 @@ class Bash:
                 stderr_pipe = proc.get_stderr_pipe()
                 stderr_stream = Gio.DataInputStream.new(base_stream=stderr_pipe)
                 read_stream(stderr_stream, stderr)
+
             if stderr is None and stdout is None:
-                proc.communicate()
+                _ = proc.communicate()
+
             else:
                 return proc

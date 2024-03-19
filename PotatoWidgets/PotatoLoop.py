@@ -113,7 +113,8 @@ class PotatoDbusService(dbus.service.Object):
     )
     def WindowAction(self, action: str, window_name: str) -> str:
         window: Union[Widget.Window, None] = next(
-            (i["win"] for i in self.data["windows"] if i["name"] == window_name), None
+            (i["window"] for i in self.data["windows"] if i["name"] == window_name),
+            None,
         )
 
         if window is not None:
