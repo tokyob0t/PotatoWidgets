@@ -92,7 +92,6 @@ class App(dict):
     def launch(self) -> None:
         """Launches the application."""
         # return self._app.launch()
-
         _proc: Gio.Subprocess = Gio.Subprocess.new(
             ["gtk-launch", self.desktop],
             flags=Gio.SubprocessFlags.STDOUT_SILENCE
