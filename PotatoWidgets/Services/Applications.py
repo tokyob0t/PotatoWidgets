@@ -89,15 +89,16 @@ class App(dict):
         """Returns a JSON representation of the application."""
         return dict(super().items())
 
-    def launch(self) -> None:
+    def launch(self) -> bool:
         """Launches the application."""
         # return self._app.launch()
+
         _proc: Gio.Subprocess = Gio.Subprocess.new(
-            ["gtk-launch", self.desktop],
-            flags=Gio.SubprocessFlags.STDOUT_SILENCE
-            | Gio.SubprocessFlags.STDERR_SILENCE,
+            flags=Gio.SubprocessFlags.STDERR_SILENCE
+            | Gio.SubprocessFlags.STDOUT_SILENCE,
+            argv=["gtk-launch", self.desktop],
         )
-        _proc.communicate()
+        return _proc.wait_check()
 
 
 class Applications(Service):

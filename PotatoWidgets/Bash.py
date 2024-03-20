@@ -55,7 +55,7 @@ class Bash:
         return GLib.getenv(variable=var)
 
     @staticmethod
-    def run(cmd: Union[List[str], str]) -> int:
+    def run(cmd: Union[List[str], str]) -> bool:
         """
         Run a command in the shell.
 
@@ -63,20 +63,20 @@ class Bash:
             cmd (Union[List[str], str]): The command to run.
 
         Returns:
-            int: The exit status of the command.
+            bool: The exit status of the command.
 
         """
-        state: int
         if isinstance(cmd, (list)):
             cmd = [Bash.expandvars(i) for i in cmd]
         elif isinstance(cmd, (str)):
             cmd = Bash.expandvars(cmd)
 
-        try:
-            _, _, _, state = GLib.spawn_command_line_async(cmd)
-            return state
-        except:
-            return -1
+        _proc: Gio.Subprocess = Gio.Subprocess.new(
+            flags=Gio.SubprocessFlags.STDERR_SILENCE
+            | Gio.SubprocessFlags.STDOUT_SILENCE,
+            argv=cmd,
+        )
+        return _proc.wait_check()
 
     @staticmethod
     def get_output(cmd: str) -> str:
