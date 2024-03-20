@@ -147,7 +147,9 @@ class PotatoDbusService(dbus.service.Object):
     """
 
 
-def PotatoLoop(confdir: str = DIR_CONFIG_POTATO) -> NoReturn:
+def PotatoLoop(
+    confdir: str = DIR_CONFIG_POTATO, run_without_services=False
+) -> NoReturn:
     """Starts the Potato application loop and initializes necessary services.
 
     Args:
@@ -177,11 +179,12 @@ def PotatoLoop(confdir: str = DIR_CONFIG_POTATO) -> NoReturn:
 
     try:
         # Then run the MainLoop
-        ServicesThread = GLib.Thread.new(SpawnServices.__name__, SpawnServices)
+        if not run_without_services:
+            ServicesThread = GLib.Thread.new(SpawnServices.__name__, SpawnServices)
         # SpawnServices()
         GLibLoop.run()
     except KeyboardInterrupt:
-        print("\033[92mBye :)\033[0m")
+        print("\n\nBye :)")
         GLibLoop.quit()
 
     except Exception as r:
