@@ -190,29 +190,9 @@ class Listener(Variable):
         """
         super().__init__(initial_value)
         self._callback = callback
-        self._thread = None
-        self._stop_thread = threading.Event()
-        self.start_listening()
-
-    def stop_listening(self) -> None:
-        """
-        Stop the listening thread.
-        """
-        if self._thread and self._thread.is_alive():
-            self._stop_thread.set()
-            self._thread.join()
-
-    def start_listening(self) -> None:
-        """
-        Start the listening thread.
-        """
-        if self._thread and self._thread.is_alive():
-            print(f"{self} is already listening")
-            return
-
-        self._stop_thread.clear()
-        self._thread = threading.Thread(target=self._exec_callback)
-        self._thread.start()
+        self._thread = GLib.Thread.new(
+            f"{initial_value=}-{self._callback.__name__}", self._exec_callback
+        )
 
     def _exec_callback(self) -> None:
         """
