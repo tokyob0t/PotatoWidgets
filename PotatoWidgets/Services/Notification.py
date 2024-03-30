@@ -125,9 +125,7 @@ class NotificationsService(Service):
         super().__init__()
         self._json: Dict[str, Any] = self._load_json()
         self._count: int = self._json["count"]
-        self._popups: Dict[int, Notification] = {
-            notif.id: notif for notif in self._json["popups"]
-        }
+        self._popups: Dict[int, Notification] = {}
         self._notifications: List[Notification] = self._json["notifications"]
         self._dnd: bool = False
         self._timeout: int = 4500
