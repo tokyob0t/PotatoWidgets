@@ -124,10 +124,10 @@ class NotificationsService(Service):
     def __init__(self) -> None:
         super().__init__()
         self._json: Dict[str, Any] = self._load_json()
+        self._dnd: bool = self._json["dnd"]
         self._count: int = self._json["count"]
         self._popups: Dict[int, Notification] = {}
         self._notifications: List[Notification] = self._json["notifications"]
-        self._dnd: bool = False
         self._timeout: int = 4500
 
     def bind(
@@ -160,7 +160,7 @@ class NotificationsService(Service):
         notif.connect("action", self._on_action)
 
         if self.timeout > 0:
-            _ = idle(lambda: wait(self.timeout, notif.dismiss))
+            _ = wait(self.timeout, notif.dismiss)
 
         self._save_json()
 
