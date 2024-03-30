@@ -171,7 +171,7 @@ class NotificationsService(Service):
 
     def _on_dismiss(self, notif: Notification) -> None:
         if notif in self.popups:
-            del self.popups[notif.id]
+            del self._popups[notif.id]
             self.emit("dismissed", notif.id)
 
     def _on_close(self, notif: Notification) -> None:
@@ -243,32 +243,35 @@ class NotificationsService(Service):
         try:
             with open(FILE_CACHE_NOTIF, "r") as file:
                 data = json.load(file)
-                return_data = {}
 
-                if data["popups"]:
-                    return_data["popups"] = []
-                if data["notifications"]:
-                    return_data["notifications"] = [
-                        Notification(
-                            id=i["id"],
-                            name=i["name"],
-                            image=i["image"],
-                            summary=i["summary"],
-                            body=i["body"],
-                            urgency=i["urgency"],
-                            actions=i["actions"],
-                            hints=i["hints"],
-                            timeout=i["timeout"],
-                        )
-                        for i in data["notifications"]
-                    ]
-                return return_data
+            return_data = {
+                "dnd": False,
+                "count": 0,
+                "notifications": [],
+            }
+
+            return_data["dnd"] = data.get("dnd", False)
+            return_data["count"] = data.get("count", 0)
+            return_data["notifications"] = [
+                Notification(
+                    id=i["id"],
+                    name=i["name"],
+                    image=i["image"],
+                    summary=i["summary"],
+                    body=i["body"],
+                    urgency=i["urgency"],
+                    actions=i["actions"],
+                    hints=i["hints"],
+                    timeout=i["timeout"],
+                )
+                for i in data.get("notifications", [])
+            ]
+            return return_data
 
         except json.decoder.JSONDecodeError:
             return {
                 "dnd": False,
                 "count": 0,
-                "popups": [],
                 "notifications": [],
             }
 
@@ -276,7 +279,6 @@ class NotificationsService(Service):
         data = {
             "dnd": self.dnd,
             "count": self.count,
-            "popups": [],
             "notifications": [i.json() for i in self.notifications if i],
         }
 
