@@ -90,7 +90,18 @@ def main():
 
     args = parser.parse_args()
 
-    if args.help:
+    if not any(
+        i
+        for i in [
+            args.windows,
+            args.functions,
+            args.variables,
+            args.exec,
+            args.open,
+            args.close,
+            args.toggle,
+        ]
+    ):
         parser.print_help()
         exit(0)
 
