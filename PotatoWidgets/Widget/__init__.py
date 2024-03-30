@@ -1,3 +1,52 @@
+"""
+This module contains various GTK widgets that inherit from the BasicProps class.
+
+    Box: Container widget for organizing other widgets.
+    Button: Interactive button.
+    CenterBox: Container widget that aligns its content to the center.
+    CheckBox: Checkbox for binary selection.
+    ComboBox: Dropdown box for selection of options.
+    Entry: Text entry field.
+    EventBox: Widget for handling input events.
+    Fixed: Container widget with fixed positioning.
+    Icon: Widget for displaying icons.
+    Image: Widget for displaying images.
+    Label: Widget for displaying non-editable text.
+    Menu: Dropdown menu.
+    MenuItem: Menu item.
+    Overlay: Widget for overlaying content.
+    ProgressBar: Progress bar.
+    Revealer: Widget for showing or hiding content.
+    Scale: Slider control for numerical selection.
+    Scroll: Widget for adding scrollbars.
+    Separator: Visual separator between widgets.
+    Window: Main application window.
+"""
+
+__all__ = [
+    "Box",
+    "Button",
+    "CenterBox",
+    "CheckBox",
+    "ComboBox",
+    "Entry",
+    "EventBox",
+    "Fixed",
+    "Icon",
+    "Image",
+    "Label",
+    "Menu",
+    "MenuItem",
+    "Overlay",
+    "ProgressBar",
+    "Revealer",
+    "Scale",
+    "Scroll",
+    "Separator",
+    "Window",
+]
+
+
 from .Box import Box
 from .Button import Button
 from .CenterBox import CenterBox

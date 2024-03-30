@@ -5,6 +5,8 @@ from .Services import (Applications, NotificationsDbusService,
                        NotificationsService, Style)
 from .Variable import Listener, Poll, Variable
 
+__all__ = ["PotatoLoop"]
+
 
 class PotatoDbusService(dbus.service.Object):
     def __init__(self, confdir: str):
@@ -148,12 +150,13 @@ class PotatoDbusService(dbus.service.Object):
 
 
 def PotatoLoop(
-    confdir: str = DIR_CONFIG_POTATO, run_without_services=False
+    confdir: str = DIR_CONFIG_POTATO, *, run_without_services: bool = False
 ) -> NoReturn:
     """Starts the Potato application loop and initializes necessary services.
 
     Args:
-        confdir (str): The directory path for configuration. Defaults to DIR_CONFIG_POTATO.
+        confdir (str, optional): The directory path for configuration. Defaults to DIR_CONFIG_POTATO.
+        run_without_services (bool, optional): If True, the loop will start without initializing services. Defaults to False.
 
     Returns:
         NoReturn: This function does not return anything.
@@ -170,6 +173,7 @@ def PotatoLoop(
     ServicesThread: Union[GLib.Thread, None] = None
 
     def SpawnServices() -> None:
+        """Initialize necessary services for Potato application."""
         # Init classes
         Style.load_css(f"{confdir}/style.scss")
         Applications()

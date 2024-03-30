@@ -1,8 +1,13 @@
+"""
+Module that imports all the required libraries in a single file
+"""
+
 import argparse
 import importlib
 import json
 import sys
 import threading
+from dataclasses import dataclass
 from importlib.machinery import ModuleSpec
 from importlib.util import module_from_spec, spec_from_file_location
 from os.path import expanduser as os_expanduser
@@ -30,6 +35,7 @@ for n, v in {
     "Gtk": "3.0",
     "GtkLayerShell": "0.1",
     "Pango": "1.0",
+    "Playerctl": "2.0",
 }.items():
     try:
         gi.require_version(n, v)
@@ -37,6 +43,19 @@ for n, v in {
         print(r)
 
 from gi.repository import (Gdk, GdkPixbuf, Gio, GLib, GObject, Gtk,
-                           GtkLayerShell, Pango)
+                           GtkLayerShell, Pango, Playerctl)
 
 DBusGMainLoop(set_as_default=True)
+
+
+# __all__ = [
+#    "Gio",
+#    "GLib",
+#    "GObject",
+#    "Gtk",
+#    "Gdk",
+#    "GdkPixbuf",
+#    "GtkLayerShell",
+#    "Pango",
+#    "Playerctl",
+# ]

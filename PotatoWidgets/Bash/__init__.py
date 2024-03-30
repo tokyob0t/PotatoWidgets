@@ -10,7 +10,9 @@ Methods:
     - monitor_file: Monitor changes to a file.
 """
 
-from .Imports import *
+from ..Imports import *
+
+__all__ = ["Bash"]
 
 
 class Bash:
@@ -18,41 +20,13 @@ class Bash:
     Utility class for shell-related operations using GLib and Gio libraries.
 
     Methods:
-        - expandvars: Expand environment variables and user home directory in a given path.
         - run: Run a command in the shell.
         - get_env: Get the value of an environment variable.
         - get_output: Get the output of a command run in the shell.
         - popen: Open a subprocess to run a command.
         - monitor_file: Monitor changes to a file.
+        - expandvars: Expand environment variables and user home directory in a given path.
     """
-
-    @staticmethod
-    def expandvars(path: str) -> str:
-        """
-        Expand environment variables and user home directory in a given path.
-
-        Args:
-            path (str): The path containing environment variables and user home directory.
-
-        Returns:
-            str: The path with expanded variables and user home directory.
-
-        """
-        return os_expanduser(os_expandvars(path))
-
-    @staticmethod
-    def get_env(var: str) -> str:
-        """
-        Get the value of an environment variable.
-
-        Args:
-            var (str): The name of the environment variable.
-
-        Returns:
-            str: The value of the environment variable.
-
-        """
-        return GLib.getenv(variable=var)
 
     @staticmethod
     def run(cmd: Union[List[str], str]) -> bool:
@@ -105,10 +79,13 @@ class Bash:
     @staticmethod
     def monitor_file(
         path: str,
-        flags: Union[
-            Literal["none", "send_moved", "watch_moves", "watch_mounts", "hard_links"],
-            Gio.FileMonitorFlags,
-        ] = Gio.FileMonitorFlags.NONE,
+        flags: Literal[
+            "none",
+            "send_moved",
+            "watch_moves",
+            "watch_mounts",
+            "hard_links",
+        ] = "none",
     ):
         """
         Monitor changes to a file.
@@ -124,9 +101,10 @@ class Bash:
 
         file: Gio.File
         monitor: Gio.FileMonitor
+        monitor_flags: Gio.FileMonitorFlags
 
         if isinstance(flags, (str)):
-            flags = {
+            monitor_flags = {
                 "none": Gio.FileMonitorFlags.NONE,
                 "send_moved": Gio.FileMonitorFlags.SEND_MOVED,
                 "watch_moves": Gio.FileMonitorFlags.WATCH_MOVES,
@@ -136,7 +114,7 @@ class Bash:
 
         path = Bash.expandvars(path)
         file = Gio.File.new_for_path(path)
-        monitor = file.monitor(flags=flags)
+        monitor = file.monitor(flags=monitor_flags)
         return monitor
 
     @staticmethod
@@ -189,6 +167,7 @@ class Bash:
             success, parsed_cmd = GLib.shell_parse_argv(cmd)
             if success and parsed_cmd:
                 cmd = parsed_cmd
+
         elif isinstance(cmd, (list)):
             parsed_cmd = [Bash.expandvars(i) for i in cmd]
             if parsed_cmd:
@@ -214,5 +193,32 @@ class Bash:
             if stderr is None and stdout is None:
                 _ = proc.communicate()
 
-            else:
-                return proc
+            return proc
+
+    @staticmethod
+    def expandvars(path: str) -> str:
+        """
+        Expand environment variables and user home directory in a given path.
+
+        Args:
+            path (str): The path containing environment variables and user home directory.
+
+        Returns:
+            str: The path with expanded variables and user home directory.
+
+        """
+        return os_expanduser(os_expandvars(path))
+
+    @staticmethod
+    def get_env(var: str) -> str:
+        """
+        Get the value of an environment variable.
+
+        Args:
+            var (str): The name of the environment variable.
+
+        Returns:
+            str: The value of the environment variable.
+
+        """
+        return GLib.getenv(variable=var)

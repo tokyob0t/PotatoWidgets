@@ -1,4 +1,31 @@
-from .Imports import *
+"""
+This module provides utility functions for parsing intervals, getting screen sizes,
+waiting for timeouts, scheduling idle callbacks, looking up icons, and executing commands.
+
+    parse_interval: Parses intervals in milliseconds or seconds/minutes/hours.
+    get_screen_size: Retrieves the screen size of a specified monitor.
+    parse_screen_size: Parses screen size values (percentage, integer, or boolean).
+    wait: Waits for a specified time and executes a callback function.
+    interval: Sets up recurring intervals to execute a callback function.
+    idle: Schedules a callback function to be executed when the main event loop is idle.
+    lookup_icon: Looks up icons by name and returns file paths or icon information.
+    getoutput: Executes a command and returns its output or error message.
+
+Note: The getoutput method is deprecated and recommended to use Bash.get_output() instead.
+"""
+
+from ..Imports import *
+
+__all__ = [
+    "get_screen_size",
+    "getoutput",
+    "idle",
+    "interval",
+    "lookup_icon",
+    "parse_interval",
+    "parse_screen_size",
+    "wait",
+]
 
 
 def parse_interval(
@@ -37,8 +64,8 @@ def parse_interval(
 
 
 def get_screen_size(
-    monitor_index: int = 0, fallback_size: tuple = (1920, 1080)
-) -> tuple:
+    monitor_index: int = 0, fallback_size: Tuple[int, int] = (1920, 1080)
+) -> Tuple[int, int]:
     """Get the screen size.
 
     Args:
@@ -94,6 +121,9 @@ def wait(time_ms: Union[str, int], callback: Callable) -> int:
     Args:
         time_ms (Union[str, int]): The time to wait before executing the callback.
         callback (Callable): The function to call after the specified time has elapsed.
+
+    Returns:
+        int: The ID of the timeout source.
     """
 
     def on_timeout() -> bool:
@@ -101,6 +131,41 @@ def wait(time_ms: Union[str, int], callback: Callable) -> int:
         return False
 
     return GLib.timeout_add(parse_interval(time_ms), on_timeout)
+
+
+def interval(time_ms: Union[str, int], callback: Callable) -> int:
+    """Set up a recurring interval to execute a callback function.
+
+    Args:
+        time_ms (Union[str, int]): The interval between callback executions.
+        callback (Callable): The function to call at each interval.
+
+    Returns:
+        int: The ID of the timeout source.
+    """
+
+    def on_timeout() -> bool:
+        callback()
+        return True
+
+    return GLib.timeout_add(parse_interval(time_ms), on_timeout)
+
+
+def idle(callback: Callable) -> int:
+    """Schedule a callback function to be executed in the main event loop when it's idle.
+
+    Args:
+        callback (Callable): The function to call when the main event loop is idle.
+
+    Returns:
+        int: The ID of the idle source.
+    """
+
+    def on_idle() -> bool:
+        callback()
+        return False
+
+    return GLib.idle_add(on_idle)
 
 
 def lookup_icon(
@@ -146,7 +211,10 @@ def lookup_icon(
 
             filename = icon_info.get_filename()
 
-            if path and filename:
+            if not filename:
+                continue
+
+            if path:
                 return filename
             else:
                 return icon_info

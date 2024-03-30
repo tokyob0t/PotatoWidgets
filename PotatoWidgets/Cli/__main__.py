@@ -1,6 +1,7 @@
 from ..Imports import *
 
 iface: dbus.Interface
+dbusException: type = dbus.exceptions.DBusException
 
 
 def get_iface():
@@ -12,9 +13,9 @@ def get_iface():
         )
         iface = dbus.Interface(proxy, "com.T0kyoB0y.PotatoWidgets")
         return iface
-    except dbus.exceptions.DBusException:
+    except dbusException:
         print("PotatoWidgets service is not running.")
-        sys.exit(1)
+        exit(1)
 
 
 def list_windows(iface):
@@ -23,7 +24,7 @@ def list_windows(iface):
         if windows:
             for w in windows:
                 print(w)
-    except dbus.exceptions.DBusException as e:
+    except dbusException as e:
         print(f"Error listing windows: {e}")
 
 
@@ -33,7 +34,7 @@ def list_functions(iface):
         if functions:
             for f in functions:
                 print(f)
-    except dbus.exceptions.DBusException as e:
+    except dbusException as e:
         print(f"Error listing functions: {e}")
 
 
@@ -43,7 +44,7 @@ def list_variables(iface):
         if variables:
             for v in variables:
                 print(v)
-    except dbus.exceptions.DBusException as e:
+    except dbusException as e:
         print(f"Error listing functions: {e}")
 
 
@@ -52,7 +53,7 @@ def exec_function(iface, func_name):
         response: str = iface.CallFunction(func_name)
         print(response)
 
-    except dbus.exceptions.DBusException as e:
+    except dbusException as e:
         print(f"Error while executing the callback: {e}")
 
 
@@ -60,7 +61,7 @@ def window_action(iface, action, window_name):
     try:
         response: str = iface.WindowAction(action, window_name)
         print(response)
-    except dbus.exceptions.DBusException as e:
+    except dbusException as e:
         print(f"Error toggling window: {e}")
 
 
@@ -68,18 +69,18 @@ def main():
     global iface
     parser = argparse.ArgumentParser(description="PotatoWidgets CLI")
 
-    args_withoutmetavar: List[List[str]] = [
+    args_withoutmetavar: Tuple[List[str], ...] = (
         ["--windows", "List all exported windows"],
         ["--functions", "List all exported functions"],
         ["--variables", "List all exported variables"],
-    ]
+    )
 
-    args_withmetavar: List[List[str]] = [
+    args_withmetavar: Tuple[List[str], ...] = (
         ["--exec", "<FUNCTION>", "Execute an exported function"],
         ["--open", "<WINDOW>", "Open a window"],
         ["--close", "<WINDOW>", "Close a window"],
         ["--toggle", "<WINDOW>", "Toggle a window"],
-    ]
+    )
 
     for i in args_withmetavar:
         parser.add_argument(i[0], metavar=i[1], help=i[2])
@@ -89,26 +90,25 @@ def main():
 
     args = parser.parse_args()
 
+    if args.help:
+        parser.print_help()
+        exit(0)
+
+    iface = get_iface()
+
     if args.windows:
-        iface = get_iface()
         list_windows(iface)
     elif args.functions:
-        iface = get_iface()
         list_functions(iface)
     elif args.variables:
-        iface = get_iface()
         list_variables(iface)
     elif args.exec:
-        iface = get_iface()
         exec_function(iface, args.exec)
     elif args.open:
-        iface = get_iface()
         window_action(iface, "open", args.open)
     elif args.close:
-        iface = get_iface()
         window_action(iface, "close", args.close)
     elif args.toggle:
-        iface = get_iface()
         window_action(iface, "toggle", args.toggle)
     else:
         parser.print_help()

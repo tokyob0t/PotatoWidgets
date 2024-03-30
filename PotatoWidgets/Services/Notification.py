@@ -1,5 +1,5 @@
 from ..Imports import *
-from ..Methods import lookup_icon, parse_interval, wait
+from ..Methods import idle, lookup_icon, parse_interval, wait
 from .Service import *
 
 
@@ -104,7 +104,7 @@ class Notification(ServiceChildren):
         }
 
     def __str__(self) -> str:
-        return str(self.json())
+        return str(f"{self.__class__.__name__}(id={self.id})")
 
     def __repr__(self) -> str:
         return self.__str__()
@@ -124,10 +124,10 @@ class NotificationsService(Service):
         super().__init__()
         self._json: Dict[str, Any] = self._load_json()
         self._count: int = self._json["count"]
-        self._popups: List[Union[Notification, None]] = self._json["popups"]
-        self._notifications: List[Union[Notification, None]] = self._json[
-            "notifications"
-        ]
+        self._popups: Dict[int, Notification] = {
+            notif.id: notif for notif in self._json["popups"]
+        }
+        self._notifications: List[Notification] = self._json["notifications"]
         self._dnd: bool = False
         self._timeout: int = 4500
         self._sort_all()
@@ -148,8 +148,8 @@ class NotificationsService(Service):
 
     def _add_notif(self, notif: Notification) -> None:
         self._count += 1
-        self._notifications.append(notif)
-        self._popups.append(notif)
+        self._notifications.insert(0, notif)
+        self._popups[notif.id] = notif
 
         if not self.dnd:
             self.emit("popup", notif.id)
@@ -162,7 +162,7 @@ class NotificationsService(Service):
         notif.connect("action", self._on_action)
 
         if self.timeout > 0:
-            _ = wait(self.timeout, notif.dismiss)
+            _ = idle(lambda: wait(self.timeout, notif.dismiss))
 
         self._save_json()
 
@@ -171,15 +171,15 @@ class NotificationsService(Service):
 
     def _on_dismiss(self, notif: Notification) -> None:
         if notif in self.popups:
-            self._popups.remove(notif)
+            del self.popups[notif.id]
             self.emit("dismissed", notif.id)
 
     def _on_close(self, notif: Notification) -> None:
         if notif in self.popups:
-            self._popups.remove(notif)
+            del self.popups[notif.id]
         if notif in self.notifications:
             self._count -= 1
-            self._notifications.remove(notif)
+            del self._notifications[self.notifications.index(notif)]
             self.emit("closed", notif.id)
             self.emit("count", self.count)
 
@@ -204,66 +204,38 @@ class NotificationsService(Service):
         self._dnd = new_value
 
     @property
-    def notifications(self) -> List[Union[Notification, None]]:
+    def notifications(self) -> List[Notification]:
         return self._notifications
 
     @property
-    def popups(self) -> List[Union[Notification, None]]:
-        return self._popups
+    def popups(self) -> List[Notification]:
+        return list(self._popups.values())
 
     def get_popup(self, id: int) -> Union[Notification, None]:
-        return self._search(self._popups, id)
+        return self._popups.get(id)
 
     def get_notification(self, id: int) -> Union[Notification, None]:
-        return self._search(self._notifications, id)
+        return next(i for i in self.notifications if i.id == id)
 
-    def get_notifications(self) -> List[Union[Notification, None]]:
-        return self._notifications
+    def get_notifications(self) -> List[Notification]:
+        return self.notifications
 
-    def get_popups(self) -> List[Union[Notification, None]]:
-        return self._popups
-
-    def _sort_all(self) -> None:
-        if self.notifications:
-            self._sort(self._notifications)
-        if self.popups:
-            self._sort(self._popups)
-
-    def _search(
-        self, array: List[Union[Notification, None]], target_id: int
-    ) -> Union[Notification, None]:
-        left, right = 0, len(array) - 1
-        while left <= right:
-            mid = (left + right) // 2
-            if array[mid].id == target_id:
-                return array[mid]
-            elif array[mid].id < target_id:
-                left = mid + 1
-            else:
-                right = mid - 1
-
-    def _sort(self, array: List[Union[Notification, None]]) -> None:
-        for i in range(1, len(array)):
-            current = array[i]
-            j = i - 1
-            while j >= 0 and array[j].id > current.id:
-                array[j + 1] = array[j]
-                j -= 1
-            array[j + 1] = current
+    def get_popups(self) -> List[Notification]:
+        return self.popups
 
     def clear(self) -> None:
         if self.notifications:
             for i in range(len(self.notifications)):
-                notif = self._notifications[i]
+                notif = self.notifications[i]
 
                 if notif:
                     wait(100 * notif.id, notif.close)
 
         self._count = 0
         self._notifications = []
-        self._popups = []
-        self.emit("count", self.count)
+        self._popups = {}
         self._save_json()
+        self.emit("count", self.count)
 
     def _load_json(
         self,
@@ -271,10 +243,12 @@ class NotificationsService(Service):
         try:
             with open(FILE_CACHE_NOTIF, "r") as file:
                 data = json.load(file)
+                return_data = {}
+
                 if data["popups"]:
-                    data["popups"] = []
+                    return_data["popups"] = []
                 if data["notifications"]:
-                    data["notifications"] = [
+                    return_data["notifications"] = [
                         Notification(
                             id=i["id"],
                             name=i["name"],
@@ -288,7 +262,7 @@ class NotificationsService(Service):
                         )
                         for i in data["notifications"]
                     ]
-                return data
+                return return_data
 
         except json.decoder.JSONDecodeError:
             return {
@@ -397,6 +371,10 @@ class NotificationsDbusService(dbus.service.Object):
     def NotificationClosed(self, id: int, reason: int = 2) -> Tuple[int, int]:
         return (id, reason)
 
+    #
+    # Other
+    #
+
     def _get_id(self, new_id) -> int:
         if new_id != 0:
             return new_id
@@ -420,11 +398,10 @@ class NotificationsDbusService(dbus.service.Object):
             for i in range(0, len(actions), 2)
         ]
 
-    # Other Methods
     def _get_image(self, hints: Dict[str, Any], id: int) -> str:
         _hint: Union[list, None] = hints.get("image-data")
 
-        if _hint is not None:
+        if _hint:
             image_path: str = f"{DIR_CACHE_NOTIF_IMAGES}/{id}.png"
 
             GdkPixbuf.Pixbuf.new_from_bytes(

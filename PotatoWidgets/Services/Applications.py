@@ -1,3 +1,35 @@
+"""
+This file includes the following classes:
+
+- App: Represents a desktop application.
+- Applications: Represents a collection of desktop applications.
+
+Class App Methods:
+- app: Gets the desktop application information.
+- name: Gets the name of the application.
+- generic_name: Gets the generic name of the application.
+- display_name: Gets the display name of the application.
+- comment: Gets the comment of the application.
+- categories: Gets the categories of the application.
+- desktop: Gets the desktop identifier of the application.
+- icon_name: Gets the icon name of the application.
+- keywords: Gets the keywords of the application.
+- json: Returns a JSON representation of the application.
+- launch: Launches the application.
+
+Class Applications Methods:
+- get_all: Gets all the applications.
+- add_preferred: Adds an application to the preferred list.
+- get_preferred: Gets the preferred applications list.
+- add_blacklist: Adds an application to the blacklist.
+- get_blacklist: Gets the blacklist of applications.
+- add_whitelist: Adds an application to the whitelist.
+- get_whitelist: Gets the whitelist of applications.
+- query: Queries applications based on keywords.
+- json: Returns a JSON representation of the applications.
+- reload: Reloads the JSON data.
+"""
+
 from ..Env import *
 from ..Imports import *
 from .Service import Service
@@ -104,6 +136,18 @@ class App(dict):
 class Applications(Service):
     """
     Represents a collection of desktop applications.
+
+    Methods:
+    - get_all: Get all applications.
+    - add_preferred: Add an application to the preferred list.
+    - get_preferred: Get the preferred applications list.
+    - add_blacklist: Add an application to the blacklist.
+    - get_blacklist: Get the blacklist of applications.
+    - add_whitelist: Add an application to the whitelist.
+    - get_whitelist: Get the whitelist of applications.
+    - query: Query applications based on keywords.
+    - json: Get JSON representation of the applications.
+    - reload: Reload the JSON data.
     """
 
     def __init__(self) -> None:
@@ -222,9 +266,13 @@ class Applications(Service):
         self._blacklist: List[Union[str, None]] = self._json["blacklist"]
         self._whitelist: List[Union[str, None]] = self._json["whitelist"]
 
+    def json(self) -> dict:
+        """Returns a JSON representation of the applications."""
+        return self._json
+
     def __str__(self) -> str:
         """Returns a string representation of the JSON data."""
-        return str(self._json)
+        return str(self.json())
 
     def __repr__(self) -> str:
         """Returns a string representation of the JSON data."""
