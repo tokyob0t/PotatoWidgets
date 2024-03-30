@@ -1,3 +1,4 @@
+from ..Env import DIR_CACHE_NOTIF_IMAGES, FILE_CACHE_NOTIF
 from ..Imports import *
 from ..Methods import idle, lookup_icon, parse_interval, wait
 from .Service import *
