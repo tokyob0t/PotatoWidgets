@@ -130,7 +130,6 @@ class NotificationsService(Service):
         self._notifications: List[Notification] = self._json["notifications"]
         self._dnd: bool = False
         self._timeout: int = 4500
-        self._sort_all()
 
     def bind(
         self,

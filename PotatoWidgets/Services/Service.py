@@ -1,6 +1,8 @@
 from ..Env import *
 from ..Imports import *
-from ..Variable import Listener, Poll, Variable
+from ..Variable import Variable
+
+__all__ = ["Service", "ServiceChildren"]
 
 
 class Service(GObject.Object):
@@ -31,13 +33,15 @@ class Service(GObject.Object):
 
         return new_var
 
-    def emit(self, *args, **kwargs):
+    def emit(self, *args: Any, **kwargs: Any) -> Any:
         return super().emit(*args, **kwargs)
+
+    """
 
     @staticmethod
     def register_prop():
         pass
-
+    
     @staticmethod
     def gsignals(signals: Dict[str, List[str]]):
         SIGNAL_FLAGS = GObject.SignalFlags
@@ -70,6 +74,9 @@ class Service(GObject.Object):
 
                 # "available": (GObject.SignalFlags.RUN_FIRST, None, (bool,)),
             signals_dict[signal] = tuple(parameters)
+
+
+    """
 
 
 class ServiceChildren(Service):
