@@ -149,16 +149,14 @@ class NotificationsService(Service):
 
         if not self.dnd:
             self.emit("popup", notif.id)
-
-        if self.timeout > 0:
-            wait(self.timeout, notif.dismiss)
+        wait(self.timeout, notif.dismiss)
 
     def _add_notif(self, notif: Notification) -> None:
         self._count += 1
         self._notifications.insert(0, notif)
 
-        self.emit("notified", notif.id)
         self.emit("count", self.count)
+        self.emit("notified", notif.id)
 
         notif.connect("dismiss", self._on_dismiss)
         notif.connect("close", self._on_close)
@@ -175,12 +173,13 @@ class NotificationsService(Service):
             del self._popups[notif.id]
 
     def _on_close(self, notif: Notification) -> None:
+        id = notif.id
         if notif in self.popups:
-            del self.popups[notif.id]
+            del self.popups[id]
         if notif in self.notifications:
             self._count -= 1
             del self._notifications[self.notifications.index(notif)]
-            self.emit("closed", notif.id)
+            self.emit("closed", id)
             self.emit("count", self.count)
 
     @property
@@ -193,7 +192,11 @@ class NotificationsService(Service):
 
     @timeout.setter
     def timeout(self, new_timeout: Union[str, int]) -> None:
-        self._timeout = parse_interval(new_timeout)
+        new_timeout = parse_interval(new_timeout)
+        if new_timeout > 0:
+            self._timeout = new_timeout
+        else:
+            self._timeout = 4500
 
     @property
     def dnd(self) -> bool:
@@ -356,6 +359,7 @@ class NotificationsDbusService(dbus.service.Object):
             timeout=timeout,
         )
         self._instance._add_notif(notif)
+        self._instance._add_popup(notif)
 
         return notif.id
 
@@ -369,7 +373,9 @@ class NotificationsDbusService(dbus.service.Object):
         "org.freedesktop.Notifications", in_signature="u", out_signature=""
     )
     def CloseNotification(self, id: int) -> None:
-        pass
+        notif = self._instance.get_popup(id)
+        if notif:
+            notif.close()
 
     #
     # Signals
