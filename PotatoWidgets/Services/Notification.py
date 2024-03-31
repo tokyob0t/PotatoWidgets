@@ -1,6 +1,6 @@
 from ..Env import DIR_CACHE_NOTIF_IMAGES, FILE_CACHE_NOTIF
 from ..Imports import *
-from ..Methods import idle, lookup_icon, parse_interval, wait
+from ..Methods import idle, interval, lookup_icon, parse_interval, wait
 from .Service import *
 
 
@@ -127,7 +127,7 @@ class NotificationsService(Service):
         self._dnd: bool = self._json["dnd"]
         self._count: int = self._json["count"]
         self._popups: Dict[int, Notification] = {}
-        self._active_popups: Dict[int, Notification]
+        self._active_popups: Dict[int, int]
         self._notifications: List[Notification] = self._json["notifications"]
         self._timeout: int = 4500
 
@@ -146,7 +146,9 @@ class NotificationsService(Service):
         return super().bind(signal, initial_value)
 
     def _add_popup(self, notif: Notification) -> None:
+
         self._popups[notif.id] = notif
+        self._active_popups[notif.id] = interval(self.timeout, notif.dismiss)
 
         if not self.dnd:
             self.emit("popup", notif.id)
@@ -167,11 +169,14 @@ class NotificationsService(Service):
 
     def _on_dismiss(self, notif: Notification) -> None:
         if notif in self.popups:
+            GLib.source_remove(self._active_popups[notif.id])
             self.emit("dismissed", notif.id)
             del self._popups[notif.id]
 
     def _on_close(self, notif: Notification) -> None:
         if notif in self.popups:
+            if notif.id in self._active_popups.values():
+                GLib.source_remove(self._active_popups[notif.id])
             del self.popups[notif.id]
         if notif in self.notifications:
             self._count -= 1
@@ -293,8 +298,8 @@ class NotificationsDbusService(dbus.service.Object):
         )
         super().__init__(bus_name, "/org/freedesktop/Notifications")
         self._instance = NotificationsService()
-        self._instance.connect("closed", lambda _, id: self.NotificationClosed(id, 2))
-        self._instance.connect(
+        self.instance.connect("closed", lambda _, id: self.NotificationClosed(id, 2))
+        self.instance.connect(
             "action", lambda _, id, action_id: self.InvokeAction(id, action_id)
         )
 
@@ -355,11 +360,11 @@ class NotificationsDbusService(dbus.service.Object):
             hints=hints,
             timeout=timeout,
         )
-        self._instance._add_notif(notif)
-        self._instance._add_popup(notif)
+        self.instance._add_notif(notif)
+        self.instance._add_popup(notif)
 
         if self._instance.timeout > 0:
-            wait(self._instance.timeout, notif.dismiss)
+            interval(self.instance.timeout, lambda: (notif.dismiss(),))
 
         self._instance._save_json()
         return notif.id
@@ -436,3 +441,7 @@ class NotificationsDbusService(dbus.service.Object):
             return image_path
 
         return ""
+
+    @property
+    def instance(self) -> NotificationsService:
+        return self._instance
