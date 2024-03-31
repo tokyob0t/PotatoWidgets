@@ -144,13 +144,18 @@ class NotificationsService(Service):
     ):
         return super().bind(signal, initial_value)
 
-    def _add_notif(self, notif: Notification) -> None:
-        self._count += 1
-        self._notifications.insert(0, notif)
+    def _add_popup(self, notif: Notification) -> None:
         self._popups[notif.id] = notif
 
         if not self.dnd:
             self.emit("popup", notif.id)
+
+        if self.timeout > 0:
+            wait(self.timeout, notif.dismiss)
+
+    def _add_notif(self, notif: Notification) -> None:
+        self._count += 1
+        self._notifications.insert(0, notif)
 
         self.emit("notified", notif.id)
         self.emit("count", self.count)
@@ -159,9 +164,6 @@ class NotificationsService(Service):
         notif.connect("close", self._on_close)
         notif.connect("action", self._on_action)
 
-        if self.timeout > 0:
-            _ = wait(self.timeout, notif.dismiss)
-
         self._save_json()
 
     def _on_action(self, notif: Notification, action: str) -> None:
@@ -169,8 +171,8 @@ class NotificationsService(Service):
 
     def _on_dismiss(self, notif: Notification) -> None:
         if notif in self.popups:
-            del self._popups[notif.id]
             self.emit("dismissed", notif.id)
+            del self._popups[notif.id]
 
     def _on_close(self, notif: Notification) -> None:
         if notif in self.popups:
@@ -296,6 +298,10 @@ class NotificationsDbusService(dbus.service.Object):
             "action", lambda _, id, action_id: self.InvokeAction(id, action_id)
         )
 
+        # self._instance.connect(
+        #    "dismissed", lambda _, id: self.dismissed(id, action_id)
+        # )
+
     #
     # Methods
     #
@@ -358,6 +364,12 @@ class NotificationsDbusService(dbus.service.Object):
     )
     def InvokeAction(self, id: int, action: str) -> None:
         self.ActionInvoked(id, action)
+
+    @dbus.service.method(
+        "org.freedesktop.Notifications", in_signature="u", out_signature=""
+    )
+    def CloseNotification(self, id: int) -> None:
+        pass
 
     #
     # Signals
