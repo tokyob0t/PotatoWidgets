@@ -127,6 +127,7 @@ class NotificationsService(Service):
         self._dnd: bool = self._json["dnd"]
         self._count: int = self._json["count"]
         self._popups: Dict[int, Notification] = {}
+        self._active_popups: Dict[int, Notification]
         self._notifications: List[Notification] = self._json["notifications"]
         self._timeout: int = 4500
 
@@ -149,7 +150,6 @@ class NotificationsService(Service):
 
         if not self.dnd:
             self.emit("popup", notif.id)
-        wait(self.timeout, notif.dismiss)
 
     def _add_notif(self, notif: Notification) -> None:
         self._count += 1
@@ -360,6 +360,8 @@ class NotificationsDbusService(dbus.service.Object):
         )
         self._instance._add_notif(notif)
         self._instance._add_popup(notif)
+        if self._instance.timeout > 0:
+            wait(self._instance.timeout, notif.dismiss)
 
         return notif.id
 
