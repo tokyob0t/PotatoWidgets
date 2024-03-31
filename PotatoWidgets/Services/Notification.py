@@ -146,10 +146,7 @@ class NotificationsService(Service):
         return super().bind(signal, initial_value)
 
     def _add_popup(self, notif: Notification) -> None:
-
         self._popups[notif.id] = notif
-        self._active_popups[notif.id] = interval(self.timeout, notif.dismiss)
-
         if not self.dnd:
             self.emit("popup", notif.id)
 
@@ -363,8 +360,10 @@ class NotificationsDbusService(dbus.service.Object):
         self.instance._add_notif(notif)
         self.instance._add_popup(notif)
 
-        if self._instance.timeout > 0:
-            interval(self.instance.timeout, lambda: (notif.dismiss(),))
+        if self.instance.timeout > 0:
+            self.instance._active_popups[notif.id] = interval(
+                self.instance.timeout, notif.dismiss
+            )
 
         self._instance._save_json()
         return notif.id
