@@ -5,11 +5,19 @@ from .Service import *
 
 
 class Notification(ServiceChildren):
-    __gsignals__ = {
-        "dismiss": (GObject.SignalFlags.RUN_FIRST, None, ()),
-        "close": (GObject.SignalFlags.RUN_FIRST, None, ()),
-        "action": (GObject.SignalFlags.RUN_FIRST, None, (str,)),
-    }
+    # __gsignals__ = {
+    #    "dismiss": (GObject.SignalFlags.RUN_FIRST, None, ()),
+    #    "close": (GObject.SignalFlags.RUN_FIRST, None, ()),
+    #    "action": (GObject.SignalFlags.RUN_FIRST, None, (str,)),
+    # }
+
+    __gsignals__ = Service.signals(
+        {
+            "dismiss": [],
+            "close": [],
+            "action": [[str]],
+        }
+    )
 
     def __init__(
         self,
@@ -112,23 +120,34 @@ class Notification(ServiceChildren):
 
 
 class NotificationsService(Service):
-    __gsignals__ = {
-        "notified": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
-        "dismissed": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
-        "closed": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
-        "popup": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
-        "action": (GObject.SignalFlags.RUN_FIRST, None, (int, str)),
-        "count": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
-    }
+    # __gsignals__ = {
+    #    "notified": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
+    #    "dismissed": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
+    #    "closed": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
+    #    "popup": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
+    #    "action": (GObject.SignalFlags.RUN_FIRST, None, (int, str)),
+    #    "count": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
+    # }
+
+    __gsignals__ = Service.signals(
+        {
+            "notified": [[int]],
+            "dismissed": [[int]],
+            "closed": [[int]],
+            "popup": [[int]],
+            "action": [[int, str]],
+            "count": [[int]],
+        }
+    )
 
     def __init__(self) -> None:
         super().__init__()
         self._json: Dict[str, Any] = self._load_json()
         self._dnd: bool = self._json["dnd"]
         self._count: int = self._json["count"]
+        self._notifications: Dict[int, Notification] = self._json["notifications"]
         self._popups: Dict[int, Notification] = {}
         self._active_popups: Dict[int, int] = {}
-        self._notifications: List[Notification] = self._json["notifications"]
         self._timeout: int = 4500
 
     def bind(
@@ -146,13 +165,17 @@ class NotificationsService(Service):
         return super().bind(signal, initial_value)
 
     def _add_popup(self, notif: Notification) -> None:
+
         self._popups[notif.id] = notif
+
         if not self.dnd:
+            if self.timeout > 0:
+                self._active_popups[notif.id] = wait(self.timeout, notif.dismiss)
             self.emit("popup", notif.id)
 
     def _add_notif(self, notif: Notification) -> None:
         self._count += 1
-        self._notifications.insert(0, notif)
+        self._notifications[notif.id] = notif
 
         self.emit("count", self.count)
         self.emit("notified", notif.id)
@@ -207,7 +230,7 @@ class NotificationsService(Service):
 
     @property
     def notifications(self) -> List[Notification]:
-        return self._notifications
+        return list(self._notifications.values())
 
     @property
     def popups(self) -> List[Notification]:
@@ -217,7 +240,7 @@ class NotificationsService(Service):
         return self._popups.get(id)
 
     def get_notification(self, id: int) -> Union[Notification, None]:
-        return next(i for i in self.notifications if i.id == id)
+        return self._notifications.get(id)
 
     def get_notifications(self) -> List[Notification]:
         return self.notifications
@@ -227,15 +250,14 @@ class NotificationsService(Service):
 
     def clear(self) -> None:
         if self.notifications:
-            for i in range(len(self.notifications)):
-                notif = self.notifications[i]
 
-                if notif:
-                    wait(100 * notif.id, notif.close)
+            for notif in self.notifications[:]:
+                wait(100 * notif.id, notif.close)
 
         self._count = 0
-        self._notifications = []
+        self._notifications = {}
         self._popups = {}
+
         self._save_json()
         self.emit("count", self.count)
 
@@ -359,11 +381,6 @@ class NotificationsDbusService(dbus.service.Object):
         )
         self.instance._add_notif(notif)
         self.instance._add_popup(notif)
-
-        if self.instance.timeout > 0:
-            self.instance._active_popups[notif.id] = interval(
-                self.instance.timeout, notif.dismiss
-            )
 
         self._instance._save_json()
         return notif.id

@@ -3,17 +3,28 @@ from .Service import Service
 
 
 class BatteryService(Service):
-
-    __gsignals__ = {
-        "available": (GObject.SignalFlags.RUN_FIRST, None, (bool,)),
-        "percentage": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
-        "state": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
-        "icon-name": (GObject.SignalFlags.RUN_FIRST, None, (str,)),
-        "time-remaining": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
-        "energy": (GObject.SignalFlags.RUN_FIRST, None, (float,)),
-        "energy-full": (GObject.SignalFlags.RUN_FIRST, None, (float,)),
-        "energy-rate": (GObject.SignalFlags.RUN_FIRST, None, (float,)),
-    }
+    # __gsignals__ = {
+    #    "available": (GObject.SignalFlags.RUN_FIRST, None, (bool,)),
+    #    "percentage": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
+    #    "state": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
+    #    "icon-name": (GObject.SignalFlags.RUN_FIRST, None, (str,)),
+    #    "time-remaining": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
+    #    "energy": (GObject.SignalFlags.RUN_FIRST, None, (float,)),
+    #    "energy-full": (GObject.SignalFlags.RUN_FIRST, None, (float,)),
+    #    "energy-rate": (GObject.SignalFlags.RUN_FIRST, None, (float,)),
+    # }
+    __gsignals__ = Service.signals(
+        {
+            "available": [[bool]],
+            "percentage": [[int]],
+            "state": [[int]],
+            "icon-name": [[str]],
+            "time-remaining": [[int]],
+            "energy": [[float]],
+            "energy-full": [[float]],
+            "energy-rate": [[float]],
+        }
+    )
 
     def __init__(self, battery: str = "/org/freedesktop/UPower/devices/battery_BAT1"):
         super().__init__()
