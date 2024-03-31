@@ -127,7 +127,7 @@ class NotificationsService(Service):
         self._dnd: bool = self._json["dnd"]
         self._count: int = self._json["count"]
         self._popups: Dict[int, Notification] = {}
-        self._active_popups: Dict[int, int]
+        self._active_popups: Dict[int, int] = {}
         self._notifications: List[Notification] = self._json["notifications"]
         self._timeout: int = 4500
 
