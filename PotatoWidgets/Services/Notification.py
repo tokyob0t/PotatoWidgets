@@ -162,8 +162,6 @@ class NotificationsService(Service):
         notif.connect("close", self._on_close)
         notif.connect("action", self._on_action)
 
-        self._save_json()
-
     def _on_action(self, notif: Notification, action: str) -> None:
         self.emit("action", notif.id, action)
 
@@ -173,9 +171,8 @@ class NotificationsService(Service):
             del self._popups[notif.id]
 
     def _on_close(self, notif: Notification) -> None:
-        id = notif.id
         if notif in self.popups:
-            del self.popups[id]
+            del self.popups[notif.id]
         if notif in self.notifications:
             self._count -= 1
             del self._notifications[self.notifications.index(notif)]
@@ -363,6 +360,7 @@ class NotificationsDbusService(dbus.service.Object):
         if self._instance.timeout > 0:
             wait(self._instance.timeout, notif.dismiss)
 
+        self._instance._save_json()
         return notif.id
 
     @dbus.service.method(
