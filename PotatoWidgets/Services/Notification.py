@@ -357,6 +357,7 @@ class NotificationsDbusService(dbus.service.Object):
         )
         self._instance._add_notif(notif)
         self._instance._add_popup(notif)
+
         if self._instance.timeout > 0:
             wait(self._instance.timeout, notif.dismiss)
 
