@@ -29,6 +29,31 @@ class Bash:
     """
 
     @staticmethod
+    def run(cmd: Union[list, str]) -> bool:
+        """
+        Run a command in the shell.
+
+        Args:
+            cmd (Union[list, str]): The command to run.
+
+        Returns:
+            bool: The exit status of the command.
+
+        """
+        if isinstance(cmd, list):
+            cmd = [Bash.expandvars(i) for i in cmd]
+        elif isinstance(cmd, str):
+            cmd = Bash.expandvars(cmd)
+
+        try:
+            # Using Glib's spawn_command_line_sync to run the command synchronously
+            result, _ = GLib.spawn_command_line_sync(cmd)
+            return result == 0
+        except GLib.Error as e:
+            print(f"Error executing command: {e.message}")
+            return False
+
+    @staticmethod
     def run(cmd: Union[List[str], str]) -> bool:
         """
         Run a command in the shell.
@@ -51,6 +76,70 @@ class Bash:
             argv=cmd,
         )
         return _proc.wait_check()
+
+    @staticmethod
+    def dir_exists(path: str) -> bool:
+        """
+        Check if a directory exists at the specified path.
+
+        Args:
+            path (str): The path to the directory.
+
+        Returns:
+            bool: True if the directory exists, False otherwise.
+        """
+        return GLib.file_test(Bash.expandvars(path), GLib.FileTest.IS_DIR)
+
+    @staticmethod
+    def file_exists(path: str) -> bool:
+        """
+        Check if a file exists at the specified path.
+
+        Args:
+            path (str): The path to the file.
+
+        Returns:
+            bool: True if the file exists, False otherwise.
+        """
+        return GLib.file_test(Bash.expandvars(path), GLib.FileTest.EXISTS)
+
+    @staticmethod
+    def mkdir(path: str) -> bool:
+        """
+        Create a directory at the specified path.
+
+        Args:
+            path (str): The path to the directory.
+
+        Returns:
+            bool: True if the directory creation is successful, False otherwise.
+        """
+        return {0: True, -1: False}.get(
+            GLib.mkdir_with_parents(Bash.expandvars(path), 0o755), False
+        )
+
+    @staticmethod
+    def get_output(cmd: str) -> str:
+        """
+        Run a shell command and return its output.
+
+        Args:
+            cmd (str): The command to run.
+
+        Returns:
+            str: The output of the command.
+        """
+        stdout: bytes
+        stderr: bytes
+        state: int
+
+        cmd = Bash.expandvars(cmd)
+
+        try:
+            _, stdout, stderr, state = GLib.spawn_command_line_sync(cmd)
+            return stdout.decode() if state == 0 else stderr.decode()
+        except:
+            return ""
 
     @staticmethod
     def get_output(cmd: str) -> str:
