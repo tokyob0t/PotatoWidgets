@@ -8,8 +8,15 @@ __all__ = ["Service", "ServiceChildren"]
 class Service(GObject.Object):
 
     _instance = None
-    __gsignals__ = {}
-    __gproperties__ = {}
+    __gsignals__: Dict[
+        str,
+        Tuple[
+            GObject.SignalFlags,
+            Union[type, None],
+            Tuple[type, ...],
+        ],
+    ] = {}
+    __gproperties__: Dict[str, tuple] = {}
 
     def __new__(cls):
         if cls._instance is None:
@@ -19,19 +26,21 @@ class Service(GObject.Object):
     def __init__(self) -> None:
         super().__init__()
 
-    def get_property(self, property_name: str) -> Union[Any, None]:
-        privprop_name: str = "_" + property_name.lower()
+    def emit(self, *args: Any, **kwargs: Any) -> Any:
+        return super().emit(*args, **kwargs)
 
-        if hasattr(self, privprop_name):
-            return getattr(self, privprop_name)
+    def notify(self, property_name: str = None) -> None:
+        return super().notify(property_name)
 
-    def set_property(self, property_name: str, value: Any = None) -> None:
-        signal_name: str = property_name.lower().replace("_", "-")
-        privprop_name: str = "_" + property_name.lower()
-
-        if hasattr(self, privprop_name):
-            setattr(self, privprop_name, value)
-            self.emit(signal_name)
+    def connect(self, signal_spec: str = None, *args: Any) -> object:
+        try:
+            return self.connect("notify::" + signal_spec, *args)
+        except:
+            pass
+        try:
+            return self.connect(signal_spec, *args)
+        except Exception as r:
+            raise r
 
     def bind(self, signal: str, initial_value: Any = 0):
         new_var = Variable(initial_value)
@@ -48,8 +57,19 @@ class Service(GObject.Object):
 
         return new_var
 
-    def emit(self, *args: Any, **kwargs: Any) -> Any:
-        return super().emit(*args, **kwargs)
+    def get_property(self, property_name: str) -> Union[Any, None]:
+        privprop_name: str = "_" + property_name.lower()
+
+        if hasattr(self, privprop_name):
+            return getattr(self, privprop_name)
+
+    def set_property(self, property_name: str, value: Any = None) -> None:
+        signal_name: str = property_name.lower().replace("_", "-")
+        privprop_name: str = "_" + property_name.lower()
+
+        if hasattr(self, privprop_name):
+            setattr(self, privprop_name, value)
+            self.emit(signal_name)
 
     @staticmethod
     def properties(
