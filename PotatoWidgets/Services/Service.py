@@ -19,6 +19,20 @@ class Service(GObject.Object):
     def __init__(self) -> None:
         super().__init__()
 
+    def get_property(self, property_name: str) -> Union[Any, None]:
+        privprop_name: str = "_" + property_name.lower()
+
+        if hasattr(self, privprop_name):
+            return getattr(self, privprop_name)
+
+    def set_property(self, property_name: str, value: Any = None) -> None:
+        signal_name: str = property_name.lower().replace("_", "-")
+        privprop_name: str = "_" + property_name.lower()
+
+        if hasattr(self, privprop_name):
+            setattr(self, privprop_name, value)
+            self.emit(signal_name)
+
     def bind(self, signal: str, initial_value: Any = 0):
         new_var = Variable(initial_value)
 
