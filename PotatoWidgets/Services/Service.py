@@ -32,15 +32,15 @@ class Service(GObject.Object):
     def notify(self, property_name: str = None) -> None:
         return super().notify(property_name)
 
-    def connect(self, signal_spec: str = None, *args: Any) -> object:
-        try:
-            return self.connect("notify::" + signal_spec, *args)
-        except:
-            pass
-        try:
-            return self.connect(signal_spec, *args)
-        except Exception as r:
-            raise r
+    # def connect(self, signal_spec: str = None, *args: Any) -> object:
+    #    try:
+    #        return self.connect("notify::" + signal_spec, *args)
+    #    except:
+    #        pass
+    #    try:
+    #        return self.connect(signal_spec, *args)
+    #    except Exception as r:
+    #        raise r
 
     def bind(self, signal: str, initial_value: Any = 0):
         new_var = Variable(initial_value)
