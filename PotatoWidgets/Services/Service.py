@@ -69,7 +69,7 @@ class Service(GObject.Object):
 
         if hasattr(self, privprop_name):
             setattr(self, privprop_name, value)
-            self.emit(signal_name)
+            self.notify(signal_name)
 
     @staticmethod
     def properties(
