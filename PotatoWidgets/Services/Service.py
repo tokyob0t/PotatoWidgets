@@ -40,23 +40,20 @@ class Service(GObject.Object):
     @staticmethod
     def properties(
         properties: Dict[str, List[Union[str, type]]],
-        *,
-        getter,
-        setter,
-        type,
-        initial_value,
-        name,
-        description,
-        flags,
-        min,
-        max,
     ):
+        if not properties:
+            return {}
+
         ParamFlags = GObject.ParamFlags
-        _flags = {
-            "deprecated": ParamFlags.DEPRECATED,
+        new_gprops: Dict[str, tuple] = {}
+        #
+        allowed_types: List[type] = [int, str, bool, float, object]
+
+        _flags: Dict[str, GObject.ParamFlags] = {
             "readable": ParamFlags.READABLE,
             "writable": ParamFlags.WRITABLE,
             "readwrite": ParamFlags.READWRITE,
+            "deprecated": ParamFlags.DEPRECATED,
             "explicit-notify": ParamFlags.EXPLICIT_NOTIFY,
             "static-blurb": ParamFlags.STATIC_BLURB,
             "static-name": ParamFlags.STATIC_NAME,
@@ -74,41 +71,77 @@ class Service(GObject.Object):
             "sb": ParamFlags.STATIC_BLURB,
             "sna": ParamFlags.STATIC_NAME,
             "sni": ParamFlags.STATIC_NICK,
-            "lax": ParamFlags.LAX_VALIDATION,
+            "lv": ParamFlags.LAX_VALIDATION,
             "priv": ParamFlags.PRIVATE,
             "c": ParamFlags.CONSTRUCT,
             "co": ParamFlags.CONSTRUCT_ONLY,
-        }.get(flags, ParamFlags.READWRITE)
+        }
 
-        return Property(
-            getter=getter,
-            setter=setter,
-            type=type,
-            default=initial_value,
-            nick=name,
-            blurb=description,
-            flags=_flags,
-            minimum=min,
-            maximum=max,
-        )
+        for prop_name, prop_props in properties.items():
+            default_structure: List[
+                Union[
+                    type,
+                    int,
+                    bool,
+                    str,
+                    float,
+                    GObject.ParamFlags,
+                ]
+            ] = [
+                "type",
+                prop_name,
+                prop_name,
+                # "nick-name",
+                # "description",
+            ]
+
+            if not prop_props or not isinstance(prop_props[0], type):
+                continue
+            if prop_props[0] not in allowed_types:
+                prop_props[0] = object
+
+            if prop_props[0] in [str, bool]:
+                default_structure += [
+                    False if prop_props[0] == bool else "",
+                ]
+            elif prop_props[0] in [int, float]:
+                default_structure += (
+                    [
+                        GLib.MININT,  # noqa
+                        GLib.MAXINT,  # noqa
+                        0,
+                    ]  # MAXINT/MININT not member of module Glib bablabla
+                    if prop_props[0] == int
+                    else [
+                        -GLib.MINFLOAT,  # noqa
+                        GLib.MAXFLOAT,  # noqa
+                        0.0,
+                    ]  # MAXFLOAT/MINFLOAT not member of module Glib bablabla
+                )
+
+            default_structure += [ParamFlags.READABLE]
+
+            for i in prop_props:
+                if isinstance(i, (type)):
+                    default_structure[0] = i
+                elif isinstance(i, (str)):
+                    if i.startswith("n:"):
+                        default_structure[1] = i.lstrip("n:")
+                    elif i.startswith("d:"):
+                        default_structure[2] = i.lstrip("d:")
+                    elif i in _flags:
+                        default_structure[-1] = _flags.get(i, ParamFlags.READABLE)
+
+                    else:
+                        default_structure[1], default_structure[2] = prop_name
+
+                new_gprops[prop_name] = tuple(default_structure)
+
+        return new_gprops
 
     @staticmethod
     def signals(
         signals: Dict[str, List[Union[str, type, list]]] = {},
-        *,
-        flag: Literal[
-            "run-first",
-            "run-last",
-            "run-cleanup",
-            "action",
-            "detailed",
-            "no-hooks",
-            "no-recurse",
-            "deprecated",
-            "must-collect",
-            "accumulator",
-        ] = "run-first",
-        signal_name: str = "",
     ) -> Dict[
         str,
         Tuple[
@@ -117,19 +150,23 @@ class Service(GObject.Object):
             Tuple[type, ...],
         ],
     ]:
+        if not signals:
+            return {}
+
         SignalFlags = GObject.SignalFlags
         new_gsignals = {}
+
         if signals:
             for signal, parameters in signals.items():
 
-                new_parameters = [SignalFlags.RUN_FIRST, None, []]
+                default_structure = [SignalFlags.RUN_FIRST, None, []]
                 for i in parameters:
                     if isinstance(i, (type)):
-                        new_parameters[1] = i
+                        default_structure[1] = i
                     elif isinstance(i, (list)):
-                        new_parameters[2] = i
+                        default_structure[2] = i
                     elif isinstance(i, (str)):
-                        new_parameters[0] = {
+                        default_structure[0] = {
                             "run-first": SignalFlags.RUN_FIRST,
                             "run-last": SignalFlags.RUN_LAST,
                             "run-cleanup": SignalFlags.RUN_CLEANUP,
@@ -142,12 +179,30 @@ class Service(GObject.Object):
                             "accumulator": SignalFlags.ACCUMULATOR_FIRST_RUN,
                         }.get(i, SignalFlags.RUN_FIRST)
 
-                new_parameters[2] = tuple(new_parameters[2])
-                new_gsignals[signal] = tuple(new_parameters)
+                default_structure[2] = tuple(default_structure[2])
+                new_gsignals[signal] = tuple(default_structure)
 
             return new_gsignals
         else:
             return {}
+
+    @staticmethod
+    def make_property(instance: object, prop_name: str) -> None:
+        private_name: str = "_" + prop_name
+        # val_type: type = type(getattr(instance, private_name, None))
+        # if val_type is None:
+        #    return
+
+        # def getter(self) -> val_type:
+        def getter(self):
+            return getattr(self, private_name)
+
+        # def setter(self, value: val_type):
+        def setter(self, value):
+            self.notify(prop_name)
+            setattr(self, private_name, value)
+
+        setattr(instance.__class__, prop_name, property(getter, setter))
 
 
 class ServiceChildren(Service):

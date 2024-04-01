@@ -18,6 +18,7 @@ class Notification(ServiceChildren):
             "action": [[str]],
         }
     )
+    __gproperties__ = Service.properties({})
 
     def __init__(
         self,
