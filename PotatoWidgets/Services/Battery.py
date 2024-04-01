@@ -25,7 +25,6 @@ class BatteryService(Service):
             "energy-rate": [[float]],
         }
     )
-    __gproperties__ = Service.properties({""})
 
     def __init__(self, battery: str = "/org/freedesktop/UPower/devices/battery_BAT1"):
         super().__init__()
