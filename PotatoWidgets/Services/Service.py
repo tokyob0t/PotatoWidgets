@@ -26,6 +26,12 @@ class Service(GObject.Object):
     def __init__(self) -> None:
         super().__init__()
 
+    def list_properties(self) -> tuple:
+        return tuple(super().list_properties())
+
+    def list_signals(self) -> tuple:
+        return tuple(GObject.signal_list_names(self))
+
     def emit(self, *args: Any, **kwargs: Any) -> Any:
         return super().emit(*args, **kwargs)
 
