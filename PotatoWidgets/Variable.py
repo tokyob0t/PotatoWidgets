@@ -1,10 +1,13 @@
+from PotatoWidgets.Services.Service import Service
+
 from .Imports import *
 from .Methods import parse_interval
+from .Services import ServiceChildren
 
 __all__ = ["Variable", "Listener", "Poll"]
 
 
-class Variable(GObject.Object):
+class Variable(ServiceChildren):
     """
     Represents a variable with the ability to bind to a callback function.
 
@@ -15,7 +18,8 @@ class Variable(GObject.Object):
         _value: The current value of the variable.
     """
 
-    valuechanged = GObject.Signal()
+    __gsignals__ = Service.signals({"valuechanged": []})
+    # valuechanged = GObject.Signal()
 
     def __init__(self, initial_value: Any = "") -> None:
         """

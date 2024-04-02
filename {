@@ -49,6 +49,7 @@ class Service(GObject.Object):
         if signal.startswith("notify::"):
             prop = signal.lstrip("notify::")
             self.connect(signal, lambda obj, _: new_var.set_value(obj.property(prop)))
+            pass
         else:
             self.connect(signal, lambda _, value: new_var.set_value(value))
 
@@ -122,29 +123,24 @@ class Service(GObject.Object):
                 # "nick-name",
                 # "description",
             ]
-            prop_type: Union[type, None] = next(
-                (i for i in prop_props if isinstance(i, type)), None
-            )
 
-            if not prop_props or prop_type is None:
+            if not prop_props or not isinstance(prop_props[0], type):
                 continue
+            if prop_props[0] not in allowed_types:
+                prop_props[0] = object
 
-            if prop_type not in allowed_types:
-                prop_props[prop_props.index(prop_type)] = object
-                prop_type = object
-
-            if prop_type in [str, bool]:
+            if prop_props[0] in [str, bool]:
                 default_structure += [
-                    False if prop_type == bool else "",
+                    False if prop_props[0] == bool else "",
                 ]
-            elif prop_type in [int, float]:
+            elif prop_props[0] in [int, float]:
                 default_structure += (
                     [
                         GLib.MININT,  # noqa
                         GLib.MAXINT,  # noqa
                         0,
                     ]  # MAXINT/MININT not member of module Glib bablabla
-                    if prop_type == int
+                    if prop_props[0] == int
                     else [
                         -GLib.MINFLOAT,  # noqa
                         GLib.MAXFLOAT,  # noqa
