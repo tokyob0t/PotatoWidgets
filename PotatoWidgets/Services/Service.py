@@ -47,24 +47,22 @@ class Service(GObject.Object):
             setattr(new_var, "_name", "")
 
         if signal.startswith("notify::"):
-            prop: str = signal.lstrip("notify::")
-            prop_name: str = prop.lower().replace("-", "_")
-            self.connect(
-                signal, lambda obj, _: new_var.set_value(obj.property(prop_name))
-            )
+            prop: str = signal.replace("notify::", "")
+            prop_name: str = prop.replace("-", "_")
+
+            self.connect(signal, lambda *_: new_var.set_value(self.property(prop_name)))
         else:
             self.connect(signal, lambda _, value: new_var.set_value(value))
 
         return new_var
 
     def property(self, property_name: str, new_value: Any = None) -> Union[None, Any]:
-        signal_name: str = property_name.lower().replace("_", "-")
-        privprop_name: str = "_" + property_name.lower()
+        privprop_name: str = "_" + property_name
 
         if hasattr(self, privprop_name):
             if new_value is not None:
                 setattr(self, privprop_name, new_value)
-                self.notify(signal_name)
+                self.notify(property_name.replace("_", "-"))
             else:
                 return getattr(self, privprop_name)
 
