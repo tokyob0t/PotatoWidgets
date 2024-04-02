@@ -47,8 +47,11 @@ class Service(GObject.Object):
             setattr(new_var, "_name", "")
 
         if signal.startswith("notify::"):
-            prop = signal.lstrip("notify::")
-            self.connect(signal, lambda obj, _: new_var.set_value(obj.property(prop)))
+            prop: str = signal.lstrip("notify::")
+            prop_name: str = prop.lower().replace("-", "_")
+            self.connect(
+                signal, lambda obj, _: new_var.set_value(obj.property(prop_name))
+            )
         else:
             self.connect(signal, lambda _, value: new_var.set_value(value))
 
