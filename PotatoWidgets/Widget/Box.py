@@ -7,14 +7,16 @@ class Box(Gtk.Box, BasicProps):
     def __init__(
         self,
         children: Union[List[Union[Gtk.Widget, None]], Gtk.Widget, Any] = [],
-        orientation: str = "h",
+        orientation: Union[
+            Gtk.Orientation, Literal["h", "horizontal", "v", "vertical"]
+        ] = "h",
         spacing: int = 0,
         homogeneous: bool = False,
         size: Union[int, str, List[Union[int, str]], List[int]] = 0,
         attributes: Callable = lambda self: self,
         css: str = "",
-        halign: str = "fill",
-        valign: str = "fill",
+        halign: Literal["fill", "start", "center", "end", "baseline"] = "fill",
+        valign: Literal["fill", "start", "center", "end", "baseline"] = "fill",
         hexpand: bool = False,
         vexpand: bool = False,
         visible: bool = True,
@@ -61,19 +63,28 @@ class Box(Gtk.Box, BasicProps):
                     "children": self.set_children,
                 }.get(key)
 
-                self.bind(value, callback) if callback else None
+                if not callback:
+                    continue
+
+                self.bind(value, callback)
 
     def set_orientation(
-        self, orientation: Union[Gtk.Orientation, str] = Gtk.Orientation.HORIZONTAL
+        self,
+        orientation: Union[
+            Gtk.Orientation, Literal["h", "horizontal", "v", "vertical"]
+        ] = Gtk.Orientation.HORIZONTAL,
     ) -> None:
-        _orientation = Gtk.Orientation.HORIZONTAL
+
+        _orientation: Gtk.Orientation
 
         if isinstance(orientation, (Gtk.Orientation)):
             _orientation = orientation
-        elif orientation == "v":
+        elif orientation in ["h", "horizontal"]:
+            _orientation = Gtk.Orientation.HORIZONTAL
+        elif orientation in ["v", "vertical"]:
             _orientation = Gtk.Orientation.VERTICAL
         else:
-            _orientation = Gtk.Orientation.HORIZONTAL
+            return
 
         super().set_orientation(_orientation)
 

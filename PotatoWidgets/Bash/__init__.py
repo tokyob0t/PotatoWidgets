@@ -10,6 +10,7 @@ Methods:
     - monitor_file: Monitor changes to a file.
 """
 
+from .._Logger import Logger
 from ..Imports import *
 
 __all__ = ["Bash"]
@@ -33,11 +34,11 @@ class Bash:
         """
         Run a command in the shell.
 
-        Args:
-            cmd (Union[list, str]): The command to run.
+             Args:
+                 cmd (Union[list, str]): The command to run.
 
-        Returns:
-            bool: The exit status of the command.
+             Returns:
+                 bool: The exit status of the command.
 
         """
         if isinstance(cmd, list):
@@ -47,35 +48,35 @@ class Bash:
 
         try:
             # Using Glib's spawn_command_line_sync to run the command synchronously
-            result, _ = GLib.spawn_command_line_sync(cmd)
+            result, _, _, _ = GLib.spawn_command_line_sync(cmd)
             return result == 0
-        except GLib.Error as e:
-            print(f"Error executing command: {e.message}")
+        except Exception as e:
+            Logger.Warning(f"Error executing command: {e}")
             return False
 
-    @staticmethod
-    def run(cmd: Union[List[str], str]) -> bool:
-        """
-        Run a command in the shell.
-
-        Args:
-            cmd (Union[List[str], str]): The command to run.
-
-        Returns:
-            bool: The exit status of the command.
-
-        """
-        if isinstance(cmd, (list)):
-            cmd = [Bash.expandvars(i) for i in cmd]
-        elif isinstance(cmd, (str)):
-            cmd = Bash.expandvars(cmd)
-
-        _proc: Gio.Subprocess = Gio.Subprocess.new(
-            flags=Gio.SubprocessFlags.STDERR_SILENCE
-            | Gio.SubprocessFlags.STDOUT_SILENCE,
-            argv=cmd,
-        )
-        return _proc.wait_check()
+    # @staticmethod
+    # def run(cmd: Union[List[str], str]) -> bool:
+    #    """
+    #    Run a command in the shell.
+    #
+    #    Args:
+    #        cmd (Union[List[str], str]): The command to run.
+    #
+    #    Returns:
+    #        bool: The exit status of the command.
+    #
+    #    """
+    #    if isinstance(cmd, (list)):
+    #        cmd = [Bash.expandvars(i) for i in cmd]
+    #    elif isinstance(cmd, (str)):
+    #        cmd = Bash.expandvars(cmd)
+    #
+    #    _proc: Gio.Subprocess = Gio.Subprocess.new(
+    #        flags=Gio.SubprocessFlags.STDERR_SILENCE
+    #        | Gio.SubprocessFlags.STDOUT_SILENCE,
+    #        argv=cmd,
+    #    )
+    #    return _proc.wait_check()
 
     @staticmethod
     def dir_exists(path: str) -> bool:
@@ -119,6 +120,19 @@ class Bash:
         )
 
     @staticmethod
+    def touch(path: str) -> bool:
+        """
+        Create a file at the specified path.
+
+        Args:
+            path (str): The path to the file.
+
+        Returns:
+            bool: True if the file creation is successful, False otherwise.
+        """
+        return GLib.file_set_contents(filename=Bash.expandvars(path), contents="")
+
+    @staticmethod
     def get_output(cmd: str) -> str:
         """
         Run a shell command and return its output.
@@ -128,30 +142,6 @@ class Bash:
 
         Returns:
             str: The output of the command.
-        """
-        stdout: bytes
-        stderr: bytes
-        state: int
-
-        cmd = Bash.expandvars(cmd)
-
-        try:
-            _, stdout, stderr, state = GLib.spawn_command_line_sync(cmd)
-            return stdout.decode() if state == 0 else stderr.decode()
-        except:
-            return ""
-
-    @staticmethod
-    def get_output(cmd: str) -> str:
-        """
-        Get the output of a command run in the shell.
-
-        Args:
-            cmd (str): The command to run.
-
-        Returns:
-            str: The output of the command.
-
         """
         stdout: bytes
         stderr: bytes
@@ -304,6 +294,7 @@ class Bash:
         Get the value of an environment variable.
 
         Args:
+
             var (str): The name of the environment variable.
 
         Returns:

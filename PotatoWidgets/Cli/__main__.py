@@ -1,3 +1,4 @@
+from .._Logger import Logger
 from ..Imports import *
 
 iface: dbus.Interface
@@ -14,7 +15,7 @@ def get_iface():
         iface = dbus.Interface(proxy, "com.T0kyoB0y.PotatoWidgets")
         return iface
     except dbusException:
-        print("PotatoWidgets service is not running.")
+        Logger.WARNING("PotatoWidgets service is not running.")
         exit(1)
 
 
@@ -25,7 +26,7 @@ def list_windows(iface):
             for w in windows:
                 print(w)
     except dbusException as e:
-        print(f"Error listing windows: {e}")
+        Logger.ERROR(f"Error listing windows: {e}")
 
 
 def list_functions(iface):
@@ -35,7 +36,7 @@ def list_functions(iface):
             for f in functions:
                 print(f)
     except dbusException as e:
-        print(f"Error listing functions: {e}")
+        Logger.ERROR(f"Error listing functions: {e}")
 
 
 def list_variables(iface):
@@ -45,7 +46,7 @@ def list_variables(iface):
             for v in variables:
                 print(v)
     except dbusException as e:
-        print(f"Error listing functions: {e}")
+        Logger.ERROR(f"Error listing functions: {e}")
 
 
 def exec_function(iface, func_name):

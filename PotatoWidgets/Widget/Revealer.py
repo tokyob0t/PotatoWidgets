@@ -10,21 +10,26 @@ class Revealer(Gtk.Revealer, BasicProps):
         self,
         children: Gtk.Widget,
         reveal: bool = True,
-        transition: str = "crossfade",
+        transition: Literal[
+            "crossfade", "slideleft", "slideup", "slideright", "slidedown", "none"
+        ] = "crossfade",
         duration: Union[int, str] = 500,
         css: str = "",
+        size: List[Union[int, str]] = [],
         attributes: Callable = lambda self: self,
-        halign: str = "fill",
-        valign: str = "fill",
+        halign: Literal["fill", "start", "center", "end", "baseline"] = "fill",
+        valign: Literal["fill", "start", "center", "end", "baseline"] = "fill",
         hexpand: bool = False,
         vexpand: bool = False,
         classname: str = "",
     ):
+
         Gtk.Revealer.__init__(self)
 
         BasicProps.__init__(
             self,
             css=css,
+            size=size,
             halign=halign,
             valign=valign,
             hexpand=hexpand,

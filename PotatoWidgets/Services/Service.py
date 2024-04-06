@@ -1,89 +1,418 @@
+from .._Logger import Logger
 from ..Env import *
 from ..Imports import *
-from ..Variable import Variable
+from ..Methods import idle, parse_interval
 
-__all__ = ["Service", "ServiceChildren"]
+__all__ = ["Service"]
 
 
-class Service(GObject.Object):
+class BaseGObjectClass(GObject.Object):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
-    _instance = None
-    __gsignals__: Dict[
-        str,
-        Tuple[
-            GObject.SignalFlags,
-            Union[type, None],
-            Tuple[type, ...],
-        ],
-    ] = {}
-    __gproperties__: Dict[str, tuple] = {}
+    def list_properties(self) -> Tuple[str, ...]:
+        """
+        List all properties of the service.
 
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
+        Returns:
+            tuple: A tuple containing all property names.
+        """
 
-    def __init__(self) -> None:
-        super().__init__()
-
-    def list_properties(self) -> tuple:
-        return tuple(super().list_properties())
+        return tuple(i.name for i in super().list_properties())
 
     def list_signals(self) -> tuple:
+        """
+        List all signals emitted by the service.
+
+        Returns:
+            tuple: A tuple containing all signal names.
+        """
         return tuple(GObject.signal_list_names(self))
 
-    def emit(self, *args: Any, **kwargs: Any) -> Any:
-        return super().emit(*args, **kwargs)
+    def emit(self, signal_name: str, *args: Any, **kwargs: Any) -> Union[Any, None]:
+        """
+        Emit a signal with specified arguments.
 
-    def notify(self, property_name: str = None) -> None:
+        Args:
+            signal_name (str): The name of the signal to emit.
+            *args (Any): Variable length argument list.
+            **kwargs (Any): Arbitrary keyword arguments.
+
+        Returns:
+            Union[Any, None]: The return value of the signal emission.
+        """
+        if signal_name in self.list_properties():
+            return super().notify(signal_name)
+        elif signal_name in self.list_signals() or signal_name == "value-changed":
+            return super().emit(signal_name, *args, **kwargs)
+        else:
+            Logger.DEBUG(
+                f"signal/property {signal_name} not found in {self.__class__.__name__}"
+            )
+
+    def notify(self, property_name: str) -> None:
+        """
+        Notify observers about a property change.
+
+        Args:
+            property_name (str): The name of the property to notify about.
+
+        Returns:
+            None
+        """
         return super().notify(property_name)
 
-    def connect(self, signal_spec: str, *args: Any) -> object:
-        return super().connect(signal_spec, *args)
+    def connect(
+        self, signal_name: str, callback: Callable, *args: Any, **kwargs: Any
+    ) -> Union[object, None]:
+        """
+        Connect a signal to a callback function.
 
-    def bind(self, signal: str, initial_value: Any = 0):
-        new_var = Variable(initial_value)
+        Args:
+            signal_spec (str): The specification of the signal to connect.
+            *args (Any): Variable length argument list for the callback.
+
+        Returns:
+            object: The connection object.
+        """
+        # return super().connect(signal_name, callback, *args, **kwargs)
+
+        signal_name = (
+            signal_name.replace("notify::", "")
+            if signal_name.startswith("notify::")
+            else signal_name
+        )
+
+        if signal_name == "value-changed":
+            return super().connect(signal_name, callback, *args, **kwargs)
+
+        if not self.__check_signal(signal_name):
+            Logger.WARNING(
+                f"signal {signal_name} not found in {self.__class__.__name__}"
+            )
+
+        if signal_name in self.list_properties():
+            # return super().connect("notify::" + signal_name, callback)
+            prop: str = "_" + signal_name.replace("-", "_")
+            return super().connect(
+                "notify::" + signal_name,
+                lambda *args: callback(
+                    (args[0] if len(args) > 1 else args),
+                    self.property(prop),
+                ),
+                *args,
+                **kwargs,
+            )
+
+        elif signal_name in self.list_signals():
+            return super().connect(
+                signal_name,
+                callback,
+                # lambda *args: (callback(*(args[1:])) if len(args) > 1 else callback()),
+                *args,
+                **kwargs,
+            )
+        else:
+            return super().connect(signal_name, callback, *args, **kwargs)
+
+    def bind(self, signal: str, initial_value: Any) -> Union["Variable", None]:
+        """
+        Bind a variable to a signal/property emitted by the service.
+
+        Args:
+            signal (str): The name of the signal to bind to.
+
+            DEPRECATED:
+            initial_value (Any, optional): The initial value of the variable. Defaults to 0.
+
+        Returns:
+            Variable: The newly created bound variable.
+        """
+
+        signal = (
+            signal.replace("notify::", "") if signal.startswith("notify::") else signal
+        )
+        if not self.__check_signal(signal):
+            return
+
+        new_var = Variable("")
 
         _, _, _, line = traceback_extract_stack()[-2]
         index = line.find("=")
 
         if index != -1:
             setattr(new_var, "_name", line[:index].strip())
+
         else:
             setattr(new_var, "_name", "")
 
-        if signal.startswith("notify::"):
-            prop: str = signal.replace("notify::", "")
-            prop_name: str = prop.replace("-", "_")
+        if signal in self.list_properties():
+            prop = "_" + signal.replace("-", "_")
 
-            self.connect(signal, lambda *_: new_var.set_value(self.property(prop_name)))
-        else:
-            self.connect(signal, lambda _, value: new_var.set_value(value))
+            new_var.set_value(self.property(prop))
+
+        self.connect(signal, lambda _, val: new_var.set_value(val))
 
         return new_var
 
-    def property(self, property_name: str, new_value: Any = None) -> Union[None, Any]:
-        privprop_name: str = "_" + property_name
+    def property(self, property: str, new_value: Any = None) -> Union[None, Any]:
+        """
+        Get or set the value of a property. Its like setattr/getattr but using notify
+        to emit a signal if the value changes.
 
-        if hasattr(self, privprop_name):
+        Args:
+            property_name (str): The name of the property.
+            new_value (Any, optional): The new value for the property. Defaults to None.
+
+        Returns:
+            Union[None, Any]: The current value of the property or None if setting.
+        """
+        if hasattr(self, property):
+
             if new_value is not None:
-                setattr(self, privprop_name, new_value)
-                self.notify(property_name.replace("_", "-"))
+                if property.startswith("__"):
+                    signal = property[2:].replace("_", "-")
+                elif property.startswith("_"):
+                    signal = property[1:].replace("_", "-")
+                else:
+                    signal = property
+
+                if signal not in self.list_properties():
+                    Logger.WARNING(
+                        f"signal property {signal} not found in {self.__class__.__name__}"
+                    )
+                    return
+                else:
+                    setattr(
+                        self,
+                        property,
+                        new_value,
+                    )
+
+                    self.emit(signal)
+
             else:
-                return getattr(self, privprop_name)
+                return getattr(self, property)
+        else:
+            Logger.WARNING(
+                f"{self.__class__.__name__} doesnt have the the property {property}"
+            )
+
+    def __check_signal(self, signal_name: str):
+
+        if signal_name.startswith("notify::"):
+            signal_name = signal_name.split("notify::")[0]
+
+        if signal_name in (list(self.list_signals()) + list(self.list_properties())):
+            return True
+        else:
+            Logger.WARNING(
+                f"signal {signal_name} not found in {self.__class__.__name__}"
+            )
+            return False
+
+
+class Service(BaseGObjectClass):
+
+    _instance = None
+
+    __gproperties__: Dict[
+        str,
+        Union[
+            Tuple[
+                Type[bool],
+                str,
+                str,
+                bool,
+                GObject.ParamFlags,
+            ],
+            Tuple[
+                Type[str],
+                str,
+                str,
+                str,
+                GObject.ParamFlags,
+            ],
+            Tuple[
+                Type[int],
+                str,
+                str,
+                G_MININT,
+                G_MAXINT,
+                int,
+                GObject.ParamFlags,
+            ],
+            Tuple[
+                Type[float],
+                str,
+                str,
+                G_MAXDOUBLE,
+                G_MAXDOUBLE,
+                float,
+                GObject.ParamFlags,
+            ],
+            Tuple[
+                Type[object],
+                str,
+                str,
+                GObject.ParamFlags,
+            ],
+        ],
+    ] = {}
+
+    __gsignals__: Dict[
+        str,
+        Tuple[
+            GObject.SignalFlags,
+            Union[
+                Type[str],
+                Type[int],
+                Type[bool],
+                Type[float],
+                Type[object],
+                None,
+            ],
+            Tuple[
+                Union[
+                    Type[str],
+                    Type[int],
+                    Type[bool],
+                    Type[float],
+                    Type[object],
+                    None,
+                ],
+                ...,
+            ],
+        ],
+    ] = {}
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super().__new__(cls, *args, **kwargs)
+        return cls._instance
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    def __check_signal(self, signal_name: str):
+        return super().__check_signal(signal_name)
 
     @staticmethod
     def properties(
-        properties: Dict[str, List[Union[str, type]]],
-    ):
+        properties: Dict[
+            str,
+            List[
+                Union[
+                    Literal[
+                        "readable",
+                        "writable",
+                        "readwrite",
+                        "deprecated",
+                        "explicit-notify",
+                        "static-blurb",
+                        "static-name",
+                        "static-nick",
+                        "lax-validation",
+                        "private",
+                        "construct",
+                        "construct-only",
+                        #
+                        "d",
+                        "r",
+                        "w",
+                        "rw",
+                        "en",
+                        "sb",
+                        "sna",
+                        "sni",
+                        "lv",
+                        "priv",
+                        "c",
+                        "co",
+                    ],
+                    Type[str],
+                    Type[int],
+                    Type[bool],
+                    Type[float],
+                    Type[object],
+                    str,
+                ]
+            ],
+        ],
+    ) -> Dict[
+        str,
+        Union[
+            Tuple[
+                Type[bool],
+                str,
+                str,
+                bool,
+                GObject.ParamFlags,
+            ],
+            Tuple[
+                Type[str],
+                str,
+                str,
+                str,
+                GObject.ParamFlags,
+            ],
+            Tuple[
+                Type[int],
+                str,
+                str,
+                G_MININT,
+                G_MAXINT,
+                int,
+                GObject.ParamFlags,
+            ],
+            Tuple[
+                Type[float],
+                str,
+                str,
+                G_MAXDOUBLE,
+                G_MAXDOUBLE,
+                float,
+                GObject.ParamFlags,
+            ],
+            Tuple[
+                Type[object],
+                str,
+                str,
+                GObject.ParamFlags,
+            ],
+        ],
+    ]:
+        """
+        Generate GObject properties from a dictionary.
+
+        Args:
+            properties (Dict[str, List[Union[str, type]]]): A dictionary containing property information.
+
+        Returns:
+            Dict[str, tuple]: A dictionary of GObject properties.
+
+        Example:
+        .. code-block:: python
+            :linenos:
+            :caption: Example of generating GObject properties.
+
+            Service.signals(
+                {
+                    "notifications": [object],  # Since it's an array.
+                    "popups": [object],  # Also this.
+                    "count": [int],  # This data is an int.
+                    "dnd": [bool],  # Boolean.
+                }
+            )
+        """
+
         if not properties:
             return {}
 
         ParamFlags = GObject.ParamFlags
         new_gprops: Dict[str, tuple] = {}
-        #
-        allowed_types: List[type] = [int, str, bool, float, object]
 
+        #
         _flags: Dict[str, GObject.ParamFlags] = {
             "readable": ParamFlags.READABLE,
             "writable": ParamFlags.WRITABLE,
@@ -136,10 +465,6 @@ class Service(GObject.Object):
             if not prop_props or prop_type is None:
                 continue
 
-            if prop_type not in allowed_types:
-                prop_props[prop_props.index(prop_type)] = object
-                prop_type = object
-
             if prop_type in [str, bool]:
                 default_structure += [
                     False if prop_type == bool else "",
@@ -147,16 +472,16 @@ class Service(GObject.Object):
             elif prop_type in [int, float]:
                 default_structure += (
                     [
-                        GLib.MININT,  # noqa
-                        GLib.MAXINT,  # noqa
+                        G_MININT,  # noqa
+                        G_MAXINT,  # noqa
                         0,
-                    ]  # MAXINT/MININT not member of module Glib bablabla
+                    ]
                     if prop_type == int
                     else [
-                        -GLib.MINFLOAT,  # noqa
-                        GLib.MAXFLOAT,  # noqa
+                        -G_MAXDOUBLE,
+                        G_MAXDOUBLE,
                         0.0,
-                    ]  # MAXFLOAT/MINFLOAT not member of module Glib bablabla
+                    ]
                 )
 
             default_structure += [ParamFlags.READABLE]
@@ -181,15 +506,47 @@ class Service(GObject.Object):
 
     @staticmethod
     def signals(
-        signals: Dict[str, List[Union[str, type, list]]] = {},
+        signals: Dict[
+            str,
+            List[
+                Union[
+                    str,
+                    Type[Union[str, int, bool, float, object, None]],
+                    List[
+                        Union[
+                            Type[str],
+                            Type[int],
+                            Type[bool],
+                            Type[float],
+                            Type[object],
+                            None,
+                        ]
+                    ],
+                ]
+            ],
+        ] = {},
     ) -> Dict[
         str,
         Tuple[
             GObject.SignalFlags,
-            Union[type, None],
-            Tuple[type, ...],
+            Union[Type[str], Type[int], Type[bool], Type[float], Type[object], None],
+            Tuple[
+                Union[
+                    Type[str], Type[int], Type[bool], Type[float], Type[object], None
+                ],
+                ...,
+            ],
         ],
     ]:
+        """
+        Generate GObject signals from a dictionary.
+
+        Args:
+            signals (Dict[str, List[Union[str, type, list]]], optional): A dictionary containing signal information. Defaults to {}.
+
+        Returns:
+            Dict[str, Tuple[GObject.SignalFlags, Union[type, None], Tuple[type, ...]]]: A dictionary of GObject signals.
+        """
         if not signals:
             return {}
 
@@ -200,11 +557,13 @@ class Service(GObject.Object):
             for signal, parameters in signals.items():
 
                 default_structure = [SignalFlags.RUN_FIRST, None, []]
+
                 for i in parameters:
                     if isinstance(i, (type)):
                         default_structure[1] = i
                     elif isinstance(i, (list)):
                         default_structure[2] = i
+
                     elif isinstance(i, (str)):
                         default_structure[0] = {
                             "run-first": SignalFlags.RUN_FIRST,
@@ -226,28 +585,222 @@ class Service(GObject.Object):
         else:
             return {}
 
-    @staticmethod
-    def make_property(instance: object, prop_name: str) -> None:
-        private_name: str = "_" + prop_name
-        # val_type: type = type(getattr(instance, private_name, None))
-        # if val_type is None:
-        #    return
+    # @staticmethod
+    # def make_property(instance: object, prop_name: str) -> None:
+    #    """
+    #    Create a GObject property for a given instance.
+    #
+    #     Args:
+    #         instance (object): The instance for which to create the property.
+    #         prop_name (str): The name of the property.
+    #     Returns:
+    #         None
+    #    """
+    #    private_name: str = "_" + prop_name
+    #
+    #    def getter(self):
+    #        return getattr(self, private_name)
+    #
+    #    def setter(self, value):
+    #        self.notify(prop_name)
+    #        setattr(self, private_name, value)
+    #        setattr(instance.__class__, prop_name, property(getter, setter))
 
-        # def getter(self) -> val_type:
-        def getter(self):
-            return getattr(self, private_name)
 
-        # def setter(self, value: val_type):
-        def setter(self, value):
-            self.notify(prop_name)
-            setattr(self, private_name, value)
+class Variable(BaseGObjectClass):
+    """
+    Represents a variable with the ability to bind to a callback function.
 
-        setattr(instance.__class__, prop_name, property(getter, setter))
+    Signals:
+        valuechanged: A signal emitted when the value of the variable changes.
 
+    Attributes:
+        value: The current value of the variable.
+    """
 
-class ServiceChildren(Service):
-    def __new__(cls, *args, **kwargs):
-        return super().__new__(cls)
+    __gsignals__ = Service.signals({"value-changed": []})
+    __gproperties__ = Service.properties({"value": [object]})
 
-    def __init__(self) -> None:
+    def __init__(self, initial_value: Any = "") -> None:
+        """
+        Initializes a Variable object.
+
+        Args:
+            initial_value (Any): The initial value for the variable. Defaults to an empty string.
+        """
         super().__init__()
+        self._value: Any = initial_value
+
+        # Hacky Stuff
+        line: str
+        index: int
+        _, _, _, line = traceback_extract_stack()[-2]
+        index = line.find("=")
+
+        if index != -1:
+            self._name: str = line[:index].strip()
+        else:
+            self._name: str = ""
+
+    def get_value(self) -> Any:
+        """
+        Get the current value of the variable.
+
+        Returns:
+            Any: The current value of the variable.
+        """
+        return self.value
+
+    def set_value(self, new_value: Any) -> None:
+        """
+        Set a new value for the variable and emit the 'valuechanged' signal.
+
+        Args:
+            new_value: The new value for the variable.
+        """
+        self.value = new_value
+
+    @property
+    def value(self) -> Any:
+        """
+        Get the current value of the variable using a property.
+
+        Returns:
+            Any: The current value of the variable.
+        """
+        return self._value
+
+    @value.setter
+    def value(self, new_value: Any = None) -> None:
+        """
+        Set a new value for the variable using a property and emit the 'value-changed' signal.
+
+        Args:
+            new_value: The new value for the variable.
+        """
+        self._value = new_value
+        self.emit("value-changed")
+        self.emit("value")
+
+    def bind(self, callback: Callable):
+        """
+        Bind a callback function to the 'value-changed' signal.
+
+        Args:
+            callback: The callback function to bind.
+        """
+        return self.connect(
+            "value-changed",
+            lambda _self_: idle(callback, _self_.value),
+            # lambda _self_: callback(_self_.value),
+        )
+
+    @property
+    def __name__(self) -> str:
+        return self._name
+
+    def __str__(self) -> str:
+        """
+        Return a string representation of the variable.
+
+        Returns:
+            str: A string representation of the variable.
+        """
+        return str(self._value)
+
+    def __repr__(self) -> str:
+        return str(self._value)
+
+
+class Poll(Variable):
+    """
+    Represents a variable that polls a callback function at regular intervals.
+
+    Attributes:
+        _interval: The polling interval in milliseconds.
+        _callback: The callback function to poll.
+        _timeout_id: Identifier for the timeout source used for polling.
+    """
+
+    def __init__(
+        self, interval: Union[int, str], callback: Callable, initial_value: Any = ""
+    ) -> None:
+        """
+        Initializes a Poll object.
+
+        Args:
+            interval (Union[int, str]): The polling interval in milliseconds, or a string representing a time interval.
+            callback (Callable): The callback function to poll.
+            initial_value (Any): The initial value for the poll. Defaults to an empty string.
+        """
+        super().__init__(initial_value or callback())
+        self._interval = parse_interval(interval)
+        self._callback = callback
+        self._timeout_id = None
+        self.start_poll()
+
+    def is_polling(self) -> bool:
+        """
+        Check if the poll is currently active.
+
+        Returns:
+            bool: True if the poll is active, False otherwise.
+        """
+        return bool(self._timeout_id)
+
+    def stop_poll(self) -> None:
+        """
+        Stop the polling process.
+        """
+        if self._timeout_id:
+            GLib.source_remove(self._timeout_id)
+            self._timeout_id = None
+        else:
+            print(f"{self} has no poll running")
+
+    def start_poll(self) -> None:
+        """
+        Start the polling process.
+        """
+        if self.is_polling():
+            print(f"{self} is already polling")
+            return
+
+        self._timeout_id = GLib.timeout_add(
+            interval=self._interval or 1000,
+            function=self._poll_callback,
+        )
+
+    def _poll_callback(self):
+        """
+        Internal method to execute the callback function and update the value.
+        """
+        self.value = self._callback()
+        return True
+
+
+class Listener(Variable):
+    """
+    Represents a variable that listens for updates from a callback function running in a separate thread.
+    """
+
+    def __init__(self, callback: Callable, initial_value: Any = "") -> None:
+        """
+        Initializes a Listener object.
+
+        Args:
+            callback (Callable): The callback function to listen to for updates.
+            initial_value (Any): The initial value for the listener. Defaults to an empty string.
+        """
+        super().__init__(initial_value)
+        self._callback = callback
+        self._thread = GLib.Thread.new(
+            f"{initial_value=}-{self._callback.__name__}", self._exec_callback
+        )
+
+    def _exec_callback(self) -> None:
+        """
+        Internal method to execute the callback function in a separate thread.
+        """
+        for line in self._callback():
+            self.set_value(line)

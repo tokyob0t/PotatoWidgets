@@ -13,16 +13,16 @@ class BatteryService(Service):
     #    "energy-full": (GObject.SignalFlags.RUN_FIRST, None, (float,)),
     #    "energy-rate": (GObject.SignalFlags.RUN_FIRST, None, (float,)),
     # }
-    __gsignals__ = Service.signals(
+    __gproperties__ = Service.properties(
         {
-            "available": [[bool]],
-            "percentage": [[int]],
-            "state": [[int]],
-            "icon-name": [[str]],
-            "time-remaining": [[int]],
-            "energy": [[float]],
-            "energy-full": [[float]],
-            "energy-rate": [[float]],
+            "available": [bool],
+            "percentage": [int],
+            "state": [int],
+            "icon-name": [str],
+            "time-remaining": [int],
+            "energy": [float],
+            "energy-full": [float],
+            "energy-rate": [float],
         }
     )
 

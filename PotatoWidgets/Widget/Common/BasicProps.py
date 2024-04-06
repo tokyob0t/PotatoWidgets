@@ -6,13 +6,13 @@ from ...Variable import Listener, Poll, Variable
 class BasicProps(Gtk.Widget):
     def __init__(
         self,
-        halign: str,
-        valign: str,
-        hexpand: bool,
-        vexpand: bool,
-        classname: str,
+        halign: Literal["fill", "start", "center", "end", "baseline"] = "fill",
+        valign: Literal["fill", "start", "center", "end", "baseline"] = "fill",
+        hexpand: bool = False,
+        vexpand: bool = False,
+        classname: str = "",
         # tooltip,
-        css: str,
+        css: str = "",
         visible: Union[bool, None] = None,
         active: Union[bool, None] = None,
         size: Union[int, str, List[Union[int, str]], List[int]] = 0,
@@ -43,8 +43,9 @@ class BasicProps(Gtk.Widget):
                 "size": self.set_size,
                 "classname": self.set_classname,
             }.get(key)
-            if isinstance(value, (Listener, Poll, Variable)):
-                self.bind(value, callback) if callback else None
+            if callback:
+                if isinstance(value, (Listener, Poll, Variable)):
+                    self.bind(value, callback)
 
         attributes(self)
 
@@ -141,6 +142,7 @@ class BasicProps(Gtk.Widget):
         self, variable: Union[Listener, Poll, Variable], callback: Callable
     ) -> None:
         variable.bind(callback)
+        # self.connect("destroy", lambda _: variable.run_dispose())
 
     def attributes(self, callback: Callable) -> None:
         callback(self)

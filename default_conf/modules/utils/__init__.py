@@ -17,7 +17,7 @@ def UpdateVolume(stdout: str) -> None:
 
 
 def UpdateBrightness(
-    FileMonitor: Gio.FileMonitor, File: Gio.File, _: None, Event: Gio.FileMonitorEvent
+    _FileMonitor: Gio.FileMonitor, _File: Gio.File, _: None, Event: Gio.FileMonitorEvent
 ) -> None:
     if Event == Gio.FileMonitorEvent.CHANGED:
         output = Bash.get_output("brightnessctl")

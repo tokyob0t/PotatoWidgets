@@ -6,7 +6,7 @@ from PotatoWidgets import PotatoLoop
 def main() -> None:
 
     MyTopbar.open()
-    PotatoLoop()
+    PotatoLoop(run_without_services=True)
 
 
 if __name__ == "__main__":

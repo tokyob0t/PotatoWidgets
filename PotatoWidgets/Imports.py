@@ -17,14 +17,14 @@ from re import sub as re_sub
 from traceback import extract_stack as traceback_extract_stack
 from types import ModuleType
 from typing import (Any, Callable, Dict, List, Literal, NoReturn, Optional,
-                    Tuple, Union)
+                    Tuple, Type, Union)
 
 import dbus
 import dbus.service
 import gi
 from dbus import SessionBus
 from dbus.mainloop.glib import DBusGMainLoop
-from gi._propertyhelper import Property
+from gi._propertyhelper import G_MAXDOUBLE, G_MAXINT, G_MININT, TYPE_STRING
 
 for n, v in {
     "Gdk": "3.0",

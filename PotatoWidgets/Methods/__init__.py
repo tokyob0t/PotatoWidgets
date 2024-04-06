@@ -2,14 +2,14 @@
 This module provides utility functions for parsing intervals, getting screen sizes,
 waiting for timeouts, scheduling idle callbacks, looking up icons, and executing commands.
 
-    parse_interval: Parses intervals in milliseconds or seconds/minutes/hours.
-    get_screen_size: Retrieves the screen size of a specified monitor.
-    parse_screen_size: Parses screen size values (percentage, integer, or boolean).
     wait: Waits for a specified time and executes a callback function.
     interval: Sets up recurring intervals to execute a callback function.
     idle: Schedules a callback function to be executed when the main event loop is idle.
     lookup_icon: Looks up icons by name and returns file paths or icon information.
     getoutput: Executes a command and returns its output or error message.
+    parse_interval: Parses intervals in milliseconds or seconds/minutes/hours.
+    get_screen_size: Retrieves the screen size of a specified monitor.
+    parse_screen_size: Parses screen size values (percentage, integer, or boolean).
 
 Note: The getoutput method is deprecated and recommended to use Bash.get_output() instead.
 """
@@ -115,7 +115,9 @@ def parse_screen_size(value: Union[int, str], total: int = 0) -> int:
         return 10
 
 
-def wait(time_ms: Union[str, int], callback: Callable) -> int:
+def wait(
+    time_ms: Union[str, int], callback: Callable, *args: Any, **kwargs: Any
+) -> int:
     """Wait for a specified amount of time and then execute a callback function.
 
     Args:
@@ -127,14 +129,16 @@ def wait(time_ms: Union[str, int], callback: Callable) -> int:
     """
 
     def on_timeout() -> bool:
-        callback()
+        callback(*args, **kwargs)
         return False
 
     return GLib.timeout_add(parse_interval(time_ms), on_timeout)
 
 
-def interval(time_ms: Union[str, int], callback: Callable) -> int:
-    """Set up a recurring interval to execute a callback function.
+def interval(
+    time_ms: Union[str, int], callback: Callable, *args: Any, **kwargs: Any
+) -> int:
+    """Sets a function to be called at regular intervals.
 
     Args:
         time_ms (Union[str, int]): The interval between callback executions.
@@ -145,24 +149,24 @@ def interval(time_ms: Union[str, int], callback: Callable) -> int:
     """
 
     def on_timeout() -> bool:
-        callback()
+        callback(*args, **kwargs)
         return True
 
     return GLib.timeout_add(parse_interval(time_ms), on_timeout)
 
 
-def idle(callback: Callable) -> int:
-    """Schedule a callback function to be executed in the main event loop when it's idle.
+def idle(callback: Callable, *args: Any, **kwargs: Any) -> int:
+    """Schedule a callback function to be called whenever there
+    are no higher priority events pending to the default PotatoLoop.
+        Args:
+            callback (Callable): The function to call when the main event loop is idle.
 
-    Args:
-        callback (Callable): The function to call when the main event loop is idle.
-
-    Returns:
-        int: The ID of the idle source.
+        Returns:
+            int: The ID of the idle source.
     """
 
     def on_idle() -> bool:
-        callback()
+        callback(*args, **kwargs)
         return False
 
     return GLib.idle_add(on_idle)
