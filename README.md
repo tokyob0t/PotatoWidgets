@@ -2,11 +2,9 @@
 
 PotatoWidgets simplifies Python's interaction with GTK, offering a straightforward framework for creating graphical user interfaces effortlessly.
 
-
 ### Why PotatoWidgets?
 
 - **Pythonic Configuration**: Entirely configured in Python (and SCSS for added beauty), PotatoWidgets leverages Python's extensive library ecosystem, empowering you with all the tools you need for seamless development.
-  
 - **Built-in Functions and Services**: PotatoWidgets makes development easier by providing built-in functions and services to interact with your system, eliminating the need for external scripting.
 - **Various Examples**: Find illustrative examples for various functionalities on the project's wiki. If not available, you're welcome to contribute and help expand the library of examples. Check out the contributing guide to get started!
 
@@ -16,16 +14,17 @@ PotatoWidgets simplifies Python's interaction with GTK, offering a straightforwa
 pip install git+https://github.com/T0kyoB0y/PotatoWidgets.git
 ```
 
-### Peek into My Setup
+### Peek into [My Setup](https://github.com/T0kyoB0y/dotfiles/)
 
 #### BSPWM
-![BSPWM Setup](./img/setup4.png)  
+
+![BSPWM Setup](./img/setup4.png)
 
 #### Hyprland
+
 ![Hyprland Setup 1](./img/setup.png)
 ![Hyprland Setup 2](./img/setup2.png)
 ![Hyprland Setup 3](./img/setup3.png)
-
 
 ### Ready to Contribute?
 
@@ -50,7 +49,6 @@ Wanna contribute to the wiki? Here are some ways you can help:
 Feel free to add any examples or detailed explanations you think would be helpful!
 
 Thank you for your contributions! 🥔🚀
-  
 
 > "potato widgets can be resumed as 'the joke went to far, cannot stop now'"  
 > -- λ.midnight
