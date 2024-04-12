@@ -4,51 +4,114 @@ from ..Imports import *
 from .Service import Service
 
 
+@dataclass(frozen=True)
+class Client:
+    address: str
+    mapped: bool
+    hidden: bool
+    at: Tuple[int, int]
+    size: Tuple[int, int]
+    workspace: Dict[
+        Literal["id", "name"],
+        int,
+    ]
+    floating: bool
+    monitor: int
+    class_: str
+    title: str
+    initialClass: str
+    initialTitle: str
+    pid: int
+    xwayland: bool
+    pinned: bool
+    fullscreen: bool
+    fullscreenMode: int
+    fakeFullscreen: bool
+    grouped: list
+    swallowing: str
+    focusHistoryID: int
+
+
+@dataclass
+class Workspace:
+    id: int
+    name: str
+    monitor: str
+    monitorId: int
+    windows: int
+    hasfullscreen: bool
+    lastwindow: str
+    lastwindowtitle: str
+
+
+@dataclass
+class Monitor:
+    id: int
+    name: str
+    x: int
+    y: int
+    width: int
+    height: int
+    refreshRate: int
+    reserved: Tuple[int, int, int, int]
+    focused: bool
+    description: str
+    # make:str
+    # model:str
+    # serial:str
+
+
 # ToDo
 class HyprlandService(Service):
     # https://wiki.hyprland.org/IPC/#events-list
     __gsignals__ = Service.signals(
         {
-            "workspace": [[int]],
+            "workspace": [[str]],
             "workspacev2": [[int, str]],
             "focusedmon": [[str, str]],
             "activewindow": [[str, str]],
             "activewindowv2": [[str]],
+            # Monitor Things
             "fullscreen": [[bool]],
             "monitorremoved": [[str]],
             "monitoradded": [[str]],
-            "monitoraddedv2": [[str, str, str]],
+            "monitoraddedv2": [[int, str, str]],
+            # Workspace things
             "createworkspace": [[str]],
+            "createworkspacev2": [[int, str]],
             "destroyworkspace": [[str]],
             "destroyworkspacev2": [[str, str]],
             "moveworkspace": [[str, str]],
             "moveworkspacev2": [[str, str, str]],
             "renameworkspace": [[str, str]],
             "activespecial": [[str, str]],
-            "activelayout": [[str, str]],
+            # Windows
             "openwindow": [[str, str, str, str]],
             "closewindow": [[str]],
             "movewindow": [[str, str]],
             "movewindowv2": [[str, str, str]],
+            "windowtitle": [[str]],
+            "changefloatingmode": [[str, bool]],
+            "minimize": [[str, bool]],
+            "urgent": [[str]],
+            "pin": [[str, bool]],
+            # Layers
             "openlayer": [[str]],
             "closelayer": [[str]],
+            # Other
+            "activelayout": [[str, str]],
             "submap": [[str]],
-            "changefloatingmode": [[str, bool]],
-            "urgent": [[str]],
-            "minimize": [[str, bool]],
             "screencast": [[bool, str]],
-            "windowtitle": [[str]],
             "ignoregrouplock": [[bool]],
             "lockgroups": [[bool]],
             "configreloaded": [],
-            "pin": [[str, bool]],
         }
     )
     __gproperties__ = Service.properties(
         {
             "workspaces": [object],
             "monitors": [object],
-            "windows": [object],
+            "clients": [object],
         }
     )
 
@@ -58,12 +121,16 @@ class HyprlandService(Service):
         self._EVENTS_SOCKET: str = f"/tmp/hypr/{self.SIGNATURE}/.socket2.sock"
         self._COMMANDS_SOCKET: str = f"/tmp/hypr/{self.SIGNATURE}/.socket.sock"
         self.__start__()
-        self._workspaces = []
+        self._workspaces: List[Workspace] = []
         self._monitors = []
         self._windows = []
 
-        for i in self.list_signals() + self.list_properties():
+        for i in self.list_properties():
             self.emit(i)
+
+    def hyprctl(self, cmd, parse_dict: False) -> Union[str, dict]:
+
+        return ""
 
     def __start__(self) -> None:
         #
@@ -102,18 +169,32 @@ class HyprlandService(Service):
     def EVENTS_SOCKET(self) -> str:
         return self._EVENTS_SOCKET
 
-    def __handle_data_stream(self, signal: str, *args) -> None:
-        if signal in self.list_signals():
-            if "workspace" == signal:
-                args = int(args[0])
-                args = tuple([args])
-            elif "workspacev2" == signal:
-                args = int(args[0]), args[1]
+    def __handle_data_stream(self, signal: str, args: str) -> None:
+        if signal in self.list_signals() + self.list_properties():
+            _args: Union[tuple, list]
 
-            # print(signal, *args)
-            self.emit(signal, *args)
+            match signal:
+                case "workspace":
+                    _args = args.split(",", 1)
+                    _args = [int(_args[0])]
+                case "workspacev2":
+                    _args = args.split(",", 1)
+                    _args = [int(_args[0]), _args[1]]
+                case "fullscreen", "lockgroups", "ignoregrouplock":
+                    _args = args.split(",")
+                    _args = [bool(_args[0])]
+                case "openwindow":
+                    _args = args.split(",", 3)
+                case "activewindow":
+                    _args = args.split(",", 1)
+                case _:
+                    _args = args.split(",")
 
-            # self.emit(signal, *data.split(","))
+            # print(signal, ",".join(str(i) for i in _args))
+            self.emit(signal, *_args)
+        else:
+            Logger.DEBUG(f"New signal added, please open a issue on the gh page")
+            Logger.DEBUG(signal)
 
     def __read_stream(self, stream: Gio.DataInputStream, res: Gio.Task) -> None:
         signal: str
@@ -124,7 +205,7 @@ class HyprlandService(Service):
             output, _ = stream.read_line_finish_utf8(res)
             signal, data = output.split(">>")
 
-            self.__handle_data_stream(signal, *tuple(data.split(",")))
+            self.__handle_data_stream(signal, data)
 
         except Exception as r:
             print(r)

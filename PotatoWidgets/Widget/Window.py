@@ -141,15 +141,16 @@ class Window(Gtk.Window):
                     GtkLayerShell.set_anchor(self, j, False)
             else:
                 for j in position.split():
-                    _position = {
-                        "top": GtkLayerShell.Edge.TOP,
-                        "right": GtkLayerShell.Edge.RIGHT,
-                        "left": GtkLayerShell.Edge.LEFT,
-                        "bottom": GtkLayerShell.Edge.BOTTOM,
-                    }.get(j)
-
-                    if _position:
-                        GtkLayerShell.set_anchor(self, _position, True)
+                    GtkLayerShell.set_anchor(
+                        self,
+                        {
+                            "top": GtkLayerShell.Edge.TOP,
+                            "right": GtkLayerShell.Edge.RIGHT,
+                            "left": GtkLayerShell.Edge.LEFT,
+                            "bottom": GtkLayerShell.Edge.BOTTOM,
+                        }.get(j, GtkLayerShell.Edge.TOP),
+                        True,
+                    )
         else:
             _size = self.get_size() or [10, 10]
 

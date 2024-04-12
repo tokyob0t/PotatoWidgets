@@ -212,7 +212,7 @@ class NotificationsService(Service):
         self.emit("notifications")
 
         notif.connect("dismiss", self._on_dismiss)
-        notif.connect("close", self._on_close)
+        notif.connect("closed", self._on_close)
         notif.connect("action", self._on_action)
 
     def _on_action(self, notif: Notification, action: str) -> None:
@@ -232,7 +232,7 @@ class NotificationsService(Service):
 
         if notif.id in self._notifications:
             del self._notifications[notif.id]
-            self.emit("closed", id)
+            self.emit("closed", notif.id)
             self.emit("count")
 
     @property

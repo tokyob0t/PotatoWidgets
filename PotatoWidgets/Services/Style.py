@@ -38,3 +38,26 @@ class Style(Service):
         except Exception as e:
             print(f"Error loading CSS file:")
             print(e)
+
+    @staticmethod
+    def rgb(red, green, blue):
+        return "#{:02x}{:02x}{:02x}".format(red, green, blue)
+
+    @staticmethod
+    def rgba(red, green, blue, alpha):
+        alpha = round(alpha * 255)
+        return "#{:02x}{:02x}{:02x}{:02x}".format(red, green, blue, alpha)
+
+    @staticmethod
+    def mix(color_1, color_2, percentage):
+        if percentage < 0 or percentage > 1:
+            raise ValueError("El porcentaje debe estar entre 0 y 1")
+
+        r1, g1, b1 = int(color_1[1:3], 16), int(color_1[3:5], 16), int(color_1[5:7], 16)
+        r2, g2, b2 = int(color_2[1:3], 16), int(color_2[3:5], 16), int(color_2[5:7], 16)
+
+        r = round(r1 * (1 - percentage) + r2 * percentage)
+        g = round(g1 * (1 - percentage) + g2 * percentage)
+        b = round(b1 * (1 - percentage) + b2 * percentage)
+
+        return Style.rgb(r, g, b)

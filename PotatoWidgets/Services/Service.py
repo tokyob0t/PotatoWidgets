@@ -7,6 +7,77 @@ __all__ = ["Service"]
 
 
 class BaseGObjectClass(GObject.Object):
+
+    __gproperties__: Dict[
+        str,
+        Union[
+            Tuple[
+                Type[bool],
+                str,
+                str,
+                bool,
+                GObject.ParamFlags,
+            ],
+            Tuple[
+                Type[str],
+                str,
+                str,
+                str,
+                GObject.ParamFlags,
+            ],
+            Tuple[
+                Type[int],
+                str,
+                str,
+                G_MININT,
+                G_MAXINT,
+                int,
+                GObject.ParamFlags,
+            ],
+            Tuple[
+                Type[float],
+                str,
+                str,
+                G_MAXDOUBLE,
+                G_MAXDOUBLE,
+                float,
+                GObject.ParamFlags,
+            ],
+            Tuple[
+                Type[object],
+                str,
+                str,
+                GObject.ParamFlags,
+            ],
+        ],
+    ] = {}
+
+    __gsignals__: Dict[
+        str,
+        Tuple[
+            GObject.SignalFlags,
+            Union[
+                Type[str],
+                Type[int],
+                Type[bool],
+                Type[float],
+                Type[object],
+                None,
+            ],
+            Tuple[
+                Union[
+                    Type[str],
+                    Type[int],
+                    Type[bool],
+                    Type[float],
+                    Type[object],
+                    None,
+                ],
+                ...,
+            ],
+        ],
+    ] = {}
+
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
@@ -215,76 +286,6 @@ class BaseGObjectClass(GObject.Object):
 class Service(BaseGObjectClass):
 
     _instance = None
-
-    __gproperties__: Dict[
-        str,
-        Union[
-            Tuple[
-                Type[bool],
-                str,
-                str,
-                bool,
-                GObject.ParamFlags,
-            ],
-            Tuple[
-                Type[str],
-                str,
-                str,
-                str,
-                GObject.ParamFlags,
-            ],
-            Tuple[
-                Type[int],
-                str,
-                str,
-                G_MININT,
-                G_MAXINT,
-                int,
-                GObject.ParamFlags,
-            ],
-            Tuple[
-                Type[float],
-                str,
-                str,
-                G_MAXDOUBLE,
-                G_MAXDOUBLE,
-                float,
-                GObject.ParamFlags,
-            ],
-            Tuple[
-                Type[object],
-                str,
-                str,
-                GObject.ParamFlags,
-            ],
-        ],
-    ] = {}
-
-    __gsignals__: Dict[
-        str,
-        Tuple[
-            GObject.SignalFlags,
-            Union[
-                Type[str],
-                Type[int],
-                Type[bool],
-                Type[float],
-                Type[object],
-                None,
-            ],
-            Tuple[
-                Union[
-                    Type[str],
-                    Type[int],
-                    Type[bool],
-                    Type[float],
-                    Type[object],
-                    None,
-                ],
-                ...,
-            ],
-        ],
-    ] = {}
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -629,7 +630,8 @@ class Variable(BaseGObjectClass):
             initial_value (Any): The initial value for the variable. Defaults to an empty string.
         """
         super().__init__()
-        self._value: Any = initial_value
+        self._value: Any = None
+        self.value = initial_value
 
         # Hacky Stuff
         line: str

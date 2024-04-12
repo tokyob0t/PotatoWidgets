@@ -37,11 +37,11 @@ class Box(Gtk.Box, BasicProps):
             classname=classname,
         )
 
+        self.set_children(children)
         self.set_orientation(orientation)
         self.set_visible(visible)
         self.set_homogeneous(homogeneous) if homogeneous else None
-        self.set_children(children)
-        attributes(self) if attributes else None
+        attributes(self)
 
         for key, value in locals().items():
             if key not in [
@@ -67,6 +67,14 @@ class Box(Gtk.Box, BasicProps):
                     continue
 
                 self.bind(value, callback)
+
+    def add(self, widget: Union[Gtk.Widget, None]) -> None:
+        if widget:
+            return super().add(widget)
+
+    def remove(self, widget: Union[Gtk.Widget, None]) -> None:
+        if widget:
+            return super().remove(widget)
 
     def set_orientation(
         self,

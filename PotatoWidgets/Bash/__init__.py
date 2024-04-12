@@ -30,55 +30,6 @@ class Bash:
     """
 
     @staticmethod
-    def run(cmd: Union[list, str]) -> bool:
-        """
-        Run a command in the shell.
-
-             Args:
-                 cmd (Union[list, str]): The command to run.
-
-             Returns:
-                 bool: The exit status of the command.
-
-        """
-        if isinstance(cmd, list):
-            cmd = [Bash.expandvars(i) for i in cmd]
-        elif isinstance(cmd, str):
-            cmd = Bash.expandvars(cmd)
-
-        try:
-            # Using Glib's spawn_command_line_sync to run the command synchronously
-            result, _, _, _ = GLib.spawn_command_line_sync(cmd)
-            return result == 0
-        except Exception as e:
-            Logger.Warning(f"Error executing command: {e}")
-            return False
-
-    # @staticmethod
-    # def run(cmd: Union[List[str], str]) -> bool:
-    #    """
-    #    Run a command in the shell.
-    #
-    #    Args:
-    #        cmd (Union[List[str], str]): The command to run.
-    #
-    #    Returns:
-    #        bool: The exit status of the command.
-    #
-    #    """
-    #    if isinstance(cmd, (list)):
-    #        cmd = [Bash.expandvars(i) for i in cmd]
-    #    elif isinstance(cmd, (str)):
-    #        cmd = Bash.expandvars(cmd)
-    #
-    #    _proc: Gio.Subprocess = Gio.Subprocess.new(
-    #        flags=Gio.SubprocessFlags.STDERR_SILENCE
-    #        | Gio.SubprocessFlags.STDOUT_SILENCE,
-    #        argv=cmd,
-    #    )
-    #    return _proc.wait_check()
-
-    @staticmethod
     def dir_exists(path: str) -> bool:
         """
         Check if a directory exists at the specified path.
@@ -133,6 +84,32 @@ class Bash:
         return GLib.file_set_contents(filename=Bash.expandvars(path), contents="")
 
     @staticmethod
+    def run(cmd: Union[list, str]) -> bool:
+        """
+        Run a command in the shell.
+
+             Args:
+                 cmd (Union[list, str]): The command to run.
+
+             Returns:
+                 bool: The exit status of the command.
+
+        """
+        if isinstance(cmd, list):
+            cmd = [Bash.expandvars(i) for i in cmd]
+        elif isinstance(cmd, str):
+            cmd = Bash.expandvars(cmd)
+
+        try:
+            # Using Glib's spawn_command_line_sync to run the command synchronously
+            result, _, _, _ = GLib.spawn_command_line_sync("""bash -c "{cmd}" """)
+
+            return result == 0
+        except Exception as e:
+            Logger.WARNING(f"Error executing command: {e}")
+            return False
+
+    @staticmethod
     def get_output(cmd: str) -> str:
         """
         Run a shell command and return its output.
@@ -150,51 +127,12 @@ class Bash:
         cmd = Bash.expandvars(cmd)
 
         try:
-            _, stdout, stderr, state = GLib.spawn_command_line_sync(cmd)
+            _, stdout, stderr, state = GLib.spawn_command_line_sync(
+                f"""bash -c "{cmd}" """
+            )
             return stdout.decode() if state == 0 else stderr.decode()
         except:
             return ""
-
-    @staticmethod
-    def monitor_file(
-        path: str,
-        flags: Literal[
-            "none",
-            "send_moved",
-            "watch_moves",
-            "watch_mounts",
-            "hard_links",
-        ] = "none",
-    ):
-        """
-        Monitor changes to a file.
-
-        Args:
-            path (str): The path to the file to monitor.
-            flags: Flags to specify monitoring behavior.
-
-        Returns:
-            Gio.FileMonitor: The file monitor object.
-
-        """
-
-        file: Gio.File
-        monitor: Gio.FileMonitor
-        monitor_flags: Gio.FileMonitorFlags
-
-        if isinstance(flags, (str)):
-            monitor_flags = {
-                "none": Gio.FileMonitorFlags.NONE,
-                "send_moved": Gio.FileMonitorFlags.SEND_MOVED,
-                "watch_moves": Gio.FileMonitorFlags.WATCH_MOVES,
-                "watch_mounts": Gio.FileMonitorFlags.WATCH_MOUNTS,
-                "hard_links": Gio.FileMonitorFlags.WATCH_HARD_LINKS,
-            }.get(flags, Gio.FileMonitorFlags.NONE)
-
-        path = Bash.expandvars(path)
-        file = Gio.File.new_for_path(path)
-        monitor = file.monitor(flags=monitor_flags)
-        return monitor
 
     @staticmethod
     def popen(
@@ -287,6 +225,47 @@ class Bash:
 
         """
         return os_expanduser(os_expandvars(path))
+
+    @staticmethod
+    def monitor_file(
+        path: str,
+        flags: Literal[
+            "none",
+            "send_moved",
+            "watch_moves",
+            "watch_mounts",
+            "hard_links",
+        ] = "none",
+    ):
+        """
+        Monitor changes to a file.
+
+        Args:
+            path (str): The path to the file to monitor.
+            flags: Flags to specify monitoring behavior.
+
+        Returns:
+            Gio.FileMonitor: The file monitor object.
+
+        """
+
+        file: Gio.File
+        monitor: Gio.FileMonitor
+        monitor_flags: Gio.FileMonitorFlags
+
+        if isinstance(flags, (str)):
+            monitor_flags = {
+                "none": Gio.FileMonitorFlags.NONE,
+                "send_moved": Gio.FileMonitorFlags.SEND_MOVED,
+                "watch_moves": Gio.FileMonitorFlags.WATCH_MOVES,
+                "watch_mounts": Gio.FileMonitorFlags.WATCH_MOUNTS,
+                "hard_links": Gio.FileMonitorFlags.WATCH_HARD_LINKS,
+            }.get(flags, Gio.FileMonitorFlags.NONE)
+
+        path = Bash.expandvars(path)
+        file = Gio.File.new_for_path(path)
+        monitor = file.monitor(flags=monitor_flags)
+        return monitor
 
     @staticmethod
     def get_env(var: str) -> str:
