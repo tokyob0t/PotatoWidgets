@@ -1,11 +1,12 @@
-from PotatoWidgets import Bash, NotificationsService, Variable
+from PotatoWidgets import Bash, Variable
+from PotatoWidgets.Services import NotificationsService
 
 VOLUME = Variable(0)
 BRIGHTNESS = Variable(0)
-NOTIFICATIONS = NotificationsService().bind("count")
+NOTIFICATIONS = NotificationsService.bind("count")
 
 
-def UpdateVolume(_) -> None:
+def UpdateVolume() -> None:
     volume = Bash.get_output(
         "pactl get-sink-volume @DEFAULT_SINK@ | grep -Po '[0-9]{1,3}(?=%)' | head -1",
         int,
@@ -23,11 +24,11 @@ def UpdateBrightness() -> None:
         BRIGHTNESS.value = brightness
 
 
-BRIGHTNESS_FILE = Bash.get_output("ls /sys/class/backlight", list)[0]
+BRIGHTNESS_FILE = Bash.get_output("ls -1 /sys/class/backlight", list)[0]
 
 Bash.popen(
     """bash -c 'pactl subscribe | grep --line-buffered "on sink"' """,
-    stdout=UpdateVolume,
+    stdout=lambda _: UpdateVolume(),
 )
 
 Bash.monitor_file(

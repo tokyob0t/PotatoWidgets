@@ -1,8 +1,7 @@
 from datetime import datetime
 
-from PotatoWidgets import (Bash, BatteryService, NotificationsService, Poll,
-                           Widget, wait)
-from PotatoWidgets.Methods import interval
+from PotatoWidgets import Bash, Poll, Widget, interval
+from PotatoWidgets.Services import BatteryService
 
 from .utils import *
 
@@ -40,7 +39,7 @@ def Volume():
             return "audio-volume-muted-symbolic"
         elif value < 30:
             return "audio-volume-low-symbolic"
-        elif value < 65:
+        elif value < 60:
             return "audio-volume-medium-symbolic"
         else:
             return "audio-volume-high-symbolic"
@@ -62,15 +61,30 @@ def Volume():
 
 def Battery():
     icon = Widget.Icon(
-        icon=BatteryService().bind(
-            "icon-name", initial_value="battery-missing-symbolic"
-        ),
+        icon=BatteryService.bind("icon-name"),
         size=20,
     )
-    progressbar = Widget.ProgressBar(
-        BatteryService().bind("percentage"), valign="center"
-    )
+    progressbar = Widget.ProgressBar(BatteryService.bind("percentage"), valign="center")
     return [icon, progressbar]
+
+
+def NotifIndicator():
+    def wrapper(count: int):
+        if count:
+            return "user-available-symbolic"
+        return "user-idle-symbolic"
+
+    icon = Widget.Icon("user-available-symbolic", 20)
+    label = Widget.Label(NotificationsService.bind("count"))
+
+    NotificationsService.connect(
+        "count", lambda _, count: icon.set_icon(wrapper(count))
+    )
+
+    return Widget.Button(
+        Widget.Box([icon, label], spacing=10),
+        onclick=lambda: NotificationsService.clear(),
+    )
 
 
 def Topbar():
@@ -79,17 +93,7 @@ def Topbar():
         size=["100%", 50],
         children=Widget.CenterBox(
             css="background-color: #161616; padding: 0 20px;",
-            start=Widget.Box(
-                children=[
-                    Widget.Label(
-                        f"Notifications: {NOTIFICATIONS}",
-                        attributes=lambda self: self.bind(
-                            NOTIFICATIONS,
-                            lambda out: self.set_text(f"Notifications: {out}"),
-                        ),
-                    )
-                ]
-            ),
+            start=NotifIndicator(),
             center=Widget.Box(
                 spacing=10,
                 children=Workspaces() + Volume() + Brightness() + Battery(),
