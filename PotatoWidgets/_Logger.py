@@ -17,20 +17,20 @@ class Logger:
 
     @staticmethod
     def DEPRECATED(*args, **kwargs):
-        Logger._log(Logger.Colors.DEPRECATED, "DEPRECATED:", *args, **kwargs)
+        Logger._log(Logger.Colors.DEPRECATED, "[DEPRECATED]", *args, **kwargs)
 
     @staticmethod
     def WARNING(*args, **kwargs):
-        Logger._log(Logger.Colors.WARNING, "WARNING:", *args, **kwargs)
+        Logger._log(Logger.Colors.WARNING, "[WARNING]", *args, **kwargs)
 
     @staticmethod
     def SUCCESS(*args, **kwargs):
-        Logger._log(Logger.Colors.SUCCESS, "SUCCESS:", *args, **kwargs)
+        Logger._log(Logger.Colors.SUCCESS, "[SUCCESS]", *args, **kwargs)
 
     @staticmethod
     def DEBUG(*args, **kwargs):
-        Logger._log(Logger.Colors.DEBUG, "DEBUG:", *args, **kwargs)
+        Logger._log(Logger.Colors.DEBUG, "[DEBUG]", *args, **kwargs)
 
     @staticmethod
     def ERROR(*args, **kwargs):
-        Logger._log(Logger.Colors.ERROR, "ERROR:", *args, **kwargs)
+        Logger._log(Logger.Colors.ERROR, "[ERROR]", *args, **kwargs)

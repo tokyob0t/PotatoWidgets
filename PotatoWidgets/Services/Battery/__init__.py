@@ -1,18 +1,9 @@
-from ..Imports import *
-from .Service import Service
+from ..._Logger import Logger
+from ...Imports import *
+from ..Service import Service
 
 
-class BatteryService(Service):
-    # __gsignals__ = {
-    #    "available": (GObject.SignalFlags.RUN_FIRST, None, (bool,)),
-    #    "percentage": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
-    #    "state": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
-    #    "icon-name": (GObject.SignalFlags.RUN_FIRST, None, (str,)),
-    #    "time-remaining": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
-    #    "energy": (GObject.SignalFlags.RUN_FIRST, None, (float,)),
-    #    "energy-full": (GObject.SignalFlags.RUN_FIRST, None, (float,)),
-    #    "energy-rate": (GObject.SignalFlags.RUN_FIRST, None, (float,)),
-    # }
+class _BatteryService(Service):
     __gproperties__ = Service.properties(
         {
             "available": [bool],
@@ -28,7 +19,6 @@ class BatteryService(Service):
 
     def __init__(self, battery: str = "/org/freedesktop/UPower/devices/battery_BAT1"):
         super().__init__()
-
         self._battery = battery
 
         self._available: bool = False
@@ -59,9 +49,9 @@ class BatteryService(Service):
             "energy-full",
             "energy-rate",
         ],
-        initial_value: Any = 0,
+        format: Callable = lambda value: value,
     ):
-        return super().bind(signal, initial_value)
+        return super().bind(signal, format)
 
     def _get_all(self, *_) -> None:
 
@@ -120,3 +110,6 @@ class BatteryService(Service):
     @property
     def state(self) -> int:
         return self._state
+
+
+BatteryService = _BatteryService()

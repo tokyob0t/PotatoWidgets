@@ -18,11 +18,12 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "potatocli = PotatoWidgets.Cli.__main__:main",
+            # "potatocli = PotatoWidgets.Cli.main:main",
             # old
             # "potatocli = PotatoWidgets.PotatoCLI:main",
         ],
     },
+    scripts=["PotatoWidgets/Cli/potatocli"],
     author="T0kyoB0y",
     description="Widget system written in Python, using GTK+ and the GtkLayerShell.",
     long_description=open("README.md").read(),

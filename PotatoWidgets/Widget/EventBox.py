@@ -70,17 +70,19 @@ class EventBox(Gtk.EventBox, Events, BasicProps):
         arg_num = callback.__code__.co_argcount
         arg_tuple = callback.__code__.co_varnames[:arg_num]
 
-        if arg_num == 2:
-            callback(widget=widget, event=event)
-        elif arg_num == 1:
-            if "widget" in arg_tuple and widget:
-                callback(widget=widget)
-            elif "event" in arg_tuple and event:
-                callback(event=event)
-            else:
-                callback(event)
-        else:
-            callback()
+        match arg_num:
+
+            case 2:
+                callback(widget=widget, event=event)
+            case 1:
+                if "widget" in arg_tuple and widget:
+                    callback(widget=widget)
+                elif "event" in arg_tuple and event:
+                    callback(event=event)
+                else:
+                    callback(event)
+            case _:
+                callback()
 
     # def __click_event(self, _):
     #     callback = self.dict.get("onclick", None)
@@ -88,36 +90,39 @@ class EventBox(Gtk.EventBox, Events, BasicProps):
     #         self.__clasif_args(self, None, callback)
 
     def __clasif_scroll(self, widget, event):
-        if event == Gdk.ScrollDirection.UP:
-            callback = self.dict.get("onscrollup", None)
-        elif event == Gdk.ScrollDirection.DOWN:
-            callback = self.dict.get("onscrolldown", None)
-        else:
-            callback = None
+        match event:
+            case Gdk.ScrollDirection.UP:
+                callback = self.dict.get("onscrollup", None)
+            case Gdk.ScrollDirection.DOWN:
+                callback = self.dict.get("onscrolldown", None)
+            case _:
+                callback = None
 
         if callback:
             self.__clasif_args(widget, event, callback)
 
     def __press_event(self, widget, event):
-        if event.button == Gdk.BUTTON_PRIMARY:
-            callback = self.dict.get("primaryhold", None)
-        elif event.button == Gdk.BUTTON_SECONDARY:
-            callback = self.dict.get("secondaryhold", None)
-        elif event.button == Gdk.BUTTON_MIDDLE:
-            callback = self.dict.get("onmiddleclick", None)
-        else:
-            callback = None
+        match event.button:
+            case Gdk.BUTTON_PRIMARY:
+                callback = self.dict.get("primaryhold", None)
+            case Gdk.BUTTON_SECONDARY:
+                callback = self.dict.get("secondaryhold", None)
+            case Gdk.BUTTON_MIDDLE:
+                callback = self.dict.get("onmiddleclick", None)
+            case _:
+                callback = None
 
         if callback:
             self.__clasif_args(widget, event, callback)
 
     def __release_event(self, widget, event):
-        if event.button == Gdk.BUTTON_PRIMARY:
-            callback = self.dict.get("primaryrelease", None)
-        elif event.button == Gdk.BUTTON_SECONDARY:
-            callback = self.dict.get("secondaryrelease", None)
-        else:
-            callback = None
+        match event.button:
+            case Gdk.BUTTON_PRIMARY:
+                callback = self.dict.get("primaryrelease", None)
+            case Gdk.BUTTON_SECONDARY:
+                callback = self.dict.get("secondaryrelease", None)
+            case _:
+                callback = None
 
         if callback:
             self.__clasif_args(widget, event, callback)

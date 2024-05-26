@@ -7,11 +7,11 @@ class Window(Gtk.Window):
     def __init__(
         self,
         size: List[Union[str, int]] = [-1, -1],
-        at: dict = {},
+        at: Dict[Literal["left", "right", "top", "bottom"], Union[int, str]] = {},
         position: str = "center",
         layer: str = "top",
         exclusive: Union[bool, int] = False,
-        children: Gtk.Widget = Gtk.Box(),
+        children: Union[Gtk.Widget, None] = None,
         focusable: Literal[True, False, "none", "on-demand", "exclusive"] = "none",
         monitor: int = 0,
         namespace: str = "gtk-layer-shell",
@@ -197,12 +197,15 @@ class Window(Gtk.Window):
                     "right": GtkLayerShell.Edge.RIGHT,
                 }.get(key)
 
-                if _key:
-                    if key in ["bottom", "top"]:
-                        GtkLayerShell.set_margin(self, _key, value)
-                    elif key in ["left", "right"]:
-                        value = parse_screen_size(value, width)
-                        GtkLayerShell.set_margin(self, _key, value)
+                if not _key:
+                    continue
+
+                if key in ["bottom", "top"]:
+                    value = parse_screen_size(value, height)
+                    GtkLayerShell.set_margin(self, _key, value)
+                elif key in ["left", "right"]:
+                    value = parse_screen_size(value, width)
+                    GtkLayerShell.set_margin(self, _key, value)
         else:
             _size = self.get_size() or [10, 10]
 

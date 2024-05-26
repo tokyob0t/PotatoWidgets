@@ -2,7 +2,7 @@ from typing import Dict, List
 
 from PotatoWidgets import Bash, Variable, Widget
 
-keys: List[str] = Bash.get_output("bspc query --desktops").splitlines()
+keys: List[str] = Bash.get_output("bspc query --desktops", list)
 values: List[int] = [i for i in range(1, len(keys) + 1)]
 
 ActiveWorkspace = Variable(1)
@@ -27,7 +27,7 @@ Bash.popen(
 # Topbar Elements
 def WorkspaceButton(id):
     my_button = Widget.Button(
-        onclick=lambda: Bash.run(f"bspc desktop --focus {id}"),
+        onclick=lambda: Bash.run_async(f"bspc desktop --focus {id}"),
         valign="center",
         children=Widget.Label(id),
         attributes=lambda self: (
@@ -36,7 +36,7 @@ def WorkspaceButton(id):
                 ActiveWorkspace,
                 lambda out: (
                     self.set_css("background: blue;")
-                    if out == getattr(self, "id")
+                    if out == self.id
                     else self.set_css("background: unset;")
                 ),
             ),
@@ -47,4 +47,5 @@ def WorkspaceButton(id):
 
 
 def Workspaces():
-    return [WorkspaceButton(i) for i in WorkspaceMapping.values()]
+    return list(map(WorkspaceButton, WorkspaceMapping.values()))
+    # return [WorkspaceButton(i) for i in WorkspaceMapping.values()]

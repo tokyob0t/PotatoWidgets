@@ -1,9 +1,10 @@
-from PotatoWidgets import BatteryService, Widget
+from PotatoWidgets import Widget
+from PotatoWidgets.Services import BatteryService
 
 BatteryModule = Widget.Overlay(
     [
         Widget.ProgressBar(
-            value=BatteryService().bind("percentage"),
+            value=BatteryService.bind("percentage"),
             orientation="v",
             halign="center",
             classname="battery-progress",

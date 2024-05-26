@@ -1,7 +1,7 @@
-from .._Logger import Logger
-from ..Env import *
-from ..Imports import *
-from ..Methods import idle, parse_interval
+from ..._Logger import Logger
+from ...Env import *
+from ...Imports import *
+from ...Methods import idle, parse_interval
 
 __all__ = ["Service"]
 
@@ -11,29 +11,10 @@ class BaseGObjectClass(GObject.Object):
     __gproperties__: Dict[
         str,
         Union[
-            Tuple[
-                Type[bool],
-                str,
-                str,
-                bool,
-                GObject.ParamFlags,
-            ],
-            Tuple[
-                Type[str],
-                str,
-                str,
-                str,
-                GObject.ParamFlags,
-            ],
-            Tuple[
-                Type[int],
-                str,
-                str,
-                G_MININT,
-                G_MAXINT,
-                int,
-                GObject.ParamFlags,
-            ],
+            Tuple[Type[object], str, str, GObject.ParamFlags],
+            Tuple[Type[bool], str, str, bool, GObject.ParamFlags],
+            Tuple[Type[str], str, str, str, GObject.ParamFlags],
+            Tuple[Type[int], str, str, G_MININT, G_MAXINT, int, GObject.ParamFlags],
             Tuple[
                 Type[float],
                 str,
@@ -43,14 +24,8 @@ class BaseGObjectClass(GObject.Object):
                 float,
                 GObject.ParamFlags,
             ],
-            Tuple[
-                Type[object],
-                str,
-                str,
-                GObject.ParamFlags,
-            ],
         ],
-    ] = {}
+    ]
 
     __gsignals__: Dict[
         str,
@@ -76,7 +51,7 @@ class BaseGObjectClass(GObject.Object):
                 ...,
             ],
         ],
-    ] = {}
+    ]
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -186,34 +161,38 @@ class BaseGObjectClass(GObject.Object):
         else:
             return super().connect(signal_name, callback, *args, **kwargs)
 
-    def bind(self, signal: str, initial_value: Any) -> Union["Variable", None]:
+    def bind(
+        self, signal: str, format: Callable = lambda *value: value, *args, **kwargs
+    ) -> "Variable":
         """
         Bind a variable to a signal/property emitted by the service.
 
         Args:
             signal (str): The name of the signal to bind to.
-
-            DEPRECATED:
-            initial_value (Any, optional): The initial value of the variable. Defaults to 0.
+            format (Callable): The format function to apply to the value.
 
         Returns:
             Variable: The newly created bound variable.
         """
 
+        if not isinstance(format, Callable):
+            _, _, _, line = traceback_extract_stack()[-2]
+            raise Exception(line)
+
         signal = (
             signal.replace("notify::", "") if signal.startswith("notify::") else signal
         )
-        if not self.__check_signal(signal):
-            return
 
-        new_var = Variable("")
+        if not self.__check_signal(signal):
+            raise Exception("Signal", signal, "doesnt exist")
+
+        new_var = Variable("", format=format)
 
         _, _, _, line = traceback_extract_stack()[-2]
         index = line.find("=")
 
         if index != -1:
             setattr(new_var, "_name", line[:index].strip())
-
         else:
             setattr(new_var, "_name", "")
 
@@ -222,7 +201,7 @@ class BaseGObjectClass(GObject.Object):
 
             new_var.set_value(self.property(prop))
 
-        self.connect(signal, lambda _, val: new_var.set_value(val))
+        self.connect(signal, lambda _, val: new_var.set_value(val, *args, **kwargs))
 
         return new_var
 
@@ -284,19 +263,15 @@ class BaseGObjectClass(GObject.Object):
 
 
 class Service(BaseGObjectClass):
-
     _instance = None
 
     def __new__(cls, *args, **kwargs):
-        if not cls._instance:
+        if cls._instance is None:
             cls._instance = super().__new__(cls, *args, **kwargs)
         return cls._instance
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-
-    def __check_signal(self, signal_name: str):
-        return super().__check_signal(signal_name)
 
     @staticmethod
     def properties(
@@ -343,29 +318,10 @@ class Service(BaseGObjectClass):
     ) -> Dict[
         str,
         Union[
-            Tuple[
-                Type[bool],
-                str,
-                str,
-                bool,
-                GObject.ParamFlags,
-            ],
-            Tuple[
-                Type[str],
-                str,
-                str,
-                str,
-                GObject.ParamFlags,
-            ],
-            Tuple[
-                Type[int],
-                str,
-                str,
-                G_MININT,
-                G_MAXINT,
-                int,
-                GObject.ParamFlags,
-            ],
+            Tuple[Type[object], str, str, GObject.ParamFlags],
+            Tuple[Type[bool], str, str, bool, GObject.ParamFlags],
+            Tuple[Type[str], str, str, str, GObject.ParamFlags],
+            Tuple[Type[int], str, str, G_MININT, G_MAXINT, int, GObject.ParamFlags],
             Tuple[
                 Type[float],
                 str,
@@ -373,12 +329,6 @@ class Service(BaseGObjectClass):
                 G_MAXDOUBLE,
                 G_MAXDOUBLE,
                 float,
-                GObject.ParamFlags,
-            ],
-            Tuple[
-                Type[object],
-                str,
-                str,
                 GObject.ParamFlags,
             ],
         ],
@@ -499,7 +449,7 @@ class Service(BaseGObjectClass):
                         default_structure[-1] = _flags.get(i, ParamFlags.READABLE)
 
                     else:
-                        default_structure[1], default_structure[2] = prop_name
+                        default_structure[1] = default_structure[2] = prop_name
 
                 new_gprops[prop_name] = tuple(default_structure)
 
@@ -622,7 +572,9 @@ class Variable(BaseGObjectClass):
     __gsignals__ = Service.signals({"value-changed": []})
     __gproperties__ = Service.properties({"value": [object]})
 
-    def __init__(self, initial_value: Any = "") -> None:
+    def __init__(
+        self, initial_value: Any = "", *, format: Callable = lambda value: value
+    ) -> None:
         """
         Initializes a Variable object.
 
@@ -631,6 +583,7 @@ class Variable(BaseGObjectClass):
         """
         super().__init__()
         self._value: Any = None
+        self._format: Callable = format
         self.value = initial_value
 
         # Hacky Stuff
@@ -643,6 +596,14 @@ class Variable(BaseGObjectClass):
             self._name: str = line[:index].strip()
         else:
             self._name: str = ""
+
+    @property
+    def format(self) -> Callable:
+        return self._format
+
+    @format.setter
+    def format(self, callback: Callable) -> None:
+        self._format = callback
 
     def get_value(self) -> Any:
         """
@@ -684,17 +645,26 @@ class Variable(BaseGObjectClass):
         self.emit("value-changed")
         self.emit("value")
 
-    def bind(self, callback: Callable):
+    def bind(
+        self,
+        callback: Callable,
+        format: Union[Callable, None] = None,
+        *args,
+        **kwargs,
+    ) -> object:
         """
         Bind a callback function to the 'value-changed' signal.
 
         Args:
             callback: The callback function to bind.
         """
+        if format:
+            self.format = format
+
         return self.connect(
             "value-changed",
-            lambda _self_: idle(callback, _self_.value),
-            # lambda _self_: callback(_self_.value),
+            lambda _self_: idle(callback, self.format(_self_.value), *args, **kwargs),
+            # lambda _self_: callback(_self_.value, *args, **kwargs),
         )
 
     @property
@@ -702,16 +672,11 @@ class Variable(BaseGObjectClass):
         return self._name
 
     def __str__(self) -> str:
-        """
-        Return a string representation of the variable.
-
-        Returns:
-            str: A string representation of the variable.
-        """
-        return str(self._value)
+        return str(self.value)
+        # return f"{self.__name__}(value={self._value})"
 
     def __repr__(self) -> str:
-        return str(self._value)
+        return self.__str__()
 
 
 class Poll(Variable):

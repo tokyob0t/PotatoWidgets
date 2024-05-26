@@ -1,4 +1,5 @@
-from PotatoWidgets import Applications, Variable, Widget, lookup_icon
+from PotatoWidgets import Variable, Widget, lookup_icon
+from PotatoWidgets.Services import Applications
 
 
 def GenerateApp(entry):
@@ -59,7 +60,7 @@ def GenerateApp(entry):
 
 AppQuery = Variable("")
 
-SortedAppsByName = Applications().get_all()
+SortedAppsByName = Applications.get_all()
 SortedAppsByName.sort(key=lambda app: app.name)
 
 

@@ -8,18 +8,24 @@ ActiveWorkspace = Variable(0)
 
 # Sorry, I havent fully implemented the Hyprland service yet
 Bash.popen(
-    f"socat -u UNIX-CONNECT:/tmp/hypr/{Signature}/.socket2.sock -",
+    [
+        "bash",
+        "-c",
+        f"""socat -u UNIX-CONNECT:/tmp/hypr/{Signature}/.socket2.sock - | grep --line-buffered -v -e "socat" -e "destroyworkspace" -e "createworkspace" | grep --line-buffered "workspace>>" """,
+    ],
     stdout=lambda stdout: (
-        ActiveWorkspace.set_value(int(stdout.split(">>")[1]))
-        if "workspace>>" in stdout
-        else None
+        ActiveWorkspace.set_value(
+            int(
+                stdout.split(">>")[1],
+            ),
+        ),
     ),
 )
 
 
 def WorkspaceButton(id):
     my_button = Widget.Button(
-        onclick=lambda: Bash.run(f"hyprctl dispatch workspace {id}"),
+        onclick=lambda: Bash.run_async(f"hyprctl dispatch workspace {id}"),
         valign="center",
         children=Widget.Label(id),
         attributes=lambda self: (
@@ -28,7 +34,7 @@ def WorkspaceButton(id):
                 ActiveWorkspace,
                 lambda out: (
                     self.set_css("background: blue;")
-                    if out == getattr(self, "id")
+                    if out == self.id
                     else self.set_css("background: unset;")
                 ),
             ),
@@ -39,4 +45,5 @@ def WorkspaceButton(id):
 
 
 def Workspaces():
-    return [WorkspaceButton(i) for i in range(1, 11)]
+    return list(map(WorkspaceButton, range(1, 11)))
+    # return [WorkspaceButton(i) for i in range(1, 11)]

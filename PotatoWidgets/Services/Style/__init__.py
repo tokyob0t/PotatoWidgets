@@ -1,10 +1,9 @@
-from ..Env import FILE_CACHE_CSS
-from ..Imports import *
-from ..Methods import lookup_icon, parse_interval, wait
-from .Service import *
+from ...Env import FILE_CACHE_CSS
+from ...Imports import *
+from ..Service import Service
 
 
-class Style(Service):
+class _Style(Service):
     @staticmethod
     def load_css(css_path) -> None:
 
@@ -60,4 +59,7 @@ class Style(Service):
         g = round(g1 * (1 - percentage) + g2 * percentage)
         b = round(b1 * (1 - percentage) + b2 * percentage)
 
-        return Style.rgb(r, g, b)
+        return _Style.rgb(r, g, b)
+
+
+Style = _Style()

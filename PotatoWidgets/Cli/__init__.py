@@ -1,18 +1,43 @@
 from .. import Widget
 from .._Logger import Logger
 from ..Imports import *
-from ..Services.Service import Listener, Poll, Variable
+from ..Services.Service import Listener, Poll, Service, Variable
 
-__all__ = []
+__all__ = ["PotatoService"]
+
+com_T0kyoB0y_PotatoWidgets = """
+<?xml version="1.0" encoding="UTF-8"?>
+<node>
+   <interface name="com.T0kyoB0y.PotatoWidgets">
+      <method name="ListWindows">
+         <arg name="return" type="as" direction="out" />
+      </method>
+      <method name="ListFunctions">
+         <arg name="return" type="as" direction="out" />
+      </method>
+      <method name="ListVariables">
+         <arg name="return" type="as" direction="out" />
+      </method>
+      <method name="CallFunction">
+         <arg name="callback_name" type="s" direction="in" />
+         <arg name="return" type="s" direction="out" />
+      </method>
+      <method name="WindowAction">
+         <arg name="action" type="s" direction="in" />
+         <arg name="window_name" type="s" direction="in" />
+         <arg name="return" type="s" direction="out" />
+      </method>
+   </interface>
+</node>
+"""
+
+NodeInfo = Gio.DBusNodeInfo.new_for_xml(com_T0kyoB0y_PotatoWidgets)
 
 
-class PotatoDbusService(dbus.service.Object):
-    def __init__(self, confdir: str):
+class PotatoService(Service):
+    def __init__(self, confdir: str) -> None:
+        super().__init__()
 
-        bus_name = dbus.service.BusName(
-            "com.T0kyoB0y.PotatoWidgets", bus=dbus.SessionBus()
-        )
-        super().__init__(bus_name, "/com/T0kyoB0y/PotatoWidgets")
         DATA = {"windows": [], "functions": [], "variables": []}
         try:
             module_name: str = confdir.split("/").pop(-1)
@@ -43,8 +68,7 @@ class PotatoDbusService(dbus.service.Object):
             Logger.WARNING(f"File __init__.py not found in {confdir}")
 
         except Exception as e:
-            Logger.ERROR(f"Unexpected error in {confdir}:")
-            print(e)
+            Logger.ERROR(f"Unexpected error in {confdir}:\n", e)
 
         self.data = {
             "windows": [
@@ -64,31 +88,33 @@ class PotatoDbusService(dbus.service.Object):
             ],
         }
 
-    @dbus.service.method(
-        "com.T0kyoB0y.PotatoWidgets", in_signature="", out_signature="as"
-    )
-    def ListWindows(self) -> List[str]:
-        return [
-            ("*" if i["window"].get_visible() else "") + i["name"]
-            for i in self.data["windows"]
-        ]
+        self.__register__()
 
-    @dbus.service.method(
-        "com.T0kyoB0y.PotatoWidgets", in_signature="", out_signature="as"
-    )
-    def ListFunctions(self) -> List[str]:
-        return [i["name"] for i in self.data["functions"]]
+    def ListWindows(self) -> GLib.Variant:
+        if self.data["windows"]:
+            return GLib.Variant(
+                "(as)",
+                (
+                    (
+                        f"{'*' if i['window'].get_visible() else ''}{i['name']}"
+                        for i in self.data["windows"]
+                    ),
+                ),
+            )
 
-    @dbus.service.method(
-        "com.T0kyoB0y.PotatoWidgets", in_signature="", out_signature="as"
-    )
-    def ListVariables(self) -> List[str]:
-        return [i["name"] for i in self.data["variables"]]
+        return GLib.Variant("(as)", (("none",),))
 
-    @dbus.service.method(
-        "com.T0kyoB0y.PotatoWidgets", in_signature="s", out_signature="s"
-    )
-    def CallFunction(self, callback_name: str) -> str:
+    def ListFunctions(self) -> GLib.Variant:
+        if self.data["functions"]:
+            return GLib.Variant("(as)", ((i["name"] for i in self.data["functions"]),))
+        return GLib.Variant("(as)", (("none",),))
+
+    def ListVariables(self) -> GLib.Variant:
+        if self.data["variables"]:
+            return GLib.Variant("(as)", ((i["name"] for i in self.data["variables"]),))
+        return GLib.Variant("(as)", (("none",),))
+
+    def CallFunction(self, callback_name: str) -> GLib.Variant:
         callback: Union[Callable, None] = next(
             (
                 i["function"]
@@ -100,46 +126,87 @@ class PotatoDbusService(dbus.service.Object):
         if callback is not None:
             try:
                 callback()
-                return "ok"
+                return GLib.Variant("(s)", ("ok",))
             except Exception as r:
-                return str(r)
-        else:
-            return "notfound"
+                return GLib.Variant("(s)", (str(r),))
+        return GLib.Variant("(s)", ("notfound",))
 
-    @dbus.service.method(
-        "com.T0kyoB0y.PotatoWidgets", in_signature="ss", out_signature="s"
-    )
-    def WindowAction(self, action: str, window_name: str) -> str:
+    def WindowAction(self, action: str, window_name: str) -> GLib.Variant:
         window: Union[Widget.Window, None] = next(
             (i["window"] for i in self.data["windows"] if i["name"] == window_name),
             None,
         )
+        if not window:
+            return GLib.Variant("(s)", ("notfound",))
 
-        if window is not None:
-            try:
-                if action == "toggle":
+        try:
+            match action:
+                case "toggle":
                     window.toggle()
-                elif action == "open":
+                case "open":
                     window.open()
-                elif action == "close":
+                case "close":
                     window.close()
-                return "ok"
+                case _:
+                    return GLib.Variant("(s)", ("invalid",))
+            return GLib.Variant("(s)", ("ok",))
+        except:
+            return GLib.Variant("(s)", ("error",))
 
-            except:
-                return "error"
-        else:
-            return "notfound"
-
-    """
-    @dbus.service.method(
-        "com.T0kyoB0y.PotatoWidgets", in_signature="sss", out_signature=""
-    )
-    def UpdateVar(self, var: str, value: str, value_type: str) -> None:
-        variable: Union[Variable, Listener, Poll, None] = next(
-            (i["var"] for i in self.data["variables"] if i["name"] == var), None
+    def __register__(self) -> None:
+        Gio.bus_own_name(
+            Gio.BusType.SESSION,
+            "com.T0kyoB0y.PotatoWidgets",
+            Gio.BusNameOwnerFlags.DO_NOT_QUEUE,
+            self.__on_success__,
+            None,
+            self.__on_failed__,
         )
-        if variable is not None:
-            _type = eval(value_type)
-            if _type:
-                variable.set_value(_type(value))
-    """
+
+    def __on_success__(
+        self,
+        Connection: Gio.DBusConnection,
+        BusName: Literal["org.freedesktop.Notifications"],
+    ):
+
+        Connection.register_object(
+            "/com/T0kyoB0y/PotatoWidgets",
+            NodeInfo.interfaces[0],
+            self.__on_call__,
+        )
+
+    def __on_failed__(
+        self,
+        Connection: Gio.DBusConnection,
+        BusName: Literal["org.freedesktop.Notifications"],
+    ):
+        print("error")
+
+    def __on_call__(
+        self,
+        Connection: Gio.DBusConnection,
+        Sender: str,
+        Path: Literal["/org/freedesktop/Notifications"],
+        BusName: Literal["org.freedesktop.Notifications"],
+        Method: str,
+        Parameters: tuple,
+        MethodInvocation: Gio.DBusMethodInvocation,
+    ):
+        # print(Method, Parameters)
+        try:
+            match Method:
+                case "CallFunction":
+                    MethodInvocation.return_value(self.CallFunction(*Parameters))
+                case "ListWindows":
+                    MethodInvocation.return_value(self.ListWindows())
+                case "ListFunctions":
+                    MethodInvocation.return_value(self.ListFunctions())
+                case "ListVariables":
+                    MethodInvocation.return_value(self.ListVariables())
+                case "WindowAction":
+                    MethodInvocation.return_value(self.WindowAction(*Parameters))
+
+        except Exception as r:
+            print("ERRORRRRR: ", r)
+        finally:
+            return Connection.flush()

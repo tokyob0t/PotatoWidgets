@@ -16,17 +16,30 @@ from ..Imports import *
 __all__ = ["Bash"]
 
 
+__monitors__ = []
+
+T = TypeVar("T", str, int, dict, float, bool, list, bytes, tuple)
+
+
 class Bash:
     """
     Utility class for shell-related operations using GLib and Gio libraries.
 
     Methods:
-        - run: Run a command in the shell.
-        - get_env: Get the value of an environment variable.
-        - get_output: Get the output of a command run in the shell.
-        - popen: Open a subprocess to run a command.
-        - monitor_file: Monitor changes to a file.
+        - mkdir: Create a directory at the specified path.
+        - touch: Create a file at the specified path.
+        - cat: Read and return the contents of a file.
+        - run: Run a command in the shell (BLOCKING operation).
+        - run_async: Run a command in the shell and pass output to a callback (NON-BLOCKING operation).
+        - get_output: Run a shell command and return its output (BLOCKING operation).
+        - get_output_async: Run a shell command and pass its output to a callback (NON-BLOCKING operation).
+        - dir_exists: Check if a directory exists at the specified path.
+        - file_exists: Check if a file exists at the specified path.
+        - subprocess: Create a new subprocess for running a command.
+        - popen: Open a subprocess to run a command, especially useful for executing blocking commands.
         - expandvars: Expand environment variables and user home directory in a given path.
+        - monitor_file: Monitor changes to a file.
+        - get_env: Get the value of an environment variable.
     """
 
     @staticmethod
@@ -58,7 +71,7 @@ class Bash:
     @staticmethod
     def mkdir(path: str) -> bool:
         """
-        Create a directory at the specified path.
+        Create a directory at the specified path. By default, parent directories are created if they don't exist.
 
         Args:
             path (str): The path to the directory.
@@ -84,35 +97,135 @@ class Bash:
         return GLib.file_set_contents(filename=Bash.expandvars(path), contents="")
 
     @staticmethod
-    def run(cmd: Union[list, str]) -> bool:
+    def __to__(
+        type: Type[T] = str,
+        default: str = "",
+    ) -> T:
+        if default.endswith("\n"):
+            default = default[:-1]
+
+        match type.__name__:
+            case "str":
+                return str(default)
+            case "dict":
+                return json.loads(default)
+            case "int":
+                return int(default)
+            case "float":
+                return float(default)
+            case "list":
+                return list(str(default).splitlines())
+            case "tuple":
+                return tuple(str(default))
+            case "bool":
+                DictValue = {
+                    "[]": False,
+                    #
+                    "0": False,
+                    "1": True,
+                    #
+                    "yes": True,
+                    "no": False,
+                    #
+                    "true": True,
+                    "false": False,
+                }.get(default, -1)
+
+                if DictValue == -1:
+                    return bool(default)
+                else:
+                    return DictValue
+
+            case "bytes":
+                return str(default).encode()
+            case _:
+                return str(default)
+
+    @staticmethod
+    def cat(
+        file_or_path: Union[Gio.File, str],
+        to: Type[T] = str,
+    ) -> T:
+        """
+        Read and return the contents of a file. This is a BLOCKING operation.
+
+        Args:
+            file_or_path (Union[Gio.File, str]): Either a Gio.File object or the path to the file as a string.
+
+        Returns:
+            str: The contents of the file as a string.
+        """
+
+        content: bytes
+
+        if not isinstance(file_or_path, (Gio.File)):
+            file_or_path = Gio.File.new_for_path(Bash.expandvars(file_or_path))
+
+        _, content, _ = file_or_path.load_contents()
+        _content = content.decode()
+
+        return Bash.__to__(to, _content)
+
+    @staticmethod
+    def run(cmd: str) -> bool:
         """
         Run a command in the shell.
 
-             Args:
-                 cmd (Union[list, str]): The command to run.
+        This function executes a command in the shell environment. It should be noted that this
+        is a BLOCKING operation, meaning that it will halt the main thread until the command completes.
 
-             Returns:
-                 bool: The exit status of the command.
+        Args:
+            cmd (Union[list, str]): The command to be executed. If a string is provided, it will be parsed as
+            a single command. If a list is provided, the elements will be joined with spaces to form a command.
 
+        Returns:
+            bool: True if the command ran successfully and returned an exit status of 0, False otherwise.
         """
-        if isinstance(cmd, list):
-            cmd = [Bash.expandvars(i) for i in cmd]
-        elif isinstance(cmd, str):
-            cmd = Bash.expandvars(cmd)
-
-        try:
-            # Using Glib's spawn_command_line_sync to run the command synchronously
-            result, _, _, _ = GLib.spawn_command_line_sync("""bash -c "{cmd}" """)
-
-            return result == 0
-        except Exception as e:
-            Logger.WARNING(f"Error executing command: {e}")
-            return False
+        proc = Bash.subprocess(cmd)
+        proc.communicate()
+        return proc.get_successful()
 
     @staticmethod
-    def get_output(cmd: str) -> str:
+    def run_async(cmd: str, callback: Callable = lambda *_: ()) -> None:
+        """
+        Run a command in the shell.
+
+        This function executes a command in the shell environment and then passes the
+        output to the callback.
+
+        NON BLOCKING operation
+
+        Args:
+            cmd (Union[list, str]): The command to be executed. If a string is provided, it will be parsed as
+            a single command. If a list is provided, the elements will be joined with spaces to form a command.
+
+        Returns:
+            bool: True if the command ran successfully and returned an exit status of 0, False otherwise.
+        """
+
+        def internal_callback(proc: Gio.Subprocess, res: Gio.Task) -> None:
+            nonlocal stderr, stdout
+            _, stdout, stderr = proc.communicate_utf8_finish(res)
+            if stdout:
+                callback(True)
+            else:
+                callback(False)
+
+        proc: Gio.Subprocess
+        stderr: str
+        stdout: str
+
+        proc = Bash.subprocess(cmd)
+        proc.communicate_utf8_async(callback=internal_callback)
+
+    @staticmethod
+    def get_output(
+        cmd: str,
+        to: Type[T] = str,
+    ) -> T:
         """
         Run a shell command and return its output.
+        BLOCKING operation.
 
         Args:
             cmd (str): The command to run.
@@ -120,19 +233,59 @@ class Bash:
         Returns:
             str: The output of the command.
         """
-        stdout: bytes
-        stderr: bytes
-        state: int
+
+        proc: Gio.Subprocess
+        stdout: str
+        stderr: str
+
+        proc = Bash.subprocess(cmd)
+
+        _, stdout, stderr = proc.communicate_utf8()
+        std = stdout or stderr
+
+        return Bash.__to__(to, std)
+
+    @staticmethod
+    def get_output_async(
+        cmd: str,
+        callback: Callable = lambda *_: (),
+        to: Type[T] = str,
+    ) -> None:
+        """
+        Run a shell command and pass its output to the callback. NON BLOCKING operation.
+
+        Args:
+            cmd (str): The command to run.
+
+        Returns:
+            str: The output of the command.
+        """
+
+        def internal_callback(proc: Gio.Subprocess, res: Gio.Task) -> None:
+            nonlocal stderr, stdout
+            _, stdout, stderr = proc.communicate_utf8_finish(res)
+            std = stdout or stderr
+            callback(Bash.__to__(to, std))
+
+        proc: Gio.Subprocess
+        stdout: str
+        stderr: str
+
+        proc = Bash.subprocess(cmd)
+        proc.communicate_utf8_async(callback=internal_callback)
+
+    @staticmethod
+    def subprocess(
+        cmd: str,
+        stdout_flags: Gio.SubprocessFlags = Gio.SubprocessFlags.STDOUT_PIPE,
+        stderr_flags: Gio.SubprocessFlags = Gio.SubprocessFlags.STDERR_PIPE,
+    ) -> Gio.Subprocess:
 
         cmd = Bash.expandvars(cmd)
 
-        try:
-            _, stdout, stderr, state = GLib.spawn_command_line_sync(
-                f"""bash -c "{cmd}" """
-            )
-            return stdout.decode() if state == 0 else stderr.decode()
-        except:
-            return ""
+        return Gio.Subprocess.new(
+            argv=["bash", "-c", f"{cmd}"], flags=stdout_flags | stderr_flags
+        )
 
     @staticmethod
     def popen(
@@ -141,7 +294,8 @@ class Bash:
         stderr: Union[Callable, None] = None,
     ) -> Union[Gio.Subprocess, None]:
         """
-        Open a subprocess to run a command.
+        Open a subprocess to run a command, especially useful for executing blocking commands
+        like `pactl subscribe` or `playerctl --follow`.
 
         Args:
             cmd (Union[List[str], str]): The command to run.
@@ -156,8 +310,6 @@ class Bash:
         success: bool
         parsed_cmd: List[str]
         proc: Gio.Subprocess
-        stdout_pipe: Gio.InputStream
-        stderr_pipe: Gio.InputStream
         stdout_stream: Gio.DataInputStream
         stderr_stream: Gio.DataInputStream
 
@@ -165,10 +317,11 @@ class Bash:
             def internal_callback(stdout: Gio.DataInputStream, res: Gio.Task):
                 nonlocal output
                 try:
-                    output = stdout.read_line_finish_utf8(res)[0]
+                    output, _ = stdout.read_line_finish_utf8(res)
 
                     callback(output)
-                    stdout.read_line_async(
+
+                    return stdout.read_line_async(
                         io_priority=GLib.PRIORITY_LOW, callback=internal_callback
                     )
 
@@ -198,17 +351,19 @@ class Bash:
             )
 
             if stdout is not None:
-                stdout_pipe = proc.get_stdout_pipe()
-                stdout_stream = Gio.DataInputStream.new(base_stream=stdout_pipe)
+                stdout_stream = Gio.DataInputStream.new(
+                    base_stream=proc.get_stdout_pipe()
+                )
                 read_stream(stdout_stream, stdout)
 
             if stderr is not None:
-                stderr_pipe = proc.get_stderr_pipe()
-                stderr_stream = Gio.DataInputStream.new(base_stream=stderr_pipe)
+                stderr_stream = Gio.DataInputStream.new(
+                    base_stream=proc.get_stderr_pipe()
+                )
                 read_stream(stderr_stream, stderr)
 
             if stderr is None and stdout is None:
-                _ = proc.communicate()
+                _ = proc.communicate_async()
 
             return proc
 
@@ -222,13 +377,13 @@ class Bash:
 
         Returns:
             str: The path with expanded variables and user home directory.
-
         """
+
         return os_expanduser(os_expandvars(path))
 
     @staticmethod
     def monitor_file(
-        path: str,
+        file_or_path: Union[Gio.File, str],
         flags: Literal[
             "none",
             "send_moved",
@@ -236,22 +391,54 @@ class Bash:
             "watch_mounts",
             "hard_links",
         ] = "none",
-    ):
+        callback: Callable = lambda *_: (),
+        call_when: List[
+            Union[
+                Literal["ALL"],
+                Literal["changed"],
+                Literal["renamed"],
+                Literal["moved_in"],
+                Literal["moved_out"],
+                Literal["deleted"],
+                Literal["created"],
+                Literal["attribute_changed"],
+                Literal["changes_done_hint"],
+                Literal["unmounted"],
+                Literal["pre_unmount"],
+            ],
+        ] = ["changed"],
+    ) -> Gio.FileMonitor:
         """
         Monitor changes to a file.
 
         Args:
-            path (str): The path to the file to monitor.
-            flags: Flags to specify monitoring behavior.
+            file_or_path (Union[Gio.File, str]): Either a Gio.File object or the path to the file to monitor.
+            flags (str, optional): Flags to specify monitoring behavior. Defaults to "none".
+            callback (Callable, optional): Callback function to be executed when a monitored event occurs. Defaults to lambda *_: ().
+            call_when (str, optional): Indicates when the callback will be called depending on the type of event specified.
 
         Returns:
-            Gio.FileMonitor: The file monitor object.
-
+            None
         """
 
-        file: Gio.File
         monitor: Gio.FileMonitor
         monitor_flags: Gio.FileMonitorFlags
+        arg_count: int = callback.__code__.co_argcount
+
+        _call_when: List[Gio.FileMonitorEvent] = []
+
+        _call_when_events: Dict[str, Gio.FileMonitorEvent] = {
+            "changed": Gio.FileMonitorEvent.CHANGED,
+            "renamed": Gio.FileMonitorEvent.RENAMED,
+            "moved_in": Gio.FileMonitorEvent.MOVED_IN,
+            "moved_out": Gio.FileMonitorEvent.MOVED_OUT,
+            "deleted": Gio.FileMonitorEvent.DELETED,
+            "created": Gio.FileMonitorEvent.CREATED,
+            "attribute_changed": Gio.FileMonitorEvent.ATTRIBUTE_CHANGED,
+            "changes_done_hint": Gio.FileMonitorEvent.CHANGES_DONE_HINT,
+            "unmounted": Gio.FileMonitorEvent.UNMOUNTED,
+            "pre_unmount": Gio.FileMonitorEvent.PRE_UNMOUNT,
+        }
 
         if isinstance(flags, (str)):
             monitor_flags = {
@@ -262,9 +449,53 @@ class Bash:
                 "hard_links": Gio.FileMonitorFlags.WATCH_HARD_LINKS,
             }.get(flags, Gio.FileMonitorFlags.NONE)
 
-        path = Bash.expandvars(path)
-        file = Gio.File.new_for_path(path)
-        monitor = file.monitor(flags=monitor_flags)
+        if not isinstance(file_or_path, (Gio.File)):
+            file_or_path = Gio.File.new_for_path(Bash.expandvars(file_or_path))
+
+        if "ALL" in call_when:
+            _call_when = [
+                Gio.FileMonitorEvent.PRE_UNMOUNT,
+                Gio.FileMonitorEvent.ATTRIBUTE_CHANGED,
+                Gio.FileMonitorEvent.CHANGES_DONE_HINT,
+                Gio.FileMonitorEvent.MOVED_OUT,
+                Gio.FileMonitorEvent.UNMOUNTED,
+                Gio.FileMonitorEvent.MOVED_IN,
+                Gio.FileMonitorEvent.RENAMED,
+                Gio.FileMonitorEvent.CREATED,
+                Gio.FileMonitorEvent.DELETED,
+                Gio.FileMonitorEvent.CHANGED,
+            ]
+        else:
+            _call_when = list(
+                filter(
+                    lambda e: e != None,
+                    map(_call_when_events.get, call_when),
+                )
+            )
+
+        def internal_callback(
+            FileMonitor: Gio.FileMonitor,
+            File: Gio.File,
+            _: None,
+            Event: Gio.FileMonitorEvent,
+        ) -> None:
+
+            if Event in _call_when:
+                match arg_count:
+                    case 0:
+                        callback()
+                    case 1:
+                        callback(File)
+                    case 2:
+                        callback(File, Event)
+                    case _:
+                        callback(File, Event, FileMonitor)
+
+        monitor = file_or_path.monitor(flags=monitor_flags)
+        __monitors__.append(monitor)
+
+        monitor.connect("notify::cancelled", lambda _: __monitors__.remove(monitor))
+        monitor.connect("changed", internal_callback)
         return monitor
 
     @staticmethod
@@ -273,11 +504,9 @@ class Bash:
         Get the value of an environment variable.
 
         Args:
-
             var (str): The name of the environment variable.
 
         Returns:
             str: The value of the environment variable.
-
         """
-        return GLib.getenv(variable=var)
+        return GLib.getenv(var)

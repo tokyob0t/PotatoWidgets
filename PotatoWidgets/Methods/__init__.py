@@ -25,6 +25,7 @@ __all__ = [
     "parse_interval",
     "parse_screen_size",
     "wait",
+    "make_async",
 ]
 
 
@@ -261,3 +262,28 @@ def getoutput(cmd: str) -> str:
         return stdout.decode() if state == 0 else stderr.decode()
     except:
         return ""
+
+
+def make_async(func: Callable):
+    """
+    Decorator to execute a function in a separate thread without blocking the main thread.
+
+    Args:
+        func (Callable): The function to be decorated.
+
+    Returns:
+        Callable: The decorated function that runs asynchronously in a separate thread.
+
+    Note:
+        To update the interface, variables, or elements outside the thread, it's recommended
+        to use `idle()` within the thread to ensure thread-safe operation.
+    """
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs) -> GLib.Thread:
+        def run_in_thread(*args, **kwargs) -> None:
+            func(*args, **kwargs)
+
+        return GLib.Thread.new(func.__name__, run_in_thread, *args, **kwargs)
+
+    return wrapper

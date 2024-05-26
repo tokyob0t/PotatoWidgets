@@ -18,12 +18,13 @@ from ..Imports import *
 
 __all__ = [
     "DIR_CACHE",
-    "DIR_CACHE_NOTIF",
-    "DIR_CACHE_NOTIF_IMAGES",
     "DIR_CONFIG",
-    "DIR_CONFIG_POTATO",
     "DIR_CURRENT",
     "DIR_HOME",
+    "DIR_CACHE_TRAY",
+    "DIR_CONFIG_POTATO",
+    "DIR_CACHE_NOTIF",
+    "DIR_CACHE_NOTIF_IMAGES",
     "FILE_CACHE_APPS",
     "FILE_CACHE_CSS",
     "FILE_CACHE_NOTIF",
@@ -36,8 +37,10 @@ DIR_CURRENT: str = GLib.get_current_dir() or (DIR_CONFIG + "/potato")
 
 
 DIR_CACHE: str = DIR_HOME + "/.cache/PotatoCache"
+DIR_CACHE_TRAY: str = DIR_CACHE + "/Tray"
 DIR_CACHE_NOTIF: str = f"{DIR_CACHE}/Notifications"
 DIR_CACHE_NOTIF_IMAGES: str = f"{DIR_CACHE_NOTIF}/Img"
+
 
 FILE_CACHE_APPS: str = f"{DIR_CACHE}/Applications.json"
 FILE_CACHE_NOTIF: str = f"{DIR_CACHE_NOTIF}/Notifications.json"
@@ -50,6 +53,7 @@ for _dir in [
     DIR_CONFIG,
     DIR_CACHE_NOTIF,
     DIR_CACHE_NOTIF_IMAGES,
+    DIR_CACHE_TRAY,
 ]:
     if not GLib.file_test(_dir, GLib.FileTest.IS_DIR):
         GLib.mkdir_with_parents(_dir, 0o755)

@@ -30,9 +30,9 @@ Class Applications Methods:
 - reload: Reloads the JSON data.
 """
 
-from ..Env import *
-from ..Imports import *
-from .Service import Service
+from ...Env import *
+from ...Imports import *
+from ..Service import Service
 
 
 class App(dict):
@@ -54,14 +54,12 @@ class App(dict):
 
         self._keywords: str = " ".join(
             [
-                re_sub(r"[^a-zA-Z0-9 ]", "", i.lower())
-                for i in [
-                    self.name,
-                    self.comment,
-                    self.categories,
-                    self.generic_name,
-                    self.display_name,
-                ]
+                self.name,
+                self.comment,
+                self.categories,
+                self.generic_name,
+                self.display_name,
+                self.icon_name,
             ]
         )
         self["icon_name"] = self.icon_name
@@ -133,7 +131,7 @@ class App(dict):
         return _proc.wait_check()
 
 
-class Applications(Service):
+class _Applications(Service):
     """
     Represents a collection of desktop applications.
 
@@ -157,7 +155,10 @@ class Applications(Service):
         self._preferred: List[Union[str, None]] = self._json.get("preferred", [])
         self._blacklist: List[Union[str, None]] = self._json.get("blacklist", [])
         self._whitelist: List[Union[str, None]] = self._json.get("whitelist", [])
+        self._all = []
+        self.__reload__()
 
+    def __reload__(self):
         self._all = [
             App(i)
             for i in Gio.DesktopAppInfo.get_all()
@@ -172,8 +173,9 @@ class Applications(Service):
 
         self._all.sort(key=lambda app: app.name)
 
-    def get_all(self) -> Union[List[App], List[None]]:
+    def get_all(self) -> List[App]:
         """Gets all the applications."""
+        self.__reload__()
         return self._all
 
     def add_preferred(self, name: str) -> None:
@@ -232,7 +234,9 @@ class Applications(Service):
             Union[List[App], List[None]]: List of matching applications.
         """
         keywords = keywords.lower()
-        return [i for i in self.get_all() if i and keywords in i.keywords]
+        return [
+            i for i in self.get_all() if i and keywords.lower() in i.keywords.lower()
+        ]
 
     def _load_json(self) -> Dict[str, List[Union[str, None]]]:
         """
@@ -277,3 +281,6 @@ class Applications(Service):
     def __repr__(self) -> str:
         """Returns a string representation of the JSON data."""
         return self.__str__()
+
+
+Applications = _Applications()

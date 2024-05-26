@@ -44,6 +44,10 @@ __all__ = [
     "Scroll",
     "Separator",
     "Window",
+    "Grid",
+    "Stack",
+    "FlowBox",
+    "FlowBoxChild",
 ]
 
 
@@ -55,6 +59,8 @@ from .ComboBox import ComboBox
 from .Entry import Entry
 from .EventBox import EventBox
 from .Fixed import Fixed
+from .FlowBox import FlowBox, FlowBoxChild
+from .Grid import Grid
 from .Icon import Icon
 from .Image import Image
 from .Label import Label
@@ -65,4 +71,5 @@ from .Revealer import Revealer
 from .Scale import Scale
 from .Scroll import Scroll
 from .Separator import Separator
+from .Stack import Stack
 from .Window import Window

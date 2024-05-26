@@ -13,8 +13,8 @@ class BasicProps(Gtk.Widget):
         classname: str = "",
         # tooltip,
         css: str = "",
-        visible: Union[bool, None] = None,
-        active: Union[bool, None] = None,
+        visible: bool = True,
+        active: bool = True,
         size: Union[int, str, List[Union[int, str]], List[int]] = 0,
         attributes: Callable = lambda self: self,
     ) -> None:
@@ -24,8 +24,8 @@ class BasicProps(Gtk.Widget):
         self.set_vexpand(vexpand)
         self.set_halign(halign)
         self.set_valign(valign)
-        self.set_visible(visible) if visible else None
-        self.set_active(active) if active else None
+        self.set_visible(visible)
+        self.set_active(active)
         self.set_size(size) if size else None
         self.set_classname(classname)
         self._rand_classname = ""
@@ -95,11 +95,11 @@ class BasicProps(Gtk.Widget):
 
         super().set_valign(_alignment)
 
-    def set_active(self, param) -> None:
-        if param != None and param:
-            super().set_sensitive(param)
+    def set_active(self, param: bool) -> None:
+        super().set_sensitive(param)
 
     def set_classname(self, classname: str) -> None:
+
         if isinstance(classname, (str)):
             context = self.get_style_context()
             [
@@ -111,6 +111,13 @@ class BasicProps(Gtk.Widget):
             for j in classname.split(" "):
                 if j != " ":
                     context.add_class(j)
+
+    def get_classname(self) -> str:
+        return " ".join(
+            i
+            for i in self.get_style_context().list_classes()
+            if i not in self._default_classnames
+        )
 
     def _add_randclassname(self) -> None:
         if not self._rand_classname:
@@ -139,9 +146,13 @@ class BasicProps(Gtk.Widget):
                 print(e)
 
     def bind(
-        self, variable: Union[Listener, Poll, Variable], callback: Callable
+        self,
+        variable: Union[Listener, Poll, Variable],
+        callback: Callable,
+        *args,
+        **kwargs,
     ) -> None:
-        variable.bind(callback)
+        variable.bind(callback, *args, **kwargs)
         # self.connect("destroy", lambda _: variable.run_dispose())
 
     def attributes(self, callback: Callable) -> None:

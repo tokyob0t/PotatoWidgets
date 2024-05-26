@@ -1,43 +1,38 @@
-import re
-
-from PotatoWidgets import Bash, Gio, NotificationsService, Variable, Widget
+from PotatoWidgets import Bash, NotificationsService, Variable
 
 VOLUME = Variable(0)
 BRIGHTNESS = Variable(0)
 NOTIFICATIONS = NotificationsService().bind("count")
 
 
-def UpdateVolume(stdout: str) -> None:
-    if "on sink" in stdout:
-        volume_output = Bash.get_output("pactl get-sink-volume @DEFAULT_SINK@")
-        volume_match = re.search(r"(\d+)%", volume_output)
-        if volume_match:
-            value = volume_match.group(0).strip("%")
-            VOLUME.value = int(value)
+def UpdateVolume(_) -> None:
+    volume = Bash.get_output(
+        "pactl get-sink-volume @DEFAULT_SINK@ | grep -Po '[0-9]{1,3}(?=%)' | head -1",
+        int,
+    )
+    if volume != VOLUME.value:
+        VOLUME.value = int(volume)
 
 
-def UpdateBrightness(
-    _FileMonitor: Gio.FileMonitor, _File: Gio.File, _: None, Event: Gio.FileMonitorEvent
-) -> None:
-    if Event == Gio.FileMonitorEvent.CHANGED:
-        output = Bash.get_output("brightnessctl")
-        match = re.search(r"Current.*\((\d{1,3})%\)", output)
-        value = 0
-        if match is not None:
-            value = int(match.group(1))
-        if value != BRIGHTNESS.value:
-
-            BRIGHTNESS.value = value
+def UpdateBrightness() -> None:
+    brightness = Bash.get_output(
+        "brightnessctl | grep Current | awk '{print $4}' | sed 's/[(%)]//g'",
+        int,
+    )
+    if brightness != BRIGHTNESS.value:
+        BRIGHTNESS.value = brightness
 
 
-Bash.popen("pactl subscribe", stdout=UpdateVolume)
+BRIGHTNESS_FILE = Bash.get_output("ls /sys/class/backlight", list)[0]
 
-
-BRIGHTNESS_FILE = Bash.get_output("ls /sys/class/backlight").splitlines()[0]
-
-BRIGHTNESS_MONITOR = Bash.monitor_file(
-    f"/sys/class/backlight/{BRIGHTNESS_FILE}/brightness",
-    flags="watch_moves",
+Bash.popen(
+    """bash -c 'pactl subscribe | grep --line-buffered "on sink"' """,
+    stdout=UpdateVolume,
 )
 
-BRIGHTNESS_MONITOR.connect("changed", UpdateBrightness)
+Bash.monitor_file(
+    f"/sys/class/backlight/{BRIGHTNESS_FILE}/brightness",
+    flags="watch_moves",
+    call_when=["changed"],
+    callback=lambda: UpdateBrightness(),
+)

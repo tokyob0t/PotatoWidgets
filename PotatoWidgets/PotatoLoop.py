@@ -1,9 +1,8 @@
 from ._Logger import Logger
-from .Cli import PotatoDbusService
+from .Cli import PotatoService
 from .Env import *
 from .Imports import *
-from .Services import (Applications, NotificationsDbusService,
-                       NotificationsService, Style)
+from .Services.Style import Style
 
 __all__ = ["PotatoLoop"]
 
@@ -29,21 +28,16 @@ def PotatoLoop(
         confdir = confdir[:-1]
 
     GLibLoop: GLib.MainLoop = GLib.MainLoop()
-    ServicesThread: Union[GLib.Thread, None] = None
 
     def SpawnServices() -> None:
         """Initialize necessary services for Potato application."""
-        # Init classes
         Style.load_css(f"{confdir}/style.scss")
-        Applications()
-        NotificationsService()
-        NotificationsDbusService()
-        PotatoDbusService(confdir)
+        PotatoService(confdir)
 
     try:
         # Then run the MainLoop
         if not run_without_services:
-            ServicesThread = GLib.Thread.new(SpawnServices.__name__, SpawnServices)
+            SpawnServices()
         GLibLoop.run()
     except KeyboardInterrupt:
         Logger.SUCCESS("\n\nBye :)")
@@ -54,7 +48,4 @@ def PotatoLoop(
         GLibLoop.quit()
 
     finally:
-        if ServicesThread is not None:
-            ServicesThread.unref()
-
         exit(0)

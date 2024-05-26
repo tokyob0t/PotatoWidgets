@@ -2,6 +2,7 @@ from datetime import datetime
 
 from PotatoWidgets import (Bash, BatteryService, NotificationsService, Poll,
                            Widget, wait)
+from PotatoWidgets.Methods import interval
 
 from .utils import *
 
@@ -21,13 +22,15 @@ else:
 def Brightness():
     icon = Widget.Icon("display-brightness-symbolic", 20)
     scale = Widget.Scale(
-        attributes=lambda self: self.bind(BRIGHTNESS, self.set_value),
-        onchange=lambda b: Bash.run(f"brightnessctl set {b}%"),
+        onchange=lambda b: Bash.run_async(f"brightnessctl set {b}%"),
         value=BRIGHTNESS.value,
         valign="center",
         vexpand=True,
         css="min-width: 100px;",
     )
+
+    interval("1s", lambda: scale.set_value(BRIGHTNESS.value))
+
     return [icon, scale]
 
 
@@ -51,7 +54,7 @@ def Volume():
         valign="center",
         vexpand=True,
         css="min-width: 100px;",
-        onchange=lambda v: Bash.run(f"pactl set-sink-volume @DEFAULT_SINK@ {v}%"),
+        onchange=lambda v: Bash.run_async(f"pactl set-sink-volume @DEFAULT_SINK@ {v}%"),
     )
 
     return [icon, scale]

@@ -1,0 +1,102 @@
+#!/bin/bash
+
+dbuscall() {
+    local MethodName="$1"
+    shift
+    local args=("$@")
+    local result=$(gdbus call --session --dest com.T0kyoB0y.PotatoWidgets --object-path /com/T0kyoB0y/PotatoWidgets --method com.T0kyoB0y.PotatoWidgets."$MethodName" "${args[@]}")
+    echo "$result" | sed "s/'//g" | awk -F '[][]' '{print $2}' | tr -d ' ' | tr ',' '\n'
+}
+
+list_windows() {
+    dbuscall "ListWindows" | tr ',' '\n'
+}
+
+list_functions() {
+    dbuscall "ListFunctions" | tr ',' '\n'
+}
+
+list_variables() {
+    dbuscall "ListVariables" | tr ',' '\n'
+}
+
+call_function() {
+    local func_name="$1"
+    dbuscall "CallFunction" "$func_name"
+}
+
+window_action() {
+    local action="$1"
+    local window_name="$2"
+    dbuscall "WindowAction" "$action" "$window_name"
+}
+
+show_help() {
+    echo "Usage: $0 [options]"
+    echo
+    echo "Options:"
+    echo "  --windows            List all exported windows"
+    echo "  --functions          List all exported functions"
+    echo "  --variables          List all exported variables"
+    echo "  --exec <FUNCTION>    Execute an exported function"
+    echo "  --open <WINDOW>      Open a window"
+    echo "  --close <WINDOW>     Close a window"
+    echo "  --toggle <WINDOW>    Toggle a window"
+}
+
+main() {
+    if [[ $# -eq 0 ]]; then
+        show_help
+        exit 1
+    fi
+    case $1 in
+        --windows)
+            list_windows
+            ;;
+        --functions)
+            list_functions
+            ;;
+        --variables)
+            list_variables
+            ;;
+        --exec)
+            if [[ -n "$2" ]]; then
+                call_function "$2"
+            else
+                echo "Error: --exec requires a function name"
+                exit 1
+            fi
+            ;;
+        --open)
+            if [[ -n "$2" ]]; then
+                window_action "open" "$2"
+            else
+                echo "Error: --open requires a window name"
+                exit 1
+            fi
+            ;;
+        --close)
+            if [[ -n "$2" ]]; then
+                window_action "close" "$2"
+            else
+                echo "Error: --close requires a window name"
+                exit 1
+            fi
+            ;;
+        --toggle)
+            if [[ -n "$2" ]]; then
+                window_action "toggle" "$2"
+            else
+                echo "Error: --toggle requires a window name"
+                exit 1
+            fi
+            ;;
+        *)
+            echo "Unknown option: $key"
+            show_help
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"

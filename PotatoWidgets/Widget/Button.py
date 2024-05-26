@@ -19,14 +19,16 @@ class Button(Gtk.Button, BasicProps):
         size: Union[int, str, List[Union[int, str]], List[int]] = 0,
         css: str = "",
         classname: str = "",
-        halign: str = "fill",
-        valign: str = "fill",
+        halign: Literal["fill", "start", "center", "end", "baseline"] = "fill",
+        valign: Literal["fill", "start", "center", "end", "baseline"] = "fill",
         hexpand: bool = False,
         vexpand: bool = False,
-        active: bool = True,
         visible: bool = True,
-    ):
+        active: bool = True,
+    ) -> None:
+
         Gtk.Button.__init__(self)
+
         BasicProps.__init__(
             self,
             css=css,
@@ -82,18 +84,18 @@ class Button(Gtk.Button, BasicProps):
         arg_num = callback.__code__.co_argcount
         arg_tuple = callback.__code__.co_varnames[:arg_num]
 
-        if arg_num == 2:
-            callback(widget=widget, event=event)
-
-        elif arg_num == 1:
-            if "widget" in arg_tuple and widget:
-                callback(widget=widget)
-            elif "event" in arg_tuple and event:
-                callback(event=event)
-            else:
-                callback(event)
-        else:
-            callback()
+        match arg_num:
+            case 2:
+                callback(widget=widget, event=event)
+            case 1:
+                if "widget" in arg_tuple and widget:
+                    callback(widget=widget)
+                elif "event" in arg_tuple and event:
+                    callback(event=event)
+                else:
+                    callback(event)
+            case _:
+                callback()
 
     def __click_event_idle(self, event):
         callback = self.dict.get("onclick")
@@ -102,26 +104,27 @@ class Button(Gtk.Button, BasicProps):
             self.__clasif_args(widget=False, event=event, callback=callback)
 
     def __press_event(self, widget, event):
-        if event.button == Gdk.BUTTON_PRIMARY:
-            callback = self.dict.get("primaryhold")
-        elif event.button == Gdk.BUTTON_SECONDARY:
-            callback = self.dict.get("secondaryhold")
-        elif event.button == Gdk.BUTTON_MIDDLE:
-            callback = self.dict.get("onmiddleclick")
-        else:
-            callback = None
+        match event.button:
+            case Gdk.BUTTON_PRIMARY:
+                callback = self.dict.get("primaryhold")
+            case Gdk.BUTTON_SECONDARY:
+                callback = self.dict.get("secondaryhold")
+            case Gdk.BUTTON_MIDDLE:
+                callback = self.dict.get("onmiddleclick")
+            case _:
+                callback = None
 
         if callback:
             self.__clasif_args(widget=widget, event=event, callback=callback)
 
     def __release_event(self, widget, event):
-        if event.button == Gdk.BUTTON_PRIMARY:
-            callback = self.dict.get("primaryrelease")
-
-        elif event.button == Gdk.BUTTON_SECONDARY:
-            callback = self.dict.get("secondaryrelease")
-        else:
-            callback = None
+        match event.button:
+            case Gdk.BUTTON_PRIMARY:
+                callback = self.dict.get("primaryrelease")
+            case Gdk.BUTTON_SECONDARY:
+                callback = self.dict.get("secondaryrelease")
+            case _:
+                callback = None
 
         if callback:
             self.__clasif_args(widget=widget, event=event, callback=callback)

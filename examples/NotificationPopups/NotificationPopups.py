@@ -1,5 +1,6 @@
-from PotatoWidgets import Notification as NotificationClass
-from PotatoWidgets import NotificationsService, Widget, lookup_icon, wait
+from PotatoWidgets import Widget, lookup_icon
+from PotatoWidgets.Services import Notification as NotificationClass
+from PotatoWidgets.Services import NotificationsService
 
 
 def Notification(notif: NotificationClass):  # to have autocompletion
@@ -94,13 +95,13 @@ NotificationsPopup = Widget.Window(
         spacing=10,
         classname="notifications-container",
         attributes=lambda self: (
-            NotificationsService().connect(
+            NotificationsService.connect(
                 "popup",
                 lambda instance, id: self.add(
                     Notification(instance.get_notification(id))
                 ),
             ),
-            NotificationsService().connect(
+            NotificationsService.connect(
                 "dismissed",
                 lambda _, id: self.set_children(
                     [i for i in self.get_children() if getattr(i, "id") != id]

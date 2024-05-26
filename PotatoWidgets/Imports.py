@@ -2,11 +2,64 @@
 Module that imports all the required libraries in a single file
 """
 
+__all__ = [
+    "argparse",
+    "functools",
+    "importlib",
+    "io",
+    "json",
+    "sys",
+    "threading",
+    "dataclass",
+    "ModuleSpec",
+    "module_from_spec",
+    "spec_from_file_location",
+    "os_expanduser",
+    "os_expandvars",
+    "randint",
+    "re_sub",
+    "traceback_extract_stack",
+    "ModuleType",
+    "Any",
+    "Callable",
+    "Dict",
+    "List",
+    "Literal",
+    "NoReturn",
+    "Optional",
+    "Tuple",
+    "Type",
+    "TypeVar",
+    "Union",
+    "dbus",
+    "gi",
+    "literal_eval",
+    "SessionBus",
+    "DBusGMainLoop",
+    "G_MAXDOUBLE",
+    "G_MAXINT",
+    "G_MININT",
+    "TYPE_STRING",
+    "Gdk",
+    "GdkPixbuf",
+    "Gio",
+    "GLib",
+    "GObject",
+    "Gtk",
+    "GtkLayerShell",
+    "Pango",
+    "Playerctl",
+]
+
+
 import argparse
+import functools
 import importlib
+import io
 import json
 import sys
 import threading
+from ast import literal_eval
 from dataclasses import dataclass
 from importlib.machinery import ModuleSpec
 from importlib.util import module_from_spec, spec_from_file_location
@@ -17,7 +70,7 @@ from re import sub as re_sub
 from traceback import extract_stack as traceback_extract_stack
 from types import ModuleType
 from typing import (Any, Callable, Dict, List, Literal, NoReturn, Optional,
-                    Tuple, Type, Union)
+                    Tuple, Type, TypeVar, Union)
 
 import dbus
 import dbus.service
@@ -46,16 +99,3 @@ from gi.repository import (Gdk, GdkPixbuf, Gio, GLib, GObject, Gtk,
                            GtkLayerShell, Pango, Playerctl)
 
 DBusGMainLoop(set_as_default=True)
-
-
-# __all__ = [
-#    "Gio",
-#    "GLib",
-#    "GObject",
-#    "Gtk",
-#    "Gdk",
-#    "GdkPixbuf",
-#    "GtkLayerShell",
-#    "Pango",
-#    "Playerctl",
-# ]

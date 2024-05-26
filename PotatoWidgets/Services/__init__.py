@@ -15,19 +15,15 @@ notification handling, service management, and styling.
 """
 
 __all__ = [
-    "App",
     "Applications",
     "BatteryService",
-    "HyprlandService",
     "NotificationsService",
-    "Notification",
-    "Style",
+    #    "TrayService",
 ]
-
 from .Applications import App, Applications
 from .Battery import BatteryService
-from .Hyprland import HyprlandService
-from .Notification import (Notification, NotificationsDbusService,
-                           NotificationsService)
+from .Notifications import Notification, NotificationsService
 from .Service import Service
 from .Style import Style
+
+# from .Tray import TrayItem, TrayService

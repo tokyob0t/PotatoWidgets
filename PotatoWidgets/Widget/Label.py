@@ -70,7 +70,10 @@ class Label(Gtk.Label, BasicProps):
                 self.bind(value, callback) if callback else None
 
     def set_text(self, text: Any) -> None:
-        super().set_text(str(text))
+        return super().set_text(str(text))
+
+    def set_markup(self, text: Any) -> None:
+        return super().set_markup(str(text))
 
     def set_wrap(self, wrap: bool) -> None:
         super().set_line_wrap(wrap)

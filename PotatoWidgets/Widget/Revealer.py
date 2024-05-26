@@ -9,7 +9,7 @@ class Revealer(Gtk.Revealer, BasicProps):
     def __init__(
         self,
         children: Gtk.Widget,
-        reveal: bool = True,
+        reveal: Union[bool, Variable, Listener, Poll] = True,
         transition: Literal[
             "crossfade", "slideleft", "slideup", "slideright", "slidedown", "none"
         ] = "crossfade",
@@ -39,7 +39,8 @@ class Revealer(Gtk.Revealer, BasicProps):
         self.add(children) if children else None
         self.set_duration(duration)
         self.set_transition(transition)
-        self.set_revealed(reveal)
+        if isinstance(reveal, bool):
+            self.set_revealed(reveal)
 
         attributes(self) if attributes else None
 
@@ -61,7 +62,7 @@ class Revealer(Gtk.Revealer, BasicProps):
                     "duration": self.set_duration,
                 }.get(key)
                 if callback:
-                    callback(value.get_value())
+                    callback(value.value)
                     self.bind(value, callback)
 
     def set_transition(

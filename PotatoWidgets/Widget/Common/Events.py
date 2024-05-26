@@ -38,30 +38,34 @@ class Events(Gtk.Widget):
             callback()
 
     def __press_event(self, _, event):
-        if event.button == Gdk.BUTTON_PRIMARY:
-            callback = self.dict.get("primaryhold", None)
-            if callback:
-                callback()
-
-        elif event.button == Gdk.BUTTON_SECONDARY:
-            callback = self.dict.get("secondaryhold", None)
-            if callback:
-                callback()
-
-        elif event.button == Gdk.BUTTON_MIDDLE:
-            callback = self.dict.get("onmiddleclick", None)
-            if callback:
-                callback()
+        match event.button:
+            case Gdk.EventButton.BUTTON_PRIMARY:
+                callback = self.dict.get("primaryhold", None)
+                if callback:
+                    callback()
+            case Gdk.EventButton.BUTTON_SECONDARY:
+                callback = self.dict.get("secondaryhold", None)
+                if callback:
+                    callback()
+            case Gdk.BUTTON_MIDDLE:
+                callback = self.dict.get("onmiddleclick", None)
+                if callback:
+                    callback()
+            case _:
+                pass
 
     def __release_event(self, _, event):
-        if event.button == Gdk.BUTTON_PRIMARY:
-            callback = self.dict.get("primaryrelease", None)
-            if callback:
-                callback()
-        elif event.button == Gdk.BUTTON_SECONDARY:
-            callback = self.dict.get("secondaryrelease", None)
-            if callback:
-                callback()
+        match event:
+            case Gdk.BUTTON_PRIMARY:
+                callback = self.dict.get("primaryrelease", None)
+                if callback:
+                    callback()
+            case Gdk.BUTTON_SECONDARY:
+                callback = self.dict.get("secondaryrelease", None)
+                if callback:
+                    callback()
+            case _:
+                pass
 
     def __enter_event(self, *_):
         callback = self.dict.get("onhover", None)
